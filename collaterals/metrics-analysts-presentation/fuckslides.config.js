@@ -26,6 +26,9 @@ module.exports = {
     'mcp-demo.html',
     'gtm.html',
     'thank-you.html',
+    'competitive.html',
+    'market.html',
+    'storage.html',
   ],
 
   labels: [
@@ -50,6 +53,9 @@ module.exports = {
     'In Their Agent',
     'Go-To-Market',
     'Thank You',
+    'Competitive',
+    'Market Landscape',
+    'Why Columnar Is Smaller',
   ],
 
   disabled: [],
