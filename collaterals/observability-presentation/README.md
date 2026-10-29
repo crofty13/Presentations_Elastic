@@ -1,6 +1,6 @@
 # Elastic Observability — Company Presentation
 
-35-slide deck covering the full Elastic Observability story: from data streams and logs, through metrics and PromQL, to the Nightshift AI SRE vision.
+58-slide deck covering the full Elastic Observability story: from data streams and logs, through metrics and PromQL, to the Nightshift AI SRE vision. The main talk is the first 35 slides, ending on **Thank You**; the 23 slides after it are older and previously parked slides, kept as an appendix (most in an older, dark style).
 
 ## Prerequisites
 
