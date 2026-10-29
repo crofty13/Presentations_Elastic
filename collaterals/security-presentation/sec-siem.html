@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>The SIEM has never mattered more.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  #stage{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:2;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  #wires{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:visible}
+  .lab{position:absolute;font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--grey)}
+  .sg{position:absolute;left:72px;width:226px;white-space:nowrap;height:34px;border:1px solid var(--line);border-radius:5px;background:#fff;display:flex;align-items:center;gap:9px;padding:0 11px;font:500 12.5px var(--sans);color:var(--ink);transition:border-color .4s,opacity .4s,transform .4s;opacity:0;transform:translateX(-8px)}
+  .sg.on{opacity:1;transform:none;border-color:var(--slate)}
+  .sg i{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 0 var(--c);flex:none}
+  #siem{position:absolute;left:500px;top:244px;width:250px;height:282px;border-radius:10px;background:var(--blue);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 18px 38px rgba(11,100,221,.28)}
+  #siem .k{color:#BFD5F5;font-size:9.5px;letter-spacing:.18em}
+  #siem .t{font:700 40px/1 var(--sans);letter-spacing:-1.4px;margin:10px 0 10px}
+  #siem p{font-size:15px;line-height:1.35;color:#fff;max-width:200px}
+  #siem .m{font:500 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#BFD5F5;margin-top:14px}
+  .q{position:absolute;left:944px;width:264px;height:88px;border:1px solid var(--blue);border-radius:6px;background:#fff;padding:12px 14px}
+  .q .k{display:flex;align-items:center;gap:6px;color:var(--pink);font-size:9px;letter-spacing:.14em}
+  .q .k::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--pink)}
+  .q p{font:600 14.5px/1.3 var(--sans);color:var(--ink);margin-top:5px}
+  .close{top:622px}
+  html[data-density="1"] #stage{transform:translateY(-18px)}
+  html[data-density="1"] .close{top:560px}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">The landscape · Why now</div>
+  <h1 class="in2">The SIEM has <span class="b">never mattered more.</span></h1>
+  <p class="sub in3" data-d="3">The control plane for the age of automation.</p>
+</div>
+
+<div id="stage">
+  <svg id="wires" viewBox="0 0 1280 720"></svg>
+  <div class="lab rv" id="l0" style="left:72px;top:190px">Every signal type</div>
+  <div class="lab rv" id="l1" style="left:944px;top:190px">Agents ask</div>
+  <div id="sigs"></div>
+  <div id="siem" class="pop"><span class="k">Elasticsearch</span><div class="t">The SIEM</div><p>All your data, one place, at retention.</p><span class="m">Every signal · years back · ES|QL</span></div>
+  <div class="q rv" id="q0" style="top:226px"><span class="k">Agent</span><p>Who is operating here, human and non-human?</p></div>
+  <div class="q rv" id="q1" style="top:341px"><span class="k">Agent</span><p>What is moving laterally through the network?</p></div>
+  <div class="q rv" id="q2" style="top:456px"><span class="k">Agent</span><p>Which devices did swarms of agents compromise?</p></div>
+</div>
+
+<div class="close rv" id="close" data-d="2">All your data, one place, <span class="b">where agents work.</span></div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, svg = $('wires');
+  const SIG = [['Human and machine identities', '#0B64DD'], ['Endpoints', '#F04E98'], ['Cloud audit', '#02BCB7'], ['Network', '#0B64DD'], ['SaaS and email', '#FF7E62'], ['Containers and workloads', '#02BCB7'], ['Code and CI', '#FEC514'], ['Threat intelligence', '#FF7E62']];
+  const RAW = ['#48EFCF', '#FEC514', '#FF7E62', '#0B64DD'];
+  const wires = SIG.map(([name, col], i) => {
+    const y = 230 + i * 46, d = document.createElement('div');
+    d.className = 'sg'; d.style.top = (y - 17) + 'px'; d.style.setProperty('--c', col); d.innerHTML = `<i></i>${name}`;
+    $('sigs').appendChild(d);
+    const ty = 290 + i * 25, x0 = 298, x1 = 500;
+    const path = EW.el('path', {d: `M${x0},${y} C${x0 + 110},${y} ${x1 - 110},${ty} ${x1},${ty}`, fill: 'none', stroke: '#9DB3D8', 'stroke-width': 1.2}, svg);
+    return {d, path, col};
+  });
+  const outs = [269, 385, 500].map((y, i) => {
+    const path = EW.el('path', {d: `M750,${360 + i * 25} C850,${360 + i * 25} 850,${y} 944,${y}`, fill: 'none', stroke: '#0B64DD', 'stroke-width': 1.4}, svg);
+    return {path};
+  });
+  // data cubes in (raw, multicolored) and agent pulses out (pink)
+  const pg = EW.el('g', {}, svg);
+  const cube = col => { const g = EW.el('g', {}, pg); EW.el('rect', {x: -3.5, y: -3.5, width: 7, height: 7, fill: col, stroke: '#1D1E24', 'stroke-width': .6, transform: 'rotate(45) scale(1,.8)'}, g); return g; };
+  const ins = []; wires.forEach((w, i) => { for (let n = 0; n < 2; n++) ins.push({w, n, g: cube(RAW[(i + n) % 4]), sp: .32 + (i % 3) * .05}); });
+  const pul = outs.map((o, i) => ({o, g: EW.el('circle', {r: 4, fill: '#F04E98'}, pg)}));
+  const at = (path, u) => path.getPointAtLength(path.getTotalLength() * u);
+
+  SEC.run(t => {
+    SEC.on(t, [[.3, '#l0'], [2.8, '#siem'], [4.4, '#l1'], [6.9, '#close']]);
+    wires.forEach((w, i) => { w.d.classList.toggle('on', t > .5 + i * .16); SEC.draw(w.path, SEC.p(t, 1.1 + i * .12, .7)); });
+    outs.forEach((o, i) => { SEC.draw(o.path, SEC.p(t, 4.6 + i * .55, .5)); $('q' + i).classList.toggle('on', t > 4.9 + i * .55); });
+    for (const p of ins){
+      const t0 = 3.0 + p.n * 1.2; if (t < t0){ p.g.setAttribute('opacity', 0); continue; }
+      const u = ((t - t0) * p.sp) % 1, pt = at(p.w.path, u);
+      p.g.setAttribute('transform', `translate(${pt.x},${pt.y})`); p.g.setAttribute('opacity', Math.min(1, u * 8, (1 - u) * 8));
+    }
+    pul.forEach((p, i) => {
+      const t0 = 5.3 + i * .55; if (t < t0){ p.g.setAttribute('opacity', 0); return; }
+      const u = ((t - t0) * .45) % 1, pt = at(p.o.path, u);
+      p.g.setAttribute('cx', pt.x); p.g.setAttribute('cy', pt.y); p.g.setAttribute('opacity', Math.sin(u * Math.PI));
+    });
+  });
+})();
+</script>
+</body>
+</html>

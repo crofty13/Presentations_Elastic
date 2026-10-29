@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>One platform. Elastic Security is built on all of it.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  #stage{position:absolute;left:72px;top:198px;width:1136px;height:420px;z-index:2;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  .pl{position:absolute;top:0;width:340px;height:326px;border:1px solid var(--ink);border-radius:6px;background:#fff;padding:22px 18px 14px;box-shadow:0 10px 24px rgba(40,55,90,.08)}
+  .pl .tab{position:absolute;top:-10px;left:14px;background:#fff;border:1px solid var(--c);border-radius:10px;padding:2px 9px;font:600 9.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
+  .pl h3{font:600 21px/1.1 var(--sans);letter-spacing:-.6px;color:var(--ink)}
+  .pl .s{font-size:12.5px;color:var(--grey);margin:4px 0 10px;line-height:1.35}
+  .pl .its{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+  .pl .it{opacity:0;transform:translateY(5px);transition:opacity .35s,transform .35s}
+  .pl .it.on{opacity:1;transform:none}
+  .pl .it b{color:var(--c)}
+  .pl .row{display:flex;flex-wrap:wrap;gap:6px}
+  .pl .k{display:block;margin:10px 0 6px;font-size:9.5px;letter-spacing:.14em}
+  .pl .foot{position:absolute;left:18px;bottom:12px;font-size:11.5px;color:var(--grey)}
+  #p0{left:0;--c:var(--blue)}
+  #p1{left:378px;width:380px;--c:var(--teal-d);border-color:var(--teal-d);box-shadow:0 0 0 4px rgba(72,239,207,.18),0 14px 34px rgba(2,188,183,.2)}
+  #p1 h3{font-size:26px;color:var(--teal-d)}
+  #p2{left:796px;--c:var(--pink)}
+  .pl .row .it{padding:4px 8px;font-size:11.5px}
+  #p1 .s{font-size:12px}
+  .stem{position:absolute;top:326px;width:3px;height:20px;background:var(--blue);transform-origin:top;transform:scaleY(0);transition:transform .4s}
+  .stem.on{transform:none}
+  #bar{position:absolute;left:0;right:0;top:346px;height:46px;background:var(--blue);border-radius:5px;color:#fff;display:flex;align-items:center;justify-content:center;gap:12px;font-size:16px;transform-origin:center;transform:scaleX(.2);opacity:0;transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .3s}
+  #bar.on{transform:none;opacity:1}
+  #bar b{font:600 20px var(--sans);letter-spacing:-.5px}
+  #wires{position:absolute;left:0;top:0;width:1136px;height:330px;overflow:visible;pointer-events:none}
+  .close{top:628px}
+  html[data-density="1"] #stage{transform:translateY(-34px)}
+  html[data-density="1"] .close{top:540px}
+  html[data-density="2"] .close{top:628px}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">Elastic Security · Where we start</div>
+  <h1 class="in2">One platform. <span class="b">Elastic Security is built on all of it.</span></h1>
+  <p class="sub in3" data-d="3">SIEM, endpoint security and native automation, all on the Elasticsearch you know and love.</p>
+</div>
+
+<div id="stage">
+  <svg id="wires" viewBox="0 0 1136 330"></svg>
+  <div class="pl rv" id="p0"><span class="tab">SIEM</span>
+    <h3>SIEM, all your data</h3><p class="s">Every security signal in one place, at retention.</p>
+    <div class="its">
+      <span class="it">Logs, endpoint, cloud, identity, <b>one place</b></span>
+      <span class="it"><b>ES|QL</b> asks precisely, shows its work</span>
+      <span class="it"><b>Detection rules</b>, open on GitHub</span>
+      <span class="it"><b>Entity analytics</b>: one record per person, risk scored</span>
+      <span class="it"><b>Attack Discovery</b>: alerts in, attacks out</span>
+      <span class="it"><b>Automatic Migration</b> from your legacy SIEM</span>
+    </div>
+  </div>
+  <div class="pl rv" id="p1"><span class="tab">Endpoint security</span>
+    <h3>Elastic Defend</h3><p class="s">Our own agent on the endpoint. Prevention and response on the host, the same agent that ships the data.</p>
+    <span class="k">Prevents</span>
+    <div class="row"><span class="it">Malware</span><span class="it">Ransomware</span><span class="it">Memory threats</span><span class="it">Malicious behavior</span><span class="it">Vulnerable drivers blocked</span></div>
+    <span class="k">Responds</span>
+    <div class="row"><span class="it">Isolate host</span><span class="it">Kill process</span><span class="it">Get file</span><span class="it">Run script</span><span class="it">Cloud workload protection alongside</span></div>
+  </div>
+  <div class="pl rv" id="p2"><span class="tab">Native automation</span>
+    <h3>Workflows and agents, built in</h3><p class="s">No separate SOAR to buy.</p>
+    <div class="its">
+      <span class="it"><b>Elastic Workflows</b>: durable, versioned, human gates</span>
+      <span class="it"><b>Agent Builder</b> + security skills</span>
+      <span class="it"><b>Automatic Import</b> builds the integration from a sample log</span>
+      <span class="it"><b>Elastic Inference Service</b>: Elastic-hosted models</span>
+    </div>
+    <span class="foot">Model-agnostic. Bring your own model.</span>
+  </div>
+  <i class="stem" style="left:168px"></i><i class="stem" style="left:567px"></i><i class="stem" style="left:965px"></i>
+  <div id="bar"><b>Elasticsearch.</b><span>One database. ES|QL, agents and workflows underneath.</span></div>
+</div>
+
+<div class="close rv" id="close" data-d="2">Every agent you will meet today <span class="b">stands on this platform.</span></div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, svg = $('wires');
+  // arrows between the pillars, each carrying a pink pulse once drawn
+  const arrows = [[340, 378], [758, 796]].map(([a, b]) => {
+    const y = 160, g = EW.el('g', {}, svg);
+    const ln = EW.el('line', {x1: a + 6, y1: y, x2: b - 8, y2: y, stroke: '#343741', 'stroke-width': 1.4}, g);
+    const hd = EW.el('path', {d: `M${b - 8},${y - 4} L${b - 2},${y} L${b - 8},${y + 4}`, fill: 'none', stroke: '#343741', 'stroke-width': 1.4, opacity: 0}, g);
+    const dot = EW.el('circle', {cx: a + 6, cy: y, r: 3.5, fill: '#F04E98', opacity: 0}, g);
+    const halo = EW.el('circle', {cx: a + 6, cy: y, r: 7, fill: 'rgba(240,78,152,.18)', opacity: 0}, g);
+    return {a: a + 6, b: b - 8, ln, hd, dot, halo};
+  });
+  const items = [...document.querySelectorAll('#p0 .it')], d1 = [...document.querySelectorAll('#p1 .it')], d2 = [...document.querySelectorAll('#p2 .it')];
+  SEC.run(t => {
+    // SIEM first, then Defend, then automation: one breath per pillar
+    $('p0').classList.toggle('on', t > .3);
+    items.forEach((e, i) => e.classList.toggle('on', t > .7 + i * .22));
+    $('p1').classList.toggle('on', t > 2.6);
+    d1.forEach((e, i) => e.classList.toggle('on', t > 3.0 + i * .14));
+    $('p2').classList.toggle('on', t > 4.9);
+    d2.forEach((e, i) => e.classList.toggle('on', t > 5.3 + i * .25));
+    const T = [2.2, 4.5];
+    arrows.forEach((A, i) => {
+      const k = SEC.p(t, T[i], .4);
+      SEC.draw(A.ln, k); A.hd.setAttribute('opacity', k >= 1 ? 1 : 0);
+      if (k >= 1){ const u = ((t - T[i] - .4) * .5) % 1, x = A.a + (A.b - A.a) * u, o = Math.sin(u * Math.PI);
+        [A.dot, A.halo].forEach(c => { c.setAttribute('cx', x); c.setAttribute('opacity', o); }); }
+    });
+    document.querySelectorAll('.stem').forEach((e, i) => e.classList.toggle('on', t > 6.6 + i * .08));
+    $('bar').classList.toggle('on', t > 6.9);
+    $('close').classList.toggle('on', t > 7.8);
+  });
+})();
+</script>
+</body>
+</html>

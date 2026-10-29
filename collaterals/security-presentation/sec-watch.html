@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>What is a Watch?</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  #stage{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:2;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  #ov{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:visible;pointer-events:none}
+  #team{position:absolute;left:440px;top:184px;width:400px;height:54px;border:1px solid var(--ink);border-radius:6px;background:#fff;display:flex;align-items:center;gap:12px;padding:0 14px}
+  #team .ppl{display:flex;gap:2px}
+  #team .ppl i{width:13px;height:16px;background:var(--ink);border-radius:7px 7px 3px 3px}
+  #team h4{font:700 15px var(--sans);letter-spacing:-.3px;color:var(--ink)}
+  #team p{font-size:11px;color:var(--char)}
+  #team .dec{margin-left:auto;font:600 8.5px var(--mono);letter-spacing:.14em;color:var(--blue);border:1px solid var(--blue);border-radius:10px;padding:3px 9px}
+  .wc{position:absolute;top:282px;width:266px;height:166px;border:1px solid var(--slate);border-top:3px solid var(--c);border-radius:6px;background:#fff;padding:11px 13px}
+  .wc .k{color:var(--c);font-size:9px;letter-spacing:.14em}
+  .wc h4{font:700 18px var(--sans);letter-spacing:-.5px;color:var(--ink);margin-top:3px}
+  .wc p{font-size:11.5px;line-height:1.4;color:var(--char);margin-top:3px}
+  .seg{position:absolute;left:13px;right:13px;bottom:11px;display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+  .seg span{position:relative;z-index:1;text-align:center;font:600 8px/20px var(--mono);letter-spacing:.1em;color:var(--grey);border:1px solid var(--line);border-radius:3px;background:transparent;transition:color .3s}
+  .seg{background:#fff}
+  .seg span.on{color:#fff}
+  .seg i{position:absolute;left:0;top:0;height:22px;width:calc((100% - 6px) / 3);background:var(--c);border-radius:3px;opacity:0}
+  #cap{position:absolute;left:0;right:0;top:460px;text-align:center;font:600 9.5px var(--mono);letter-spacing:.14em;color:var(--blue)}
+  #strip{position:absolute;left:72px;right:72px;top:486px;display:grid;grid-template-columns:130px repeat(4,1fr);border:1px solid var(--slate);border-radius:6px;background:var(--bg);overflow:hidden}
+  #strip > div{padding:9px 13px;border-left:1px solid var(--slate)}
+  #strip > div:first-child{border-left:0;display:flex;align-items:center;font:600 9px var(--mono);letter-spacing:.14em;color:var(--blue);background:#E8F0FC}
+  #strip h5{font:700 13px var(--sans);color:var(--ink)}
+  #strip p{font-size:10.5px;line-height:1.35;color:var(--char);margin-top:2px}
+  .close{top:580px}
+  #cs{position:absolute;left:0;right:0;top:616px;text-align:center;font-size:15px;color:var(--grey)}
+  html[data-density="1"] #stage{transform:translateY(40px)}
+  html[data-density="1"] .close{top:520px}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">AlertZero · The vocabulary</div>
+  <h1 class="in2">What is a <span class="b">Watch?</span></h1>
+  <p class="sub in3" data-d="3">A named team of agents with one job, on duty around the clock, reporting to your people.</p>
+</div>
+
+<div id="stage">
+  <svg id="ov" viewBox="0 0 1280 720"></svg>
+  <div id="team" class="pop"><span class="ppl"><i></i><i></i><i></i></span><div><h4>Your SOC team</h4><p>Sets the bounds. Makes the calls that matter.</p></div><span class="dec">DECIDES</span></div>
+  <div id="cards"></div>
+  <div id="cap" class="rv">YOU SET HOW FAR EACH WATCH GOES. MANUAL, ASSISTED OR SUPERVISED, PER WATCH, CHANGED ANY TIME.</div>
+  <div id="strip" class="rv" data-d="3">
+    <div>EVERY WATCH</div>
+    <div><h5>Has one job</h5><p>Triage, investigate, hunt, tune or analyze. Not a chatbot that does everything.</p></div>
+    <div><h5>Is always on</h5><p>Runs on triggers and schedules, all day and all night, on Elastic Workflows and Agent Builder.</p></div>
+    <div><h5>Shows its work</h5><p>Every conclusion is a Proposal with evidence and a reason, attached to the Investigation.</p></div>
+    <div><h5>Reports to you</h5><p>Nothing consequential happens without a person, at the level you chose.</p></div>
+  </div>
+</div>
+<div class="close rv" id="close" data-d="2">Build your <span class="b">virtual org chart.</span></div>
+<p id="cs" class="rv" data-d="3">Watches take the shifts nobody could staff. Your people keep every seat that decides.</p>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, ov = $('ov');
+  const W = [
+    ['Reactive', 'Triage Watch', 'Works every alert: enriches, decides true or false, closes the noise with a reason, escalates the real ones.', 'var(--teal-d)', 2],
+    ['Proactive', 'Hunt Watch', 'Hunts your environment continuously, driven by what runs in it and what the threat research says.', 'var(--orange)', 1],
+    ['Detection engineering', 'Detection Watch', 'Learns from the other Watches: proposes tuning for noisy rules and new rules for gaps. Never changes a rule without approval.', 'var(--blue)', 0],
+    ['Specialist', 'Forensics Watch', 'Specialist depth when needed: forensics, malware analysis, exploit paths. High-impact conclusions stay under review.', 'var(--pink)', 0],
+  ];
+  const cards = W.map(([k, h, p, c, lvl], i) => {
+    const d = document.createElement('div'); d.className = 'wc rv'; d.style.left = (72 + i * 290) + 'px'; d.style.setProperty('--c', c);
+    d.innerHTML = `<span class="k">${k}</span><h4>${h}</h4><p>${p}</p><div class="seg"><i></i><span>MANUAL</span><span>ASSISTED</span><span>SUPERVISED</span></div>`;
+    $('cards').appendChild(d); return {d, lvl, cx: 72 + i * 290 + 133, knob: d.querySelector('.seg i'), segs: [...d.querySelectorAll('.seg span')]};
+  });
+  // org lines: team → bus → each Watch
+  const trunk = EW.el('path', {d: 'M640,238 L640,262', stroke: '#343741', 'stroke-width': 1.2, fill: 'none'}, ov);
+  const bus = EW.el('path', {d: `M${cards[0].cx},262 L${cards[3].cx},262`, stroke: '#343741', 'stroke-width': 1.2, fill: 'none'}, ov);
+  const legs = cards.map(c => EW.el('path', {d: `M${c.cx},262 L${c.cx},282`, stroke: '#343741', 'stroke-width': 1.2, fill: 'none'}, ov));
+  const pulses = cards.map(() => EW.el('circle', {r: 3.5, fill: '#0B64DD', opacity: 0}, ov));
+  SEC.run(t => {
+    SEC.on(t, [[.3, '#team'], [6.0, '#cap'], [6.8, '#strip'], [7.8, '#close'], [8.3, '#cs']]);
+    SEC.draw(trunk, SEC.p(t, .8, .3));
+    const kb = SEC.p(t, 1.1, .7); bus.style.clipPath = `inset(0 ${50 - 50 * kb}% 0 ${50 - 50 * kb}%)`;
+    legs.forEach((l, i) => SEC.draw(l, SEC.p(t, 1.8 + i * .1, .25)));
+    cards.forEach((c, i) => {
+      c.d.classList.toggle('on', t > 2.0 + i * .22);
+      // each Watch's autonomy setting slides to where this team set it
+      const k = SEC.p(t, 3.6 + i * .45, .6), pos = c.lvl * k;
+      c.knob.style.opacity = t > 3.4 + i * .45 ? 1 : 0;
+      c.knob.style.transform = `translateX(calc(${pos} * (100% + 3px)))`;
+      c.segs.forEach((s, n) => s.classList.toggle('on', c.knob.style.opacity === '1' && Math.abs(pos - n) < .5));
+    });
+    // decisions flow down the chart, quietly
+    pulses.forEach((p, i) => {
+      if (t < 8.6){ p.setAttribute('opacity', 0); return; }
+      const u = ((t - 8.6) * .35 + i * .25) % 1, L = 24 + Math.abs(cards[i].cx - 640) + 20;
+      let s = u * L, x, y;
+      if (s < 24){ x = 640; y = 238 + s; } else if ((s -= 24) < Math.abs(cards[i].cx - 640)){ x = 640 + Math.sign(cards[i].cx - 640) * s; y = 262; } else { x = cards[i].cx; y = 262 + (s - Math.abs(cards[i].cx - 640)); }
+      p.setAttribute('cx', x); p.setAttribute('cy', y); p.setAttribute('opacity', Math.sin(u * Math.PI));
+    });
+  });
+})();
+</script>
+</body>
+</html>

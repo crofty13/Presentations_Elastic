@@ -1,0 +1,43 @@
+module.exports = {
+  name: 'security-preso',
+  title: 'Elastic Security',
+  slidesDir: '.',
+  port: 3013,
+  density: { default: 3 },
+
+  slides: [
+    'sec-cover.html',
+    'sec-platform.html',
+    'sec-numbers.html',
+    'sec-attackers.html',
+    'sec-signals.html',
+    'sec-siem.html',
+    'sec-journey.html',
+    'sec-alert-zero.html',
+    'sec-never-waited.html',
+    'sec-introducing.html',
+    'sec-alertzero-platform.html',
+    'sec-watch.html',
+    'sec-autonomy.html',
+    'sec-demo.html',
+  ],
+
+  labels: [
+    'Cover',
+    'One Platform',
+    'In Numbers',
+    'Attackers Answered',
+    'Never Seen as One',
+    'The SIEM Matters',
+    'Our AI Journey',
+    'Alert Zero',
+    'Never Waited',
+    'Introducing AlertZero',
+    'AlertZero Platform',
+    'What Is a Watch?',
+    'Autonomy Levels',
+    'Live Demo',
+  ],
+
+  disabled: [],
+};

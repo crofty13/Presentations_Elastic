@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Elastic Security, in numbers.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  .col{position:absolute;top:168px;z-index:2}
+  .big{font:700 74px/1 var(--sans);letter-spacing:-3.4px;color:var(--blue);white-space:nowrap}
+  .big .ar{color:var(--char);font-weight:500;margin:0 4px}
+  .cap{font-size:15px;line-height:1.38;color:var(--ink);margin-top:10px}
+  .cap b{font-weight:600}
+  .src{font:400 9.5px/1.5 var(--mono);letter-spacing:.03em;color:var(--grey)}
+  #c0{left:72px;width:280px}
+  #c0 .src{position:absolute;top:328px;width:280px}
+  #c1{left:392px;width:430px}
+  #c2{left:870px;width:338px}
+  /* AV-Comparatives bars */
+  #bars{position:relative;height:186px;margin-top:6px}
+  .bc{position:absolute;bottom:52px;width:52px;text-align:center}
+  .bc .only{font:600 8.5px var(--mono);letter-spacing:.12em;color:var(--pink);height:12px;opacity:0;transition:opacity .3s}
+  .bc .v{font:600 13px var(--sans);color:var(--ink);opacity:0;transition:opacity .3s}
+  .bc .bar{width:52px;height:0;background:var(--blue);margin-top:3px}
+  .bc .lb{position:absolute;top:100%;left:-6px;right:-6px;margin-top:6px;font:500 8.5px/1.3 var(--mono);color:var(--char)}
+  .bc .lb i{font-style:normal;color:var(--grey)}
+  .bc.on .v,.bc.on.o .only{opacity:1}
+  #base{position:absolute;left:0;width:430px;bottom:52px;border-top:1.5px solid var(--slate)}
+  #c1 .src{margin-top:8px}
+  /* triage track */
+  #track{position:relative;height:22px;margin-top:22px;background:var(--slate-l);border-radius:11px;overflow:hidden}
+  #fill{position:absolute;left:0;top:0;bottom:0;border-radius:11px;background:var(--pink)}
+  .ticks{display:flex;justify-content:space-between;font:500 9.5px var(--mono);color:var(--grey);margin-top:5px}
+  #c2 .ln{font-size:15px;line-height:1.38;margin-top:12px}
+  #how{margin-top:12px;border:1px solid var(--slate);background:var(--bg);border-radius:6px;padding:10px 12px;font-size:13.5px;line-height:1.45;color:var(--ink)}
+  #how .k{display:block;font-size:8.5px;letter-spacing:.14em;margin-bottom:3px}
+  #how b{color:var(--blue);font-weight:600}
+  /* proof strip */
+  #strip{position:absolute;left:72px;right:72px;top:560px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;z-index:2}
+  .tile{border:1px solid var(--line);border-top:2px solid var(--blue);background:#fff;padding:10px 14px 11px}
+  .tile .t{font:700 20px var(--sans);letter-spacing:-.5px;color:var(--blue)}
+  .tile p{font-size:12px;line-height:1.4;color:var(--char);margin-top:2px}
+    html[data-density="1"] #strip{top:500px}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">Elastic Security · The job, done well</div>
+  <h1 class="in2">Elastic Security, <span class="b">in numbers.</span></h1>
+</div>
+
+<div class="col" id="c0">
+  <div class="big" id="n0">0</div>
+  <p class="cap rv" id="cap0">open detection rules on GitHub, <b>free to read, run and change</b></p>
+  <p class="src rv" id="src0" data-d="3">github.com/elastic/detection-rules · own count, Sep 2026</p>
+</div>
+
+<div class="col" id="c1">
+  <div class="big" id="n1">0%</div>
+  <p class="cap rv" id="cap1"><b>seven times over:</b> perfect AV-Comparatives scores in five straight test cycles, 2025 to 2026</p>
+  <div id="bars"><i id="base"></i></div>
+  <p class="src rv" id="src1" data-d="3">AV-Comparatives Business Security Tests 2025–2026 and EPR Test 2026, Windows · Elastic's results only · pink: the only 100% in the field · Real-World H1 2026: 99.8%</p>
+</div>
+
+<div class="col" id="c2">
+  <div class="big"><span id="n2a">30</span><span class="ar">→</span><span id="n2b">30</span></div>
+  <p class="cap rv" id="cap2">minutes to triage an alert in <b>Elastic's own SOC</b>, Security Labs, Jul 2026</p>
+  <div id="track"><i id="fill"></i></div>
+  <div class="ticks"><span>0</span><span>10</span><span>20</span><span>30 MIN</span></div>
+  <p class="ln rv" id="ln2">Thirty by hand. <span class="b" style="font-weight:600">Under three</span> with agents investigating first.</p>
+  <div id="how" class="rv"><span class="k">How</span><b>Elastic Workflows</b> run every alert. <b>ES|QL</b> closes the obvious ones at zero token cost. <b>Agent Builder</b> agents investigate the rest.</div>
+</div>
+
+<div id="strip" data-d="2">
+  <div class="tile rv"><div class="t">Only vendor</div><p>With 100% active and 100% passive response, AV-Comparatives EPR Test 2026</p></div>
+  <div class="tile rv"><div class="t">Leader</div><p>The Forrester Wave: Security Analytics Platforms, Q2 2025</p></div>
+  <div class="tile rv"><div class="t">Leader</div><p>IDC MarketScape: Worldwide SIEM, 2026</p></div>
+</div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$;
+  // Elastic's seven 100% results, in test order; o = the only 100% in the field
+  const B = [['Real-World', 'Mar–Jun 2025', 1], ['Malware', 'Mar 2025', 0], ['Real-World', 'Aug–Nov 2025', 0], ['Malware', 'Sep 2025', 0], ['Malware', 'Mar 2026', 1], ['EPR Active', '2026', 1], ['EPR Passive', '2026', 1]];
+  const bars = B.map(([a, b, o], i) => {
+    const c = document.createElement('div'); c.className = 'bc' + (o ? ' o' : ''); c.style.left = i * 63 + 'px';
+    c.innerHTML = `<div class="only">ONLY</div><div class="v">100%</div><div class="bar"></div><div class="lb">${a}<br><i>${b}</i></div>`;
+    $('bars').appendChild(c); return c;
+  });
+  const fill = $('fill'), H = 100;
+  SEC.run(t => {
+    // 1 · rules count up
+    $('n0').textContent = SEC.fmt(2000 * SEC.p(t, .3, 2)) + (t > 2.3 ? '+' : '');
+    SEC.on(t, [[1.2, '#cap0'], [2.2, '#src0']]);
+    // 2 · 100%, then seven bars rise one at a time
+    $('n1').textContent = Math.round(100 * SEC.p(t, 2.6, .9)) + '%';
+    SEC.on(t, [[3.0, '#cap1'], [6.4, '#src1']]);
+    bars.forEach((c, i) => { const k = SEC.p(t, 3.3 + i * .38, .55); c.querySelector('.bar').style.height = (H * EW.back(k)) + 'px'; c.classList.toggle('on', k > .7); });
+    // 3 · thirty minutes by hand shrinks to under three, pink to blue
+    const k = SEC.p(t, 7.2, 2.6);
+    fill.style.width = (100 - 91 * k) + '%';
+    fill.style.background = k > .85 ? 'var(--blue)' : 'var(--pink)';
+    $('n2b').textContent = k >= 1 ? '<3' : String(Math.max(3, Math.round(30 - 27 * k)));
+    SEC.on(t, [[6.9, '#cap2'], [9.9, '#ln2'], [10.6, '#how']]);
+    // proof strip last
+    document.querySelectorAll('.tile').forEach((e, i) => e.classList.toggle('on', t > 11.4 + i * .18));
+  });
+})();
+</script>
+</body>
+</html>

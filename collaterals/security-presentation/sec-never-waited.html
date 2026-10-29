@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>What if it never waited?</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  #cv{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:1}
+  #stage{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:2;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  #num{position:absolute;left:72px;top:212px;font:700 132px/1 var(--sans);letter-spacing:-6px;color:var(--blue)}
+  #cap{position:absolute;left:76px;top:362px;width:470px;font-size:17px;line-height:1.4;color:var(--ink)}
+  #arw{position:absolute;left:690px;top:268px;width:150px;height:40px;overflow:visible}
+  #one{position:absolute;left:880px;top:212px;width:170px;text-align:center;font:700 132px/1 var(--sans);letter-spacing:-4px;color:var(--pink)}
+  #need{position:absolute;left:860px;top:362px;width:210px;text-align:center;font-size:17px;color:var(--ink)}
+  #need b{font-weight:600}
+  #bot{position:absolute;left:96px;right:96px;top:500px;border:1px solid var(--ink);border-radius:8px;background:#fff;padding:18px 26px;text-align:center;font:600 22px/1.3 var(--sans);letter-spacing:-.5px;color:var(--ink)}
+  #bot .b{color:var(--blue)}
+  html[data-density="1"] #stage{transform:translateY(44px)}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">08:30 · The question</div>
+  <h1 class="in2">What if it <span class="b">never waited?</span></h1>
+  <p class="sub in3" data-d="3">Not just alerts: hunts, rule proposals, investigations, actions.</p>
+</div>
+
+<canvas id="cv"></canvas>
+<div id="stage">
+  <div id="num">0</div>
+  <div id="cap" class="rv">Items overnight: alerts, hunts, rule proposals, investigations, actions</div>
+  <svg id="arw" viewBox="0 0 150 40"><path id="al" d="M4,20 L136,20" stroke="#343741" stroke-width="3" fill="none"/><path id="ah" d="M124,8 L140,20 L124,32" stroke="#343741" stroke-width="3" fill="none" stroke-linejoin="round" opacity="0"/></svg>
+  <div id="one" class="pop">1</div>
+  <div id="need" class="rv"><b>Needs a decision</b></div>
+  <div id="bot" class="rv" data-d="2">Closed with a reason, or folded into <span class="b">one decision, before anyone arrived.</span></div>
+</div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, cv = $('cv'), c = cv.getContext('2d');
+  cv.width = 2560; cv.height = 1440; c.scale(2, 2);
+  const TYPES = [['ALERT', '#FF7E62', 10], ['HUNT', '#02BCB7', 2], ['RULE PROPOSAL', '#0B64DD', 1], ['INVESTIGATION', '#343741', 1], ['CASE', '#69707D', 1], ['ACTION', '#F04E98', 1], ['FOLLOW-UP', '#B88A00', 1]];
+  const bag = []; TYPES.forEach((tp, i) => { for (let k = 0; k < tp[2]; k++) bag.push(i); });
+  const R = EW.rand(5); R(); R();
+  // keep the flood off the numbers so they stay readable
+  const keep = [[60, 200, 560, 410], [850, 200, 1090, 400], [620, 250, 800, 320]];
+  const N = 300, C = [];
+  while (C.length < N){
+    const x = 80 + R() * 1110, y = 196 + R() * 400;
+    if (keep.some(([a, b, cc, d]) => x > a - 70 && x < cc && y > b - 8 && y < d)) continue;
+    const ty = TYPES[bag[Math.floor(R() * bag.length)]];
+    C.push({x, y, ty, born: .6 + Math.pow(C.length / N, .8) * 3, real: R() < .05, d: R()});
+  }
+  c.font = '600 8.5px "IBM Plex Mono", monospace';
+  C.forEach(ch => { ch.w = c.measureText(ch.ty[0]).width + 14; });
+  const GO = 4.2, TGT = [965, 300], BIN = [640, 540];
+  SEC.run(t => {
+    c.clearRect(0, 0, 1280, 720);
+    let shown = 0;
+    for (const ch of C){
+      if (t < ch.born) continue; shown++;
+      const a = SEC.clamp((t - ch.born) / .25);
+      let x = ch.x, y = ch.y, o = a, col = ch.ty[1];
+      const k = SEC.p(t, GO + ch.d * .7, 1.1);
+      if (k > 0){
+        // noise drifts down into "closed with a reason"; the real work folds into the one decision
+        const [tx, ty] = ch.real ? TGT : [BIN[0] + (ch.x - 640) * .5, BIN[1]];
+        x += (tx - x) * k; y += (ty - y) * k; o = a * (1 - k);
+        if (!ch.real) col = '#B5BFCE';
+      }
+      if (o <= .01) continue;
+      c.globalAlpha = o * .95;
+      c.fillStyle = '#fff'; c.strokeStyle = col; c.lineWidth = 1;
+      c.beginPath(); c.roundRect(x, y, ch.w, 15, 3); c.fill(); c.stroke();
+      c.fillStyle = col; c.fillText(ch.ty[0], x + 7, y + 10.5);
+    }
+    c.globalAlpha = 1;
+    $('num').textContent = SEC.fmt(1859 * Math.min(1, shown / N));
+    SEC.on(t, [[1.0, '#cap'], [5.6, '#one'], [6.0, '#need'], [6.8, '#bot']]);
+    SEC.draw($('al'), SEC.p(t, 5.0, .6)); $('ah').setAttribute('opacity', t > 5.6 ? 1 : 0);
+  });
+})();
+</script>
+</body>
+</html>

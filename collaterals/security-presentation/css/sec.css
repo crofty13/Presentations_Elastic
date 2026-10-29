@@ -1,0 +1,38 @@
+/* Shared components for the Elastic Security deck (on top of eweb.css). */
+
+/* reveals keyed to the slide clock: add .on */
+.rv{opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s cubic-bezier(.2,.7,.2,1)}
+.rv.on{opacity:1;transform:none}
+.pop{opacity:0;transform:scale(.94);transition:opacity .45s,transform .55s cubic-bezier(.3,1.45,.5,1)}
+.pop.on{opacity:1;transform:none}
+
+h1{font-size:46px;letter-spacing:-1.5px;max-width:1136px}
+.sub{font-size:18px;max-width:900px;margin-top:10px}
+
+/* closing line: centered statement under a visual */
+.close{position:absolute;z-index:3;left:72px;right:72px;text-align:center;font:600 26px/1.2 var(--sans);letter-spacing:-.7px;color:var(--ink)}
+.close .b{color:var(--blue)}
+.punch{position:absolute;z-index:3;left:72px;right:72px;top:632px;border-top:1px solid var(--ink);padding-top:12px;font-size:19px;color:var(--char);opacity:0;transition:opacity .6s}
+.punch.on{opacity:1}
+.punch b{color:var(--ink);font-weight:600}
+
+/* small mono key, uppercase */
+.k{font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey)}
+.badge{display:inline-flex;align-items:center;font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border:1px solid currentColor;border-radius:3px;line-height:1.3}
+.badge.pink{color:var(--pink);background:#FDEAF3;border-color:#F7B8D5}
+.badge.fill{color:#fff;background:var(--ink);border-color:var(--ink)}
+
+/* card on the white canvas */
+.cd{position:absolute;background:#fff;border:1px solid var(--ink);border-radius:6px}
+.cd h3{font:600 17px/1.2 var(--sans);letter-spacing:-.4px;color:var(--ink)}
+.cd p{font-size:12.5px;line-height:1.45;color:var(--char)}
+
+/* light grey item pill inside a card */
+.it{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 9px;font:500 12px/1.35 var(--sans);color:var(--ink)}
+.it b{font-weight:600}
+
+/* dark slide */
+body.navy{background:#101C3F;color:#fff}
+body.navy .eyebrow{color:#9FB0D6}
+body.navy h1{color:#fff}
+body.navy .sub{color:#C9D3EA}

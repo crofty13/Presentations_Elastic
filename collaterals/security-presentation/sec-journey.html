@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Our AI journey so far.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  #stage{position:absolute;left:72px;top:194px;width:1136px;height:400px;z-index:2;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  #axis{position:absolute;left:0;top:0;height:2px;width:0;background:var(--ink)}
+  .yr{position:absolute;top:30px;width:269px;height:330px;background:#fff;border:1px solid var(--ink);border-bottom:5px solid var(--ink);border-radius:6px;padding:18px 18px}
+  .yr::before{content:'';position:absolute;left:18px;top:-37px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--blue)}
+  .yr.now::before{background:var(--blue)}
+  .yr .y{font:700 40px/1 var(--sans);letter-spacing:-1.6px;color:var(--blue)}
+  .yr .v{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin:8px 0 18px}
+  .yr .cs{display:flex;flex-direction:column;gap:8px}
+  .yr .it{font-size:14px;padding:9px 11px;opacity:0;transform:translateY(5px);transition:opacity .35s,transform .35s}
+  .yr .it.on{opacity:1;transform:none}
+  .yr .it b{font-weight:600}
+  .yr .it .badge{margin-top:5px}
+  .punch{top:618px}
+  html[data-density="1"] #stage{transform:translateY(-12px)}
+  html[data-density="2"] .yr .v{visibility:hidden}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">The pattern · Three years of agents</div>
+  <h1 class="in2">Our AI journey <span class="b">so far.</span></h1>
+</div>
+
+<div id="stage">
+  <i id="axis"></i>
+  <div class="yr rv" id="y0" style="left:0"><div class="y">2023</div><div class="v">It answers</div>
+    <div class="cs"><span class="it"><b>AI Assistant</b></span></div></div>
+  <div class="yr rv" id="y1" style="left:289px"><div class="y">2024</div><div class="v">It finds attacks</div>
+    <div class="cs"><span class="it"><b>Attack Discovery</b><br><span class="badge pink">Patent pending</span></span><span class="it"><b>Automatic Import</b></span></div></div>
+  <div class="yr rv" id="y2" style="left:578px"><div class="y">2025</div><div class="v">It moves the SIEM</div>
+    <div class="cs"><span class="it"><b>Automatic Migration</b><br><span class="badge pink">Patent pending</span></span><span class="it"><b>Inference Service (EIS)</b></span></div></div>
+  <div class="yr rv now" id="y3" style="left:867px"><div class="y">2026</div><div class="v">It acts, with tools</div>
+    <div class="cs"><span class="it"><b>Agent Builder</b> + skills</span><span class="it"><b>Elastic Workflows</b></span><span class="it"><b>MCP app</b> <span class="badge pink">Patent pending</span></span><span class="it"><b>Automated alert analysis flow</b></span></div></div>
+</div>
+
+<div class="punch" id="punch" data-d="2">Each one did a whole job. <b>The gap was never capability. It was connection.</b></div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, T = [.5, 1.6, 2.7, 3.8];
+  SEC.run(t => {
+    $('axis').style.width = (1136 * SEC.p(t, .3, 4)) + 'px';
+    T.forEach((s, i) => {
+      $('y' + i).classList.toggle('on', t > s);
+      $('y' + i).querySelectorAll('.it').forEach((e, n) => e.classList.toggle('on', t > s + .35 + n * .22));
+    });
+    $('punch').classList.toggle('on', t > 5.6);
+  });
+})();
+</script>
+</body>
+</html>

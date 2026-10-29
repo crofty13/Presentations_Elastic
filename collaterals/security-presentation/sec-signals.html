@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Every signal was there. Never seen as one.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  #cv{position:absolute;left:72px;top:196px;width:1136px;height:400px;z-index:1;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  #tag{position:absolute;left:72px;top:198px;z-index:2;font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--grey)}
+  .close{top:616px;font-size:28px}
+  .close span{opacity:0;transition:opacity .5s;margin:0 6px}
+  .close span.on{opacity:1}
+  .close .r{color:var(--red,#E0352B)}
+  .dxs{position:absolute;left:72px;right:72px;top:560px;display:none}
+  html[data-density="1"] #cv{transform:translateY(-36px) scale(1.06)}
+  html[data-density="1"] #tag{top:110px}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">The landscape · What we all just watched</div>
+  <h1 class="in2">Every signal was there. <span class="b">Never seen as one.</span></h1>
+  <p class="sub in3" data-d="3">Swarms of agents, collaborating and colluding, at machine speed.</p>
+</div>
+
+<div id="tag" class="rv" data-d="2">Signals, one at a time</div>
+<canvas id="cv"></canvas>
+<div class="close" data-d="2"><span id="w0">Detectable.</span><span id="w1">Probably detected.</span><span id="w2" class="r">Never connected.</span></div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, cv = $('cv'), W = 1136, H = 400, c = cv.getContext('2d');
+  cv.width = W * 2; cv.height = H * 2; c.scale(2, 2);
+  // 46 signals scattered on a jittered grid (a layout constant, not a claim)
+  const R = EW.rand(11); R(); R();
+  const D = [];
+  for (let r = 0; r < 4; r++) for (let k = 0; k < 12; k++){
+    if (D.length >= 46) break;
+    D.push({x: 40 + k * 95 + (R() - .5) * 70, y: 50 + r * 92 + (R() - .5) * 58, f: 0});
+  }
+  // firing order: random, accelerating (each gap shorter than the last)
+  const ord = D.map((_, i) => i).sort(() => R() - .5);
+  let tt = .8; ord.forEach((i, n) => { D[i].f = tt; tt += Math.max(.05, .32 * Math.pow(.93, n)); });
+  const lastFire = tt;
+  // failed attempts to connect neighbours: appear, hold briefly, fade
+  const pairs = [];
+  D.forEach((a, i) => D.forEach((b, j) => { if (j <= i) return; const d = Math.hypot(a.x - b.x, a.y - b.y); if (d < 150 && R() < .55) pairs.push({a, b, s: Math.max(a.f, b.f) + .2 + R() * 1.2}); }));
+  const ORANGE = '#FF7E62', GREY = '#D3DAE6';
+  SEC.run(t => {
+    c.clearRect(0, 0, W, H);
+    // dashed attempts, never holding
+    c.setLineDash([3, 4]); c.lineWidth = 1;
+    for (const p of pairs){
+      const u = (t - p.s) / 1.4; if (u <= 0 || u >= 1) continue;
+      const k = Math.min(1, u * 3), o = Math.sin(u * Math.PI) * .7;
+      c.strokeStyle = `rgba(224,53,43,${o})`;
+      c.beginPath(); c.moveTo(p.a.x, p.a.y); c.lineTo(p.a.x + (p.b.x - p.a.x) * k, p.a.y + (p.b.y - p.a.y) * k); c.stroke();
+    }
+    c.setLineDash([]);
+    for (const d of D){
+      const u = t - d.f, lit = u >= 0;
+      if (lit && u < 1.1){ const e = u / 1.1; c.strokeStyle = `rgba(255,126,98,${.7 * (1 - e)})`; c.lineWidth = 1.5; c.beginPath(); c.arc(d.x, d.y, 6 + e * 18, 0, 6.283); c.stroke(); }
+      c.fillStyle = lit ? ORANGE : GREY; c.beginPath(); c.arc(d.x, d.y, lit ? 5.5 : 4.5, 0, 6.283); c.fill();
+    }
+    $('tag').classList.toggle('on', t > .4);
+    const L = lastFire + .6;
+    ['w0', 'w1', 'w2'].forEach((id, i) => $(id).classList.toggle('on', t > L + i * .9));
+  });
+})();
+</script>
+</body>
+</html>

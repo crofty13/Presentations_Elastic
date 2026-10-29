@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>AlertZero: the agentic layer, on everything Elastic Security already is</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  #stage{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:2;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  #ov{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:visible;pointer-events:none;z-index:4}
+  /* your team, outside the boundary */
+  #team{position:absolute;left:72px;right:72px;top:184px;height:42px;background:var(--bg);border:1px solid var(--slate);border-radius:6px;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:13.5px;color:var(--char)}
+  #team b{color:var(--ink);font-weight:600}
+  #team .nm{font:700 15px var(--sans);color:var(--ink);letter-spacing:-.3px}
+  #team .ppl{display:flex;gap:2px}
+  #team .ppl i{width:13px;height:16px;background:var(--ink);border-radius:7px 7px 3px 3px;position:relative}
+  #team .dec{margin-left:auto;font:600 9px var(--mono);letter-spacing:.14em;color:var(--blue);border:1px solid var(--blue);border-radius:10px;padding:3px 10px}
+  #pd{position:absolute;left:0;right:0;top:230px;text-align:center;font:600 9.5px var(--mono);letter-spacing:.14em}
+  #pd .u{color:var(--orange)} #pd .d{color:var(--blue);margin-left:18px}
+  /* Elastic Security boundary */
+  #bnd{position:absolute;left:72px;top:250px;width:1136px;height:330px;border:1px solid var(--slate);border-radius:8px}
+  #bnd .tab{position:absolute;left:14px;top:-9px;background:#fff;border:1px solid var(--slate);border-radius:9px;padding:1px 9px;font:600 8.5px var(--mono);letter-spacing:.16em;color:var(--grey)}
+  /* AlertZero band */
+  #band{position:absolute;left:84px;top:262px;width:1112px;height:96px;background:var(--blue);border-radius:6px;padding:9px 12px;color:#fff}
+  #band .hd{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:#D9E8FF}
+  #band .hd b{font:700 19px var(--sans);letter-spacing:-.5px;color:#fff}
+  #band .cfg{margin-left:auto;font:600 8.5px var(--mono);letter-spacing:.16em;color:#fff}
+  #band .ws{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:7px}
+  .wt{background:#fff;border-radius:4px;border-top:3px solid var(--c);padding:6px 11px 7px}
+  .wt h4{font:600 14.5px var(--sans);color:var(--blue);letter-spacing:-.3px}
+  .wt p{font-size:11px;color:var(--char);margin-top:1px}
+  .wt.sp{border-top-style:dashed}
+  .wt.sp h4{color:var(--pink)}
+  #dir{position:absolute;left:86px;top:364px;font:600 8.5px var(--mono);letter-spacing:.16em;color:var(--blue)}
+  #pow{position:absolute;right:86px;top:364px;font:600 8.5px var(--mono);letter-spacing:.16em;color:var(--pink)}
+  /* platform tiles */
+  .tl{position:absolute;top:380px;width:150px;height:74px;border:1px solid var(--blue);border-radius:5px;background:#fff;text-align:center;padding:10px 8px;display:flex;flex-direction:column;justify-content:center}
+  .tl h4{font:600 13.5px/1.15 var(--sans);color:var(--ink);letter-spacing:-.3px}
+  .tl p{font-size:10.5px;line-height:1.3;color:var(--char);margin-top:3px}
+  .tl.df{border-color:var(--pink)}
+  /* Elasticsearch base */
+  #base{position:absolute;left:84px;top:472px;width:1112px;height:96px;background:#0B2E6E;border-radius:6px;padding:12px 14px;color:#fff;display:grid;grid-template-columns:250px 1fr 1fr;gap:12px}
+  #base h4{font:700 21px var(--sans);letter-spacing:-.6px}
+  #base p{font-size:11.5px;line-height:1.4;color:#C9D3EA;margin-top:3px}
+  #base .bx{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.07);border-radius:5px;padding:8px 11px}
+  #base .bx h5{font:700 13.5px var(--sans);display:flex;align-items:baseline;gap:8px}
+  #base .bx h5 span{font:500 8px var(--mono);letter-spacing:.14em;color:#9FB0D6}
+  .close{top:600px}
+  .rise{opacity:0;transform:translateY(14px);transition:opacity .45s,transform .55s cubic-bezier(.3,1.4,.5,1)}
+  .rise.on{opacity:1;transform:none}
+  .drop{opacity:0;transform:translateY(-16px);transition:opacity .45s,transform .55s cubic-bezier(.3,1.4,.5,1)}
+  .drop.on{opacity:1;transform:none}
+  html[data-density="1"] #stage{transform:translateY(-20px)}
+  html[data-density="1"] .close{top:560px}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">One platform · AlertZero decides, the platform executes</div>
+  <h1 class="in2"><span class="b">AlertZero.</span></h1>
+  <p class="sub in3">The agentic layer, on everything Elastic Security already is.</p>
+</div>
+
+<div id="stage">
+  <div id="team" class="drop"><span class="ppl"><i></i><i></i><i></i></span><span class="nm">Your SOC team</span><span>Every finding is an <b>evidence-backed Proposal</b>. You approve or reject. You set how far each Watch goes.</span><span class="dec">DECIDES</span></div>
+  <div id="pd" class="rv"><span class="u">↑ PROPOSALS</span><span class="d">DECISIONS ↓</span></div>
+  <div id="bnd"><span class="tab">ELASTIC SECURITY</span></div>
+  <div id="band" class="drop">
+    <div class="hd"><b>AlertZero</b>· the agentic layer of Elastic Security<span class="cfg">◷ CONFIGURED HERE</span></div>
+    <div class="ws">
+      <div class="wt rv" style="--c:var(--teal)"><h4>Triage Watch</h4><p>Every alert, before you see it</p></div>
+      <div class="wt rv" style="--c:var(--orange)"><h4>Hunt Watch</h4><p>Hunting that never sleeps</p></div>
+      <div class="wt rv" style="--c:var(--teal-d)"><h4>Detection Watch</h4><p>Fix the rule, not the symptom</p></div>
+      <div class="wt rv sp" style="--c:var(--pink)"><h4>Forensics Watch</h4><p>Specialist depth when needed</p></div>
+    </div>
+  </div>
+  <div id="dir" class="rv">↓ DIRECTS</div><div id="pow" class="rv">POWERS ↑</div>
+  <div id="tiles"></div>
+  <div id="base" class="rise">
+    <div><h4>Elasticsearch</h4><p>All your data, at retention. Every verdict is a query you can re-run.</p></div>
+    <div class="bx rv" id="esql"><h5>ES|QL <span>ONE LANGUAGE · CCS · CPS · FEDERATED</span></h5><p>One query across clusters, projects and external federated sources. The data stays where it lives.</p></div>
+    <div class="bx rv" id="ctx"><h5>Context Engine</h5><p>Remembers what the Watches learned and what you decided.</p></div>
+  </div>
+  <svg id="ov" viewBox="0 0 1280 720"></svg>
+</div>
+
+<div class="close rv" id="close" data-d="2">Built in, <span class="b">not bolted on.</span></div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, ov = $('ov');
+  const T = [['Detection Engine', 'Rules and ML'], ['Attack Discovery', 'Alerts into attack chains'], ['Entity Analytics', 'UEBA and risk scoring'], ['Elastic Defend', 'Endpoint prevention and response'], ['Elastic Workflows', 'Durable, reliable execution'], ['Agent Builder', 'Agents, skills, reasoning traces'], ['Inference Service', 'Elastic-hosted and your own models']];
+  const tiles = T.map(([h, p], i) => {
+    const d = document.createElement('div'); d.className = 'tl rise' + (h === 'Elastic Defend' ? ' df' : '');
+    d.style.left = (84 + i * 160.3) + 'px'; d.innerHTML = `<h4>${h}</h4><p>${p}</p>`; $('tiles').appendChild(d);
+    return 84 + i * 160.3 + 75;
+  });
+  // stems: band → tiles (directs, blue pulses down), base → tiles (powers, pink pulses up)
+  const stems = [];
+  tiles.forEach((x, i) => {
+    const a = EW.el('line', {x1: x, y1: 358, x2: x, y2: 380, stroke: '#343741', 'stroke-width': 1}, ov);
+    const b = EW.el('line', {x1: x, y1: 454, x2: x, y2: 472, stroke: '#343741', 'stroke-width': 1}, ov);
+    stems.push({a, b, x, i, dn: EW.el('circle', {r: 3, fill: '#0B64DD', opacity: 0}, ov), up: EW.el('circle', {r: 3, fill: '#F04E98', opacity: 0}, ov)});
+  });
+  const tl = [...document.querySelectorAll('.tl')], wts = [...document.querySelectorAll('.wt')];
+  // the boundary draws in as an outline first
+  const bnd = $('bnd');
+  SEC.run(t => {
+    bnd.style.clipPath = `inset(-14px ${100 - 100 * SEC.p(t, .2, .9)}% -4px -4px)`;
+    SEC.on(t, [[.7, '#base'], [1.1, '#esql'], [1.4, '#ctx'], [3.5, '#band'], [4.9, '#dir'], [4.9, '#pow'], [5.6, '#team'], [6.0, '#pd'], [6.8, '#close']]);
+    tl.forEach((e, i) => e.classList.toggle('on', t > 1.9 + i * .2));
+    wts.forEach((e, i) => e.classList.toggle('on', t > 3.8 + i * .18));
+    stems.forEach(s => {
+      const k = SEC.p(t, 4.6 + s.i * .05, .3);
+      s.a.setAttribute('opacity', k); s.b.setAttribute('opacity', SEC.p(t, 1.9 + s.i * .2, .4));
+      if (t > 5.0){
+        const u = ((t - 5 + s.i * .37) * .6) % 1, v = ((t - 5 + s.i * .29 + .5) * .6) % 1;
+        s.dn.setAttribute('cx', s.x); s.dn.setAttribute('cy', 358 + 22 * u); s.dn.setAttribute('opacity', s.i % 2 ? 0 : Math.sin(u * Math.PI));
+        s.up.setAttribute('cx', s.x); s.up.setAttribute('cy', 472 - 18 * v); s.up.setAttribute('opacity', s.i % 2 ? Math.sin(v * Math.PI) : 0);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

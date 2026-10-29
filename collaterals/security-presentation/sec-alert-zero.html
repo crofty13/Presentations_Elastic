@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>The overwhelming ask: get us to Alert Zero.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  #stage{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:2;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  #ov{position:absolute;left:0;top:0;width:1280px;height:720px;overflow:visible;pointer-events:none}
+  .n{position:absolute;background:#fff;border:1px solid var(--c);border-radius:8px;padding:12px 13px;box-shadow:0 8px 20px rgba(40,55,90,.08)}
+  .n h3{display:flex;gap:7px;align-items:flex-start;font:600 14.5px/1.2 var(--sans);letter-spacing:-.3px;color:var(--ink)}
+  .n h3 .no{flex:none;width:19px;height:19px;border-radius:50%;background:var(--c);color:#fff;font:600 10.5px/19px var(--sans);text-align:center}
+  .n p{font-size:11.5px;line-height:1.4;color:var(--char)}
+  .n .vis{height:78px;position:relative;margin:8px 0}
+  #n1{left:72px;top:222px;width:150px;height:188px;--c:var(--pink);background:#FFF7FA}
+  #n2{left:252px;top:204px;width:168px;height:216px;--c:var(--teal-d);background:#F4FDFB}
+  #n3{left:450px;top:226px;width:150px;height:182px;--c:var(--grey)}
+  #n4{left:630px;top:204px;width:168px;height:216px;--c:var(--pink);background:#FFF7FA}
+  #n5a{left:846px;top:200px;width:172px;height:104px;--c:var(--blue)}
+  #n5b{left:846px;top:330px;width:172px;height:104px;--c:var(--orange)}
+  #n5a h3,#n5b h3{margin-bottom:5px}
+  #n6{left:1062px;top:240px;width:146px;height:156px;--c:var(--teal-d);text-align:center;background:#F4FDFB;border-width:1.5px}
+  #n6 .ring{position:relative;width:70px;height:70px;margin:6px auto 8px}
+  #n6 .ring svg{position:absolute;inset:0}
+  #n6 .zero{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 30px var(--sans);color:var(--ink)}
+  #n6 .tw{font:600 14px/1.25 var(--sans);color:var(--ink)}
+  #n6 .tw b{color:var(--teal-d);font-weight:600}
+  .wall{position:absolute;inset:0;overflow:hidden}
+  .wall i{position:absolute;left:0;height:9px;border-radius:5px;background:#F7B8D5}
+  #n2 .badge{background:#7A5B12;color:#fff;border-color:#7A5B12;margin:6px 0 0 26px}
+  #n7{left:450px;top:470px;width:300px;height:120px;--c:var(--pink);background:#FFF7FA}
+  #n7 .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .tgl{width:30px;height:16px;border-radius:8px;background:var(--pink);position:relative}
+  .tgl::after{content:'';position:absolute;right:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:right .3s}
+  #n7 h3{margin-bottom:4px}
+  #ends{position:absolute;left:790px;top:522px;font:500 10px var(--mono);letter-spacing:.14em;color:var(--grey);display:flex;align-items:center;gap:10px}
+  #ends i{width:12px;height:12px;border-radius:50%;background:var(--slate);border:3px solid var(--slate-l)}
+  #iflp{position:absolute;left:342px;top:432px;font:500 10.5px var(--sans);color:var(--pink)}
+  html[data-density="1"] #stage{transform:translateY(-40px)}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">Earlier this year · In Elastic Security today</div>
+  <h1 class="in2">The overwhelming ask: <span class="b">get us to Alert Zero.</span></h1>
+  <p class="sub in3" data-d="3">The SOC's inbox zero, made possible in Elastic Security today.</p>
+</div>
+
+<div id="stage">
+  <svg id="ov" viewBox="0 0 1280 720"></svg>
+  <div class="n rv" id="n1"><h3><span class="no">1</span>Wall of alerts</h3><div class="vis"><div class="wall" id="wall"></div></div><p>Noise and true signals compete for analyst attention.</p></div>
+  <div class="n rv" id="n2"><h3><span class="no">2</span>Security Alert Analysis</h3><span class="badge">Experimental</span><div class="vis" style="height:66px"><svg id="fun" viewBox="0 0 142 66" width="142" height="66"></svg></div><p>Classifies alerts as likely true or false positives, with reasoning.</p></div>
+  <div class="n rv" id="n3"><h3><span class="no">3</span>Likely true-positive alerts</h3><div class="vis" style="height:62px"><svg id="chk" viewBox="0 0 124 62" width="124" height="62"></svg></div><p>A smaller queue worth deeper investigation.</p></div>
+  <div class="n rv" id="n4"><h3><span class="no">4</span>Attack Discovery</h3><div class="vis" style="height:76px;margin:4px 0"><svg id="ad" viewBox="0 0 142 86" width="126" height="76"></svg></div><p>Hunts raw events, checks entity risk, and corroborates before calling it an attack.</p></div>
+  <div class="n rv" id="n5a"><h3>Embed in Workflows</h3><p>Run the investigation inside playbooks your SOC already trusts.</p></div>
+  <div class="n rv" id="n5b"><h3>Close detection gaps</h3><p>Drafts new or tuned rules. A human approves before anything ships.</p></div>
+  <div class="n pop" id="n6"><div class="ring"><svg viewBox="0 0 70 70"><circle cx="35" cy="35" r="30" fill="#fff" stroke="#DDE3EC" stroke-width="5"/><circle id="arc" cx="35" cy="35" r="30" fill="none" stroke="#02BCB7" stroke-width="5" stroke-linecap="round" transform="rotate(-90 35 35)"/></svg><div class="zero" id="zero">0</div></div><div class="tw">Toward<br><b>Alert Zero</b></div></div>
+  <div id="iflp" class="rv">if likely false positive</div>
+  <div class="n rv" id="n7"><div class="hd"><span class="tgl"></span><span class="badge pink">Optional</span></div><h3>Auto-close false positives</h3><p>Turn it on and high-confidence false positives close themselves. No analyst time, no queue, nothing downstream.</p></div>
+  <div id="ends" class="rv"><i></i>FLOW ENDS HERE</div>
+</div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, ov = $('ov'), E = EW.el;
+  // connectors (screen coordinates)
+  const P = (d, o) => E('path', Object.assign({d, fill: 'none', stroke: '#343741', 'stroke-width': 1.4}, o || {}), ov);
+  const head = (x, y) => E('path', {d: `M${x - 6},${y - 4} L${x},${y} L${x - 6},${y + 4}`, fill: 'none', stroke: '#343741', 'stroke-width': 1.4, opacity: 0}, ov);
+  const seg = [
+    {p: P('M222,316 L250,316'), h: head(250, 316), t: 1.3},
+    {p: P('M420,316 L448,316'), h: head(448, 316), t: 3.7},
+    {p: P('M600,316 L628,316'), h: head(628, 316), t: 4.9},
+    {p: P('M798,316 C822,316 822,252 844,252'), h: head(844, 252), t: 6.2},
+    {p: P('M798,316 C822,316 822,382 844,382'), h: head(844, 382), t: 6.2},
+    {p: P('M1018,252 C1040,252 1040,318 1060,318'), h: head(1060, 318), t: 7.7},
+    {p: P('M1018,382 C1040,382 1040,318 1060,318'), h: null, t: 7.7},
+    {p: P('M336,420 L336,530 L448,530', {stroke: '#F04E98', 'stroke-dasharray': '4 4'}), h: null, t: 2.5, dash: true},
+    {p: P('M750,530 L786,530'), h: null, t: 3.4},
+  ];
+  // alerts moving through: orange in, fewer survive each stage, blue once they are attacks
+  const pg = E('g', {}, ov);
+  const flow = (path, n, col, start, speed, size) => Array.from({length: n}, (_, i) => ({path, i, n, col, start, speed, el: E('rect', {width: size || 6, height: size || 6, x: -(size || 6) / 2, y: -(size || 6) / 2, rx: 1, fill: col, stroke: '#1D1E24', 'stroke-width': .5, opacity: 0}, pg)}));
+  const F = [].concat(
+    flow(seg[0].p, 5, '#FF7E62', 1.8, .9),
+    flow(seg[7].p, 3, '#B5BFCE', 3.4, .45),
+    flow(seg[1].p, 2, '#FF7E62', 4.2, .8),
+    flow(seg[2].p, 1, '#FF7E62', 5.4, .7),
+    flow(seg[3].p, 1, '#0B64DD', 6.8, .6), flow(seg[4].p, 1, '#0B64DD', 7.0, .6),
+    flow(seg[5].p, 1, '#02BCB7', 8.4, .5), flow(seg[6].p, 1, '#02BCB7', 8.7, .5));
+  // node visuals
+  const wall = $('wall'), WB = Array.from({length: 9}, (_, i) => { const b = document.createElement('i'); b.style.width = (55 + ((i * 37) % 45)) + '%'; wall.appendChild(b); return b; });
+  const fun = $('fun');
+  E('path', {d: 'M8,8 L134,8 L84,40 L84,58 L58,58 L58,40 Z', fill: 'none', stroke: '#02BCB7', 'stroke-width': 1.6, 'stroke-linejoin': 'round'}, fun);
+  const fd = [0, 1, 2, 3].map(i => E('circle', {r: 3.2, fill: i % 2 ? '#F04E98' : '#0B64DD', opacity: 0}, fun));
+  const chk = $('chk');
+  E('circle', {cx: 62, cy: 31, r: 26, fill: 'rgba(72,239,207,.18)', stroke: '#02BCB7', 'stroke-width': 1.4}, chk);
+  const ck = E('path', {d: 'M49,32 L58,41 L76,22', fill: 'none', stroke: '#02BCB7', 'stroke-width': 3.5, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'}, chk);
+  const ad = $('ad');
+  E('circle', {cx: 71, cy: 43, r: 36, fill: '#fff', stroke: '#DDE3EC', 'stroke-width': 1.2}, ad);
+  const A = [[48, 54], [94, 22], [94, 62]], adl = [[0, 1], [1, 2], [0, 2]].map(([a, b]) => E('line', {x1: A[a][0], y1: A[a][1], x2: A[b][0], y2: A[b][1], stroke: '#343741', 'stroke-width': 2}, ad));
+  A.forEach(([x, y], i) => E('circle', {cx: x, cy: y, r: 6, fill: ['#F04E98', '#02BCB7', '#0B64DD'][i]}, ad));
+  const arc = $('arc'), C = 2 * Math.PI * 30; arc.style.strokeDasharray = C;
+
+  SEC.run(t => {
+    SEC.on(t, [[.4, '#n1'], [1.6, '#n2'], [2.8, '#iflp'], [3.0, '#n7'], [3.6, '#ends'], [4.0, '#n3'], [5.2, '#n4'], [6.5, '#n5a'], [6.8, '#n5b'], [8.0, '#n6']]);
+    seg.forEach(s => { const k = SEC.p(t, s.t, .45);
+      if (s.dash){ s.p.setAttribute('opacity', k); } else SEC.draw(s.p, k);
+      if (s.h) s.h.setAttribute('opacity', k >= 1 ? 1 : 0); });
+    // wall of alerts scrolls up, endlessly
+    WB.forEach((b, i) => { b.style.top = (((i * 14 - t * 16) % 126 + 126) % 126 - 14) + 'px'; });
+    // funnel: alerts drop in, a few come out the bottom
+    fd.forEach((d, i) => { const u = ((t - 1.9) * .6 + i / 4) % 1; if (t < 1.9){ d.setAttribute('opacity', 0); return; }
+      const x = 30 + i * 26 + (71 - 30 - i * 26) * Math.min(1, u * 1.4), y = 4 + u * 58;
+      d.setAttribute('cx', x); d.setAttribute('cy', y); d.setAttribute('opacity', u < .55 || i % 2 === 0 ? Math.sin(u * Math.PI) : 0); });
+    SEC.draw(ck, SEC.p(t, 4.4, .5));
+    adl.forEach((l, i) => SEC.draw(l, SEC.p(t, 5.6 + i * .3, .4)));
+    arc.style.strokeDashoffset = C * (1 - SEC.p(t, 8.2, 1.4));
+    for (const f of F){
+      if (t < f.start){ f.el.setAttribute('opacity', 0); continue; }
+      const L = f.path.getTotalLength(), u = (((t - f.start) * f.speed) + f.i / f.n) % 1, pt = f.path.getPointAtLength(L * u);
+      f.el.setAttribute('transform', `translate(${pt.x},${pt.y})`); f.el.setAttribute('opacity', Math.min(1, u * 6, (1 - u) * 6));
+    }
+  });
+})();
+</script>
+</body>
+</html>

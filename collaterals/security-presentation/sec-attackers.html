@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Attackers answered it for us.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  h1{font-size:40px;letter-spacing:-1.2px;line-height:1.08;max-width:1080px}
+  #rows{position:absolute;left:72px;right:72px;top:212px;display:flex;flex-direction:column;gap:12px;z-index:2;transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  .row{position:relative;display:grid;grid-template-columns:164px 1fr;align-items:start;border:1px solid var(--line);border-radius:6px;background:#fff;padding:14px 22px 13px 0;min-height:92px}
+  .row .dt{font:600 13px var(--mono);letter-spacing:.06em;color:var(--blue);padding:3px 0 0 26px}
+  .row h3{font:600 18px/1.2 var(--sans);letter-spacing:-.4px;color:var(--ink)}
+  .row p{font-size:14px;line-height:1.4;color:var(--char);margin-top:3px}
+  .row .src{font:400 10px var(--mono);letter-spacing:.04em;color:var(--grey);margin-top:5px}
+  /* the rail: one dot per row, the line grows down as the year goes by */
+  #rail{position:absolute;left:84px;top:226px;width:2px;height:0;background:var(--line);z-index:3;transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  .row::before{content:'';position:absolute;left:8px;top:18px;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--blue);z-index:4}
+  .row.last{background:#101C3F;border-color:#101C3F;box-shadow:6px 6px 0 var(--pink)}
+  .row.last::before{border-color:var(--pink);background:var(--pink)}
+  .row.last .dt{color:var(--pink)}
+  .row.last h3{color:#fff}
+  .row.last p{color:#E3E8F4}
+  .row.last .src{color:#9FB0D6}
+  .row .tg{position:absolute;right:18px;top:14px}
+  .row .tg .badge{color:#fff;background:var(--pink);border-color:var(--pink)}
+  html[data-density="1"] #rows{top:150px}
+  html[data-density="1"] #rail{top:164px}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">The landscape · Eighteen months</div>
+  <h1 class="in2">Whether to use AI on defense is no longer a question. <span class="b">Attackers answered it for us.</span></h1>
+</div>
+
+<i id="rail"></i>
+<div id="rows">
+  <div class="row rv" id="r0"><span class="dt">MAR. 2025</span><div><h3>AI out-phishes elite human red teams</h3><p>AI spear-phishing agents went from 31% behind elite red teams to 24% ahead in two years.</p><div class="src" data-d="3">Phishing simulation research, 2025</div></div></div>
+  <div class="row rv" id="r1"><span class="dt">NOV. 2025</span><div><h3>First AI-orchestrated espionage campaign</h3><p>An AI agent ran 80–90% of tactical operations against roughly 30 targets, at rates no human team can match.</p><div class="src" data-d="3">AI lab threat disclosure, Nov. 2025</div></div></div>
+  <div class="row rv" id="r2"><span class="dt">MAY 2026</span><div><h3>AI is now standard attacker tooling</h3><p>Across 793 threat actors, the median actor used AI in 15 ATT&amp;CK techniques. AI phishing text doubled in a year.</p><div class="src" data-d="3">2026 breach investigations report, AI research</div></div></div>
+  <div class="row rv last" id="r3"><span class="dt">JULY 2026</span><div><h3>The first fully documented agentic intrusion</h3><p>700 agents ran a 4.5-day intrusion: 17,000+ events, no human at a keyboard.</p><div class="src" data-d="3">Public incident report and independent analysis, Aug. 2026</div></div></div>
+</div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, rows = [0, 1, 2, 3].map(i => $('r' + i)), T = [.5, 1.4, 2.3, 3.6];
+  SEC.run(t => {
+    rows.forEach((r, i) => r.classList.toggle('on', t > T[i]));
+    // the rail grows to each row as it lands
+    const last = rows[3], k = SEC.p(t, .4, 3.4);
+    $('rail').style.height = Math.max(0, (last.offsetTop + 18) * k) + 'px';
+  });
+})();
+</script>
+</body>
+</html>

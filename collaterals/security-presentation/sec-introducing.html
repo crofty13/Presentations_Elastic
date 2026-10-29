@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Introducing AlertZero</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  .z{text-align:center}
+  .eyebrow{justify-content:center;margin-top:96px}
+  .eyebrow::before{background:var(--pink)}
+  h1{font-size:84px;letter-spacing:-3.4px;margin:16px auto 0;max-width:none;position:relative;display:inline-block}
+  h1 .p{color:var(--pink)}
+  #ring{position:absolute;left:50%;top:50%;width:120px;height:120px;margin:-60px 0 0 -60px;border:2px solid var(--pink);border-radius:50%;opacity:0;pointer-events:none}
+  .sub{font-size:22px;max-width:1000px;margin:18px auto 0;line-height:1.45}
+  #new{position:absolute;right:72px;top:52px;z-index:3;background:var(--pink);color:#fff;font:600 13px var(--mono);letter-spacing:.16em;padding:6px 12px;border-radius:3px;transform:rotate(-4deg)}
+  #cards{position:absolute;left:179px;top:430px;display:grid;grid-template-columns:repeat(4,214px);gap:22px;z-index:3;transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  .w{background:#fff;border-radius:8px;border-top:4px solid var(--c);padding:16px 16px 18px;text-align:left;min-height:118px;box-shadow:0 14px 30px rgba(0,0,0,.25)}
+  .w .k{color:var(--c);font-size:9.5px;letter-spacing:.14em}
+  .w h3{font:600 19px/1.15 var(--sans);letter-spacing:-.5px;color:var(--ink);margin-top:6px}
+  .w p{font-size:13.5px;line-height:1.4;color:var(--char);margin-top:6px}
+  html[data-density="1"] #cards{top:360px}
+  html[data-density="2"] .eyebrow{visibility:hidden}
+</style>
+</head>
+<body class="navy" data-foot="none">
+<div id="new" class="pop">NEW</div>
+<div class="z">
+  <div class="eyebrow rv" id="e0" data-d="2">Today, in Elastic Security</div>
+  <div><h1 class="rv" id="h"><span id="intro">Introducing </span><span class="p">AlertZero</span><i id="ring"></i></h1></div>
+  <p class="sub rv" id="s" data-d="2">The agentic layer of Elastic Security. Every alert, every rule, every hunt. <b style="color:#fff;font-weight:600">A human on the loop.</b></p>
+</div>
+<div id="cards">
+  <div class="w rv" style="--c:var(--teal-d)"><span class="k">Reactive</span><h3>Triage Watch</h3><p>Every alert, before you see it</p></div>
+  <div class="w rv" style="--c:var(--blue)"><span class="k">Detection engineering</span><h3>Detection Watch</h3><p>Fix the rule, not the symptom</p></div>
+  <div class="w rv" style="--c:var(--orange)"><span class="k">Proactive</span><h3>Hunt Watch</h3><p>Hunting that never sleeps</p></div>
+  <div class="w rv" style="--c:var(--pink)"><span class="k">Specialist</span><h3>Forensics Watch</h3><p>Deep research on threats and exploits</p></div>
+</div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, ring = $('ring'), cards = [...document.querySelectorAll('.w')];
+  EW.dots({x: 0, y: 0, w: 1280, h: 720, gap: 11, r: 1, color: [44, 60, 104], hi: [240, 78, 152], seed: 9, blobs: 6, thr: .5});
+  SEC.run(t => {
+    SEC.on(t, [[.4, '#e0'], [1.1, '#h'], [3.4, '#s'], [3.9, '#new']]);
+    // one ring pulse as the name lands, then nothing pulses
+    const u = SEC.lin(t, 1.5, 1.6);
+    ring.style.opacity = u > 0 && u < 1 ? (1 - u) * .9 : 0;
+    ring.style.transform = `scale(${1 + u * 3.6})`;
+    cards.forEach((c, i) => c.classList.toggle('on', t > 4.5 + i * .3));
+  });
+})();
+</script>
+</body>
+</html>

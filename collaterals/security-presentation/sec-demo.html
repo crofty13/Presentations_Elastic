@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>AlertZero, running. Live demo.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<link rel="stylesheet" href="css/sec.css">
+<style>
+  #stage{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:2;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  .dc{position:absolute;top:224px;width:366px;height:168px;border:1px solid var(--slate);border-radius:8px;background:#fff;padding:18px 20px;transition:border-color .4s,box-shadow .4s}
+  .dc .n{font:700 34px/1 var(--sans);letter-spacing:-1px;color:var(--slate);transition:color .4s}
+  .dc h3{font:600 20px/1.2 var(--sans);letter-spacing:-.5px;color:var(--ink);margin-top:10px}
+  .dc p{font-size:14px;line-height:1.45;color:var(--char);margin-top:6px}
+  .dc.lit{border-color:var(--blue);box-shadow:0 12px 28px rgba(11,100,221,.12)}
+  .dc.lit .n{color:var(--blue)}
+  #rail{position:absolute;left:72px;right:72px;top:432px;height:46px}
+  #line{position:absolute;left:0;right:0;top:22px;height:2px;background:var(--slate)}
+  #prog{position:absolute;left:0;top:22px;height:2px;width:0;background:var(--blue)}
+  .st{position:absolute;top:0;width:172px;height:46px;border:1px solid var(--slate);border-radius:23px;background:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font:600 14px var(--sans);color:var(--grey);transition:all .35s}
+  .st i{font:600 10px var(--mono);color:var(--grey-l);font-style:normal}
+  .st.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .st.on i{color:var(--teal)}
+  .st.cur{box-shadow:0 0 0 4px rgba(240,78,152,.35)}
+  .punch{top:540px}
+  html[data-density="1"] #stage{transform:translateY(10px)}
+</style>
+</head>
+<body class="soft" data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">Live demo · On the real build</div>
+  <h1 class="in2">AlertZero, <span class="b">running.</span></h1>
+  <p class="sub in3" data-d="3">The same theft, twice: two hosts, one stolen credential, one attacker who did their homework.</p>
+</div>
+
+<div id="stage">
+  <div class="dc rv" id="c0" style="left:72px"><div class="n">1</div><h3>The queue is decisions</h3><p>Overnight, every alert triaged with reasoning. Six rows need a person.</p></div>
+  <div class="dc rv" id="c1" style="left:457px"><div class="n">2</div><h3>Approve, and Defend acts</h3><p>One yes isolates the host. One yes tunes the rule that made the noise.</p></div>
+  <div class="dc rv" id="c2" style="left:842px"><div class="n">3</div><h3>Hunt, and the honest no</h3><p>Zero matches recorded as zero. The gap it finds becomes a rule proposal.</p></div>
+  <div id="rail"><i id="line"></i><i id="prog"></i><div id="steps"></div></div>
+</div>
+<div class="punch" id="punch" data-d="3">Six beats, about ten minutes, <b>including the moment it finds nothing.</b></div>
+
+<script src="js/eweb.js"></script>
+<script src="js/sec.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const $ = SEC.$, S = ['Queue', 'Investigate', 'Contain', 'Tune', 'Hunt', 'Incident'], STEP = 192.8;
+  const st = S.map((s, i) => { const d = document.createElement('div'); d.className = 'st'; d.style.left = (i * STEP) + 'px'; d.innerHTML = `<i>0${i + 1}</i>${s}`; $('steps').appendChild(d); return d; });
+  const T0 = 1.8, DT = .6, CARD = [0, 2, 4];   // each card lights with its first beat
+  SEC.run(t => {
+    SEC.on(t, [[.4, '#c0'], [.6, '#c1'], [.8, '#c2'], [T0 + 6 * DT + .4, '#punch']]);
+    const k = SEC.clamp((t - T0) / (5 * DT));
+    $('prog').style.width = (k * (5 * STEP)) + 86 * (k > 0) + 'px';
+    st.forEach((e, i) => e.classList.toggle('on', t > T0 + i * DT));
+    CARD.forEach((s, i) => $('c' + i).classList.toggle('lit', t > T0 + s * DT));
+    // once all six are lit, a pink ring keeps walking the beats, one at a time
+    const done = T0 + 6 * DT, cur = t > done + .6 && !navigator.webdriver ? Math.floor((t - done - .6) / 1.4) % 6 : -1;
+    st.forEach((e, i) => e.classList.toggle('cur', i === cur));
+  });
+})();
+</script>
+</body>
+</html>
