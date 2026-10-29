@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Elastic nightshift: Deploy anywhere</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .eyebrow{text-transform:none;letter-spacing:.02em}
+  .eyebrow::before{background:var(--pink)}
+  h1 .g{color:var(--grey-l)}
+  .sub{font-size:16px;max-width:1100px;margin-top:12px}
+  .cols{position:absolute;left:72px;right:72px;top:250px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;z-index:2}
+  .col svg{display:block;width:100%;height:160px;overflow:visible}
+  .col svg text{font-family:var(--mono)}
+  .col h3{font:600 22px var(--sans);letter-spacing:-.5px;margin:10px 0 5px}
+  .col p{font-size:14px;line-height:1.45;color:var(--char);min-height:40px}
+  .col .chip{margin-top:9px;border-color:var(--pink);color:var(--pink)}
+  .pr{position:absolute;left:72px;right:72px;top:560px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;z-index:2}
+  .pr div{border-top:1px solid var(--ink);padding-top:10px}
+  .pr b{display:block;font:600 14.5px var(--sans)}
+  .pr span{display:block;font-size:12.5px;line-height:1.45;color:var(--char);margin-top:3px}
+  .ew-foot > span:last-child{text-transform:none;letter-spacing:.02em}
+  /* density */
+  .cols{transition:top .6s cubic-bezier(.2,.7,.2,1),translate .6s cubic-bezier(.2,.7,.2,1),scale .6s cubic-bezier(.2,.7,.2,1);transform-origin:50% 0}
+  .col svg{transition:height .6s cubic-bezier(.2,.7,.2,1)}
+  .pr{transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  .dxr{position:absolute;left:72px;right:72px;top:572px;display:grid;grid-template-columns:1fr 1fr;gap:28px;z-index:2}
+  html[data-density="1"] .cols{top:244px;scale:1.05}
+  html[data-density="2"] .cols{top:236px;scale:1.05}
+  html[data-density="4"] .col svg,html[data-density="5"] .col svg{height:104px}
+  html[data-density="4"] .cols,html[data-density="5"] .cols{top:244px}
+  html[data-density="4"] .pr,html[data-density="5"] .pr{top:490px}
+  html[data-density="4"] .col p,html[data-density="5"] .col p{min-height:0}
+</style>
+</head>
+<body data-foot="Elastic nightshift · 04 · Deploy anywhere">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">Elastic nightshift · 04</div>
+  <h1 class="in2" data-d="2">Deploy anywhere.<br><span class="g">Wherever your data lives.</span></h1>
+  <p class="sub in3" data-d="3">Most AI SREs are cloud-only. For data residency, air-gapped environments, or regulated industries, that is not an option.</p>
+</div>
+<div class="cols">
+  <div class="col in3"><svg viewBox="0 0 360 160" data-k="cloud"></svg><h3>Cloud</h3><p data-d="3">Elastic Cloud or your own cloud account, any region.</p><span class="chip" data-d="3">✓ full capabilities</span></div>
+  <div class="col in3" style="animation-delay:.42s"><svg viewBox="0 0 360 160" data-k="prem"></svg><h3>On-premises</h3><p data-d="3">Your data center, your hardware, your controls.</p><span class="chip" data-d="3">✓ full capabilities</span></div>
+  <div class="col in3" style="animation-delay:.54s"><svg viewBox="0 0 360 160" data-k="air"></svg><h3>Air-gapped</h3><p data-d="3">Fully disconnected. Same investigative engine.</p><span class="chip" data-d="3">✓ full capabilities</span></div>
+</div>
+<div class="pr" data-d="3">
+  <div class="in5"><b>No architectural compromise</b><span>The same investigative capabilities across every deployment model.</span></div>
+  <div class="in5" style="animation-delay:.8s"><b>Federated queries</b><span>Data is queried wherever it already lives. No forced centralization.</span></div>
+  <div class="in5" style="animation-delay:.9s"><b>Nothing leaves</b><span>No data exits your environment unless you decide it does. Security posture intact, compliance met.</span></div>
+</div>
+<div class="dxr">
+  <div class="dx pink" data-d="4"><span class="dxk">Why it matters</span><p>For strict data residency, air-gapped environments or regulated industries, a cloud-only AI SRE is not an option. <b style="white-space:nowrap">Elastic nightshift</b> meets you where you are.</p></div>
+  <div class="dx pink" data-d="5"><span class="dxk">What stays true everywhere</span><p>The same investigative capabilities on every deployment model, with federated queries against data where it already lives. Security posture stays intact.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 760, y: 0, w: 520, h: 240, seed: 17, blobs: 4, thr: .52});
+  document.querySelectorAll('.col svg').forEach((svg, i) => {
+    const k = svg.dataset.k, sc = EW.iso(svg, {ox: 150, oy: 58, s: .62}), d0 = .25 + i * .2;
+    if (k === 'cloud'){
+      sc.rect({x: -30, y: -30, w: 200, d: 200, z: 0, delay: d0});
+      sc.box({x: 0, y: 0, w: 140, d: 140, h: 24, c: 'blue', delay: d0 + .05, drop: 90});
+      sc.box({x: 38, y: 38, w: 64, d: 64, h: 64, z: 24, c: 'pink', delay: d0 + .35, drop: 90, float: 4, order: 5});
+      sc.label({at: [140, 20, 12], side: 'r', len: 30, title: 'Any region', size: 10, delay: d0 + .7});
+    } else if (k === 'prem'){
+      sc.rect({x: -30, y: -30, w: 200, d: 200, z: 0, delay: d0});
+      [0, 1, 2].forEach(j => sc.box({x: 10, y: 10, w: 120, d: 120, h: 20, z: j * 26, c: 'slate', stroke: '#1D1E24', delay: d0 + .05 + j * .1, drop: 90, order: j * 2}));
+      sc.box({x: 38, y: 38, w: 64, d: 64, h: 64, z: 78, c: 'pink', delay: d0 + .45, drop: 90, float: 4, order: 9});
+      sc.label({at: [130, 25, 36], side: 'r', len: 30, title: 'Your hardware', size: 10, delay: d0 + .7});
+    } else {
+      sc.rect({x: -40, y: -40, w: 220, d: 220, z: 0, delay: d0, dash: '5 5', sw: 1.6});
+      sc.box({x: 0, y: 0, w: 140, d: 140, h: 24, c: 'ink', delay: d0 + .05, drop: 90});
+      sc.box({x: 38, y: 38, w: 64, d: 64, h: 64, z: 24, c: 'pink', delay: d0 + .35, drop: 90, float: 4, order: 5});
+      sc.box({x: -10, y: -10, w: 160, d: 160, h: 96, z: 0, c: 'glass', wire: true, stroke: '#1D1E24', dash: '3 4', delay: d0 + .55, drop: 0, snap: false, order: 20, shadow: false});
+      sc.label({at: [150, -10, 60], side: 'r', len: 22, title: 'Disconnected', size: 10, delay: d0 + .8});
+    }
+    sc.run();
+  });
+})();
+</script>
+</body>
+</html>

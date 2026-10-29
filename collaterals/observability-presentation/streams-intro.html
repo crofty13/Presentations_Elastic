@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Streams: The Telemetry Pipeline</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .head{display:flex;align-items:flex-end;justify-content:space-between}
+  h1{font-size:72px;letter-spacing:-3px;margin-top:10px}
+  .sub{max-width:430px;font-size:17px;margin:0 0 8px}
+  #pp{left:0;top:176px;width:1280px;height:240px}
+  .cols{position:absolute;z-index:3;left:72px;right:72px;top:424px;display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+  .st{border-top:1px solid var(--ink);padding-top:12px}
+  .st .tag{color:var(--blue)}
+  .st h2{font:600 19px/1.15 var(--sans);letter-spacing:-.4px;margin-top:8px}
+  .st p{font-size:12.5px;line-height:1.45;color:var(--char);margin-top:6px;min-height:54px}
+  .st .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+  .st .chip{font-size:9.5px;padding:2px 6px}
+  #pp,.ew-dots{transition:transform .7s cubic-bezier(.2,.7,.2,1);transform-origin:640px 296px}
+  .ew-dots{transform-origin:640px 135px}
+  .cols{transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  .dxs{position:absolute;z-index:3;left:72px;right:210px;top:590px;display:grid;grid-template-columns:1fr 1.5fr;gap:28px}
+  .dxs .dx p{font-size:12.5px;line-height:1.45}
+  html[data-density="1"] #pp,html[data-density="1"] .ew-dots{transform:translate(-18px,64px) scale(1.05)}
+  html[data-density="2"] #pp,html[data-density="2"] .ew-dots{transform:translate(0,34px) scale(1.06)}
+  html[data-density="2"] .cols{top:500px}
+  html[data-density="4"] #pp,html[data-density="4"] .ew-dots,html[data-density="5"] #pp,html[data-density="5"] .ew-dots{transform:translate(0,-26px) scale(.86)}
+  html[data-density="4"] .cols,html[data-density="5"] .cols{top:388px}
+  html[data-density="4"] .st p,html[data-density="5"] .st p{min-height:0}
+</style>
+</head>
+<body data-foot="01 · Pillar · Streams">
+<div class="z head" data-d="2">
+  <div><div class="eyebrow in1" data-d="3">01 · Pillar · Streams</div><h1 class="in2">Streams</h1></div>
+  <p class="sub in3" data-d="3">Five stages. One pipeline. Every signal from any source to <b style="color:var(--ink)">Elasticsearch</b>.</p>
+</div>
+<svg id="pp" class="iso" viewBox="0 0 1280 240"></svg>
+<div class="cols" data-d="2">
+  <div class="st in3"><span class="tag">01 / Source</span><h2>Edge Collection</h2><p data-d="3">Any shipper, any protocol. Run what you already have. No lock-in.</p>
+    <div class="chips" data-d="3"><span class="chip">Elastic Agent</span><span class="chip">OTel Collector</span><span class="chip">Fluent Bit</span><span class="chip">Logstash</span><span class="chip">Prom exporters</span></div></div>
+  <div class="st in4"><span class="tag">02 / Inputs</span><h2>Managed Inputs</h2><p data-d="3">Fully managed pull integrations and hosted endpoints. No agent to run.</p>
+    <div class="chips" data-d="3"><span class="chip">OTLP endpoint</span><span class="chip">Prom endpoint</span><span class="chip">ES Bulk</span><span class="chip">AWS / Azure</span></div></div>
+  <div class="st in4" style="animation-delay:.58s"><span class="tag">03 / Pipeline</span><h2>Pipeline</h2><p data-d="3">Parse, normalize, and enrich in-flight. Transform data before it lands.</p>
+    <div class="chips" data-d="3"><span class="chip">Parse</span><span class="chip">Normalize</span><span class="chip">Enrich</span></div></div>
+  <div class="st in5"><span class="tag">04 / Routing</span><h2>Routing</h2><p data-d="3">Conditional fan-out. Route, filter, and buffer signals to the right destination.</p>
+    <div class="chips" data-d="3"><span class="chip">Fan-out</span><span class="chip">Filter</span><span class="chip">Buffer</span></div></div>
+  <div class="st in5" style="animation-delay:.78s"><span class="tag">05 / Destination</span><h2>Destination</h2><p data-d="3">Send each stream where it belongs: an Elasticsearch index, object storage like S3, or any other destination.</p>
+    <div class="chips" data-d="3"><span class="chip on">Elasticsearch index</span><span class="chip">S3</span><span class="chip">Any destination</span></div></div>
+</div>
+<div class="dxs">
+  <div class="dx" data-d="4"><span class="dxk">The message</span><p>We meet your data <b>wherever it lives</b>. Zero re-instrumentation.</p></div>
+  <div class="dx" data-d="5"><span class="dxk">Two ways in</span><p>Run what you already have at the edge: Elastic Agent, OTel Collector, Fluent Bit, Logstash, Prometheus exporters. Or skip agents with <b>fully hosted</b> OTLP, Prometheus and cloud endpoints.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 0, y: 160, w: 1280, h: 270, seed: 31, blobs: 9, thr: .62});
+  const s = .9, a = 231.2 / (2 * .866 * s), X0 = 177.6;
+  const sc = EW.iso(document.getElementById('pp'), {ox: X0, oy: 150, s});
+  const C = i => [i * a, -i * a];
+  const foot = (i, r) => { const [x, y] = C(i); sc.rect({x: x - r, y: y - r, w: 2 * r, d: 2 * r, z: 0, delay: .1 + i * .08}); };
+  [0,1,2,3].forEach(i => foot(i, 48));
+  // 01 edge collection: a cluster of small shippers
+  [[-28,-28,56],[6,-28,36],[-28,6,30],[6,6,22]].forEach(([dx,dy,h], k) => { const [x, y] = C(0); sc.box({x: x + dx, y: y + dy, w: 22, d: 22, h, c: k === 0 ? 'ink' : 'white', stroke: '#1D1E24', delay: .2 + k * .06, drop: 60}); });
+  // 02 managed inputs: a plate with four instance slots that autoscale with load
+  const inst = [], slots = [];
+  { const [x, y] = C(1); var plate = sc.box({x: x - 38, y: y - 38, w: 76, d: 76, h: 8, c: 'slate', stroke: false, delay: .4, drop: 60, order: -100});
+    [[-32, -32], [4, -32], [-32, 4], [4, 4]].forEach(([dx, dy], k) => {
+      slots.push(sc.rect({x: x + dx, y: y + dy, w: 28, d: 28, z: 8, sw: 1, dash: '2 3', delay: .5}));
+      const b = sc.box({x: x + dx, y: y + dy, w: 28, d: 28, h: 38, z: 8, c: 'blue', delay: .5 + k * .05, drop: 40, order: 5 + k});
+      b.a = k === 0 ? 1 : 0; b.onFrame = (t, it) => { const k2 = Math.min(1, Math.max(0, (t - it.delay) / it.dur)); if (k2 < 1) { it.g.setAttribute('opacity', it.a * k2); return; }
+        it.g.setAttribute('opacity', it.a.toFixed(2)); it.g.setAttribute('transform', `translate(0,${((1 - it.a) * 22).toFixed(1)})`); };
+      inst.push(b); }); }
+  // 03 pipeline: the transform block
+  { const [x, y] = C(2); sc.box({x: x - 34, y: y - 34, w: 68, d: 68, h: 66, c: 'teal', delay: .6, drop: 70}); }
+  // 04 routing: the router block
+  { const [x, y] = C(3); sc.box({x: x - 30, y: y - 30, w: 60, d: 60, h: 40, c: 'ink', delay: .75, drop: 60}); }
+  // 05 destinations: an index, an S3 bucket, any other destination
+  const L = 82, lane = k => [k * L, k * L];
+  { const [x, y] = C(4);
+    sc.box({x: x - L - 24, y: y - L - 24, w: 48, d: 48, h: 40, c: 'blue', delay: 1.0, drop: 60});
+    sc.box({x: x + L - 24, y: y + L - 24, w: 48, d: 48, h: 40, c: 'white', wire: true, dash: '3 3', delay: 1.1, drop: 60});
+    sc.label({at: [x - L + 24, y - L - 24, 20], side: 'r', len: 14, title: 'Index', delay: 1.4, size: 10});
+    sc.label({at: [x + 26, y - 26, 22], side: 'r', len: 14, title: 'S3', delay: 1.45, size: 10});
+    sc.label({at: [x + L + 24, y + L - 24, 20], side: 'r', len: 14, title: 'Other', delay: 1.5, size: 10}); }
+  sc.run();
+  slots.slice().reverse().forEach(r => plate.g.after(r.g));
+
+  // S3 bucket drawn as an isometric cylinder
+  const NS = 'http://www.w3.org/2000/svg', svg = document.getElementById('pp');
+  const mk = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); (p || sc.body).appendChild(e); return e; };
+  { const [x, y] = C(4), [cx, cb] = sc.P(x, y, 0), [, ct] = sc.P(x, y, 42), r = 24 * s, rx = r * 1.2247, ry = r * .7071;
+    const cyl = mk('g', {opacity: 0});
+    mk('path', {d: `M${cx - rx},${ct} L${cx - rx},${cb} A${rx},${ry} 0 0 0 ${cx + rx},${cb} L${cx + rx},${ct} Z`, fill: '#FF7E62', stroke: '#1D1E24', 'stroke-width': 1}, cyl);
+    mk('path', {d: `M${cx},${ct + ry} L${cx},${cb + ry} A${rx},${ry} 0 0 0 ${cx + rx},${cb} L${cx + rx},${ct} A${rx},${ry} 0 0 1 ${cx},${ct + ry} Z`, fill: '#343741', stroke: '#1D1E24', 'stroke-width': 1}, cyl);
+    mk('ellipse', {cx, cy: ct, rx, ry, fill: '#FFFFFF', stroke: '#1D1E24', 'stroke-width': 1}, cyl);
+    EW.loop(t => { const k = EW.back((t - 1.05) / .7); cyl.setAttribute('opacity', Math.min(1, Math.max(0, (t - 1.05) * 3))); cyl.setAttribute('transform', `translate(0,${(-60 * s * (1 - k)).toFixed(1)})`); }); }
+
+  // flowing data cubes: raw in, autoscaled inputs, transformed by the pipeline, routed to three destinations
+  const layer = mk('g', {}, sc.floor), R = EW.rand(17);
+  const RAW = [['#FFFFFF', '#DDE3EC', '#B5BFCE'], ['#FFFFFF', '#FF7E62', '#343741'], ['#FFFFFF', '#FEC514', '#343741'], ['#FFFFFF', '#F04E98', '#343741'], ['#FFFFFF', '#98A2B3', '#69707D']];
+  const OUT = ['#FFFFFF', '#0B64DD', '#0A4FB0'];
+  const pts = arr => arr.map(q => sc.P(...q).map(v => v.toFixed(1)).join(',')).join(' ');
+  const ps = [];
+  const cnt = mk('text', {x: sc.P(...C(1), 0)[0], y: 18, 'text-anchor': 'middle', 'font-size': 10, 'font-weight': 600, fill: '#1D1E24', 'letter-spacing': '.06em', opacity: 0});
+  function spawn(){ const g = mk('g', {}, layer), f = [0, 1, 2].map(() => mk('polygon', {stroke: '#1D1E24', 'stroke-width': .7}, g));
+    ps.push({g, f, p: 0, raw: RAW[Math.floor(R() * RAW.length)], S: 9 + R() * 9, k: Math.floor(R() * 3) - 1, v: .5 + R() * .12}); }
+  let last = 0, acc = 0;
+  EW.loop(t => {
+    const dt = Math.min(.05, t - last); last = t;
+    const load = Math.max(.08, Math.min(1, .5 + .38 * Math.sin(t * .55 - 1) + .14 * Math.sin(t * 1.9)));
+    const n = Math.max(1, Math.ceil(load * 4));
+    inst.forEach((b, i) => { b.a += ((i < n ? 1 : 0) - b.a) * Math.min(1, dt * 6); });
+    cnt.textContent = `AUTOSCALING · ${n} INSTANCE${n > 1 ? 'S' : ''}`; cnt.setAttribute('opacity', Math.min(1, Math.max(0, (t - 1.2) * 2)));
+    if (t > .9){ acc += dt * (2 + 9 * load); while (acc >= 1){ acc--; spawn(); } }
+    for (let i = ps.length - 1; i >= 0; i--){
+      const q = ps[i]; q.p += dt * q.v;
+      if (q.p >= 4){ q.g.remove(); ps.splice(i, 1); continue; }
+      const done = q.p > 2, S = done ? 13 : q.S, F = done ? OUT : q.raw;
+      let [x, y] = C(q.p);
+      if (q.p > 3){ const u = EW.ease((q.p - 3) / .7); x += q.k * L * u; y += q.k * L * u; }
+      x -= S / 2; y -= S / 2;
+      q.f[0].setAttribute('points', pts([[x, y + S, S], [x + S, y + S, S], [x + S, y + S, 0], [x, y + S, 0]])); q.f[0].setAttribute('fill', F[1]);
+      q.f[1].setAttribute('points', pts([[x + S, y, S], [x + S, y + S, S], [x + S, y + S, 0], [x + S, y, 0]])); q.f[1].setAttribute('fill', F[2]);
+      q.f[2].setAttribute('points', pts([[x, y, S], [x + S, y, S], [x + S, y + S, S], [x, y + S, S]])); q.f[2].setAttribute('fill', F[0]);
+      q.g.setAttribute('opacity', Math.min(1, q.p * 6, (4 - q.p) * 4).toFixed(2));
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Meet your AI SRE</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .eyebrow{text-transform:none;letter-spacing:.02em;font-size:13px;color:var(--ink)}
+  .eyebrow::before{background:var(--pink)}
+  h1{font-size:84px;line-height:.96;letter-spacing:-3.4px;margin-top:104px}
+  h1 .p{color:var(--pink)}
+  .sub{font-size:21px;color:var(--char);margin-top:24px;max-width:500px}
+  .body2{font:500 13px var(--mono);letter-spacing:.04em;color:var(--blue);margin-top:18px}
+  #cube{left:340px;top:420px;width:340px;height:340px}
+  .ew-foot > span:last-child{text-transform:none;letter-spacing:.02em}
+  /* density */
+  h1{transition:margin-top .6s cubic-bezier(.2,.7,.2,1)}
+  .sk{transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+  .dxs{margin-top:24px;width:480px;display:flex;flex-direction:column;gap:14px}
+  html[data-density="1"] .sk{transform:translateX(-264px)}
+  html[data-density="2"] h1{margin-top:220px}
+  html[data-density="4"] h1{margin-top:70px}
+  html[data-density="5"] h1{margin-top:44px}
+
+  .sk{position:absolute;z-index:3;left:600px;top:52px;width:608px;height:590px;background:#fff;border:1px solid var(--ink);box-shadow:14px 14px 0 rgba(29,30,36,.06),0 30px 70px rgba(29,30,36,.10);display:flex;flex-direction:column;font-family:var(--sans)}
+  .sk-bar{height:30px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--bg)}
+  .sk-bar i{width:9px;height:9px;border-radius:50%;border:1px solid var(--ink);background:#fff}
+  .sk-bar i:first-child{background:var(--pink);border-color:var(--pink)}
+  .sk-bar span{margin-left:auto;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey)}
+  .sk-header{height:48px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 18px}
+  .sk-channel{font-weight:700;font-size:15px}
+  .sk-star{color:var(--grey-l);font-size:13px}
+  .sk-members{margin-left:auto;display:flex;align-items:center;gap:6px;font:500 11px var(--mono);color:var(--grey);border:1px solid var(--line);padding:3px 8px 3px 4px}
+  .sk-facepile{display:flex}.sk-face{width:16px;height:16px;border:1.5px solid #fff;margin-left:-4px}.sk-face:first-child{margin-left:0}
+  .sk-thread{flex:1;overflow-y:auto;padding:6px 18px 10px;scrollbar-width:none}
+  .sk-thread::-webkit-scrollbar{display:none}
+  .sk-day{display:flex;align-items:center;gap:10px;margin:8px 0 6px;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey)}
+  .sk-day::before,.sk-day::after{content:'';flex:1;height:1px;background:var(--line)}
+  .sk-msg{display:flex;gap:11px;padding:8px 0;opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
+  .sk-msg.visible{opacity:1;transform:none}
+  .sk-avatar{width:32px;height:32px;flex:none;display:grid;place-items:center;border:1px solid var(--ink)}
+  .sk-avatar.bot{background:#fff}
+  .sk-avatar.human{background:var(--blue);border-color:var(--blue);color:#fff;font:600 11px var(--mono)}
+  .sk-mbody{flex:1;min-width:0}
+  .sk-mhead{display:flex;align-items:center;gap:7px;margin-bottom:2px}
+  .sk-mname{font-weight:700;font-size:13.5px}
+  .sk-app{font:600 9px var(--mono);letter-spacing:.06em;color:var(--pink);border:1px solid var(--pink);padding:0 4px}
+  .sk-mtime{font:400 11px var(--mono);color:var(--grey-l)}
+  .sk-mtext{font-size:13.5px;line-height:1.5;color:var(--char)}
+  .sk-mtext b{color:var(--ink)}
+  .sk-mention{color:var(--blue);background:var(--blue-l);padding:0 3px}
+  .sk-attach{margin-top:6px;border-left:3px solid var(--pink);background:var(--bg);padding:7px 11px;font-size:12.5px;line-height:1.5;color:var(--char)}
+  .sk-attach.green{border-left-color:var(--teal-d)}
+  .sk-attach .dim{color:var(--grey)}
+  .sk-code{margin-top:6px;background:var(--ink);color:#E6EBF2;font:400 11.5px/1.55 var(--mono);padding:9px 12px;white-space:pre}
+  .sk-actions{display:flex;gap:8px;margin-top:8px}
+  .sk-btn{font:600 12px var(--sans);padding:6px 12px;border:1px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;transition:all .25s}
+  .sk-btn.green{background:var(--teal-d);border-color:var(--teal-d);color:#fff}
+  .sk-btn.clicked{transform:scale(.94);box-shadow:0 0 0 4px rgba(2,188,183,.25)}
+  .sk-reacts{display:flex;gap:6px;margin-top:6px}
+  .sk-react{font-size:12px;border:1px solid var(--line);padding:1px 7px;opacity:0;transform:scale(.6);transition:all .3s cubic-bezier(.3,1.6,.5,1)}
+  .sk-react.visible{opacity:1;transform:none}
+  .sk-foot{padding:0 18px 14px}
+  .sk-typing{height:18px;font:400 11px var(--mono);color:var(--grey);opacity:0;transition:opacity .3s}
+  .sk-typing.visible{opacity:1}
+  .sk-input{border:1px solid var(--ink);padding:10px 12px;font-size:13px;color:var(--grey-l);display:flex;gap:10px;align-items:center}
+  .sk-input .plus{width:18px;height:18px;border:1px solid var(--line);display:grid;place-items:center;color:var(--grey)}
+</style>
+</head>
+<body data-foot="Elastic nightshift · Meet your AI SRE">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">Elastic nightshift</div>
+  <h1 class="in2" data-d="2">Meet your<br><span class="p">AI SRE.</span></h1>
+  <p class="sub in3" data-d="3">Always watching, always learning, always ready.</p>
+  <p class="body2 in4" data-d="3">Connect your data. The rest takes care of itself.</p>
+  <div class="dxs">
+    <div class="dx pink" data-d="4"><span class="dxk">What you are watching</span><p>A real incident resolution: detected at 3:47 AM, root cause found, fix applied. <b>Zero human pages.</b></p></div>
+    <div class="dx pink" data-d="5"><span class="dxk">Not a future state</span><p>This is the product today. It works in the channel your team already uses: it posts the incident, the root cause and the fix, and leaves the full trail for anyone to review in the morning.</p></div>
+  </div>
+</div>
+<svg id="cube" class="iso" viewBox="0 0 340 340" data-d="3" data-dmax="3"></svg>
+<div class="sk in3">
+  <div class="sk-bar"><i></i><i></i><i></i><span>Slack · incidents</span></div>
+  <div class="sk-header">
+    <span class="sk-channel"># incidents-prod</span><span class="sk-star">☆</span>
+    <div class="sk-members"><div class="sk-facepile"><div class="sk-face" style="background:#0B64DD"></div><div class="sk-face" style="background:#F04E98"></div><div class="sk-face" style="background:#02BCB7"></div></div><span>47</span></div>
+  </div>
+  <div class="sk-thread" id="skThread"><div class="sk-day"><span>Today</span></div></div>
+  <div class="sk-foot">
+    <div class="sk-typing" id="skTyping">Elastic nightshift is typing…</div>
+    <div class="sk-input"><span class="plus">+</span> Message #incidents-prod</div>
+  </div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 300, y: 300, w: 560, h: 420, seed: 9, blobs: 5, thr: .5});
+  EW.dots({x: 980, y: 0, w: 300, h: 300, seed: 2, blobs: 3, thr: .55, wave: false});
+  const sc = EW.iso(document.getElementById('cube'), {ox: 160, oy: 170, s: .76});
+  sc.rect({x: -20, y: -20, w: 150, d: 150, z: 0, delay: .3});
+  sc.box({x: -6, y: -6, w: 122, d: 122, h: 122, z: 30, c: 'glass', wire: true, inner: true, stroke: '#343741', delay: .45, drop: 60, float: 5, floatSpeed: 1.1, shadow: false});
+  sc.box({x: 10, y: 10, w: 90, d: 90, h: 90, z: 46, c: 'pink', delay: .55, drop: 90, float: 5, floatSpeed: 1.1, order: 3});
+  sc.run();
+})();
+</script>
+<script>
+(function initSlackDemo() {
+  const thread = document.getElementById('skThread');
+  const typing = document.getElementById('skTyping');
+  if (!thread) return;
+
+  const BOT_AVATAR = `<svg width="22" height="22" viewBox="30 215 220 220" xmlns="http://www.w3.org/2000/svg"><path d="m101.9 306.9 45.2 20.6 45.6-40c.7-3.3 1-6.5 1-10 0-28.1-22.9-51-51-51-16.8 0-32.5 8.3-42 22.2l-7.6 39.3z" fill="#F04E98"/><path d="m55.1 354.7c-.7 3.3-1 6.7-1 10.2 0 28.2 23 51.1 51.1 51.1 16.9 0 32.7-8.4 42.2-22.3l7.5-39.2-10-19.2-45.4-20.7z" fill="#F04E98"/><path d="m54.9 276.5 31 7.3 6.8-35.2c-4.2-3.2-9.4-5-14.8-5-13.4 0-24.4 10.9-24.4 24.4-.1 3 .4 5.9 1.4 8.5" fill="#F04E98"/><path d="m52.2 283.9c-13.8 4.5-23.5 17.8-23.5 32.4 0 14.2 8.8 26.9 22 31.9l43.4-39.2-7.9-17z" fill="#F04E98"/><path d="m155.4 393.6c4.3 3.2 9.4 5.1 14.7 5.1 13.4 0 24.4-10.9 24.4-24.4 0-3-.5-5.8-1.5-8.5l-30.9-7.2z" fill="#F04E98"/><path d="m161.7 350.4 34 7.9c13.9-4.5 23.5-17.8 23.5-32.5 0-14.1-8.8-26.9-22-31.9l-44.5 39z" fill="#F04E98"/></svg>`;
+
+  const MESSAGES = [
+    {
+      delay: 1200, bot: true, time: '3:47 AM',
+      text: `<b>INC-2481</b> opened · SEV-2 · <span class="sk-mention">@oncall-payments</span>`,
+      attach: `<b>payment-service</b> · p99 latency <b>4.8s</b> <span class="dim">(SLO 500ms)</span> · error rate <b>12.4%</b><br><span class="dim">us-east-1 · started 3:44 AM · impact: checkout-api, order-svc, cart-svc</span>`
+    },
+    {
+      delay: 3400, bot: true, time: '3:48 AM',
+      text: `Root cause identified:`,
+      code: `redis-cache-03 connection pool exhausted (100/100 · 847 queued)
+cause: payment-service v2.31.0 (deployed 3:42 AM)
+       worker concurrency 8 → 16 doubled pool demand`
+    },
+    {
+      delay: 5600, bot: true, time: '3:48 AM',
+      text: `Proposed remediation:<br>1. Roll back payment-service to <b>v2.30.2</b><br>2. Follow-up PR: cap pool at 80 connections + saturation alert`,
+      actions: true
+    },
+    {
+      delay: 8200, bot: false, time: '3:49 AM',
+      text: `approve, pool saturation graph confirms it. go`
+    },
+    {
+      delay: 9400, bot: true, time: '3:50 AM',
+      text: `Rollback complete in <b>42s</b> · v2.30.2 live on 6/6 pods<br>Opened <span class="sk-mention">PR #4127</span>: cap redis pool + alert at 80% saturation`
+    },
+    {
+      delay: 11400, bot: true, time: '3:51 AM',
+      text: `<b>INC-2481</b> resolved`,
+      attach_green: `p99 <b>310ms</b> · error rate <b>0.2%</b> · queue drained<br><span class="dim">duration 7m · pages sent: 0 · monitoring for 30 min</span>`,
+      reactions: ['🙌 3', '🔥 2', '🧠 1']
+    }
+  ];
+
+  const APPROVE_CLICK = 8900;
+  const TYPING_LEAD = 900;
+
+  function scrollToEnd() {
+    thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
+  }
+
+  function addMessage(m) {
+    const msg = document.createElement('div');
+    msg.className = 'sk-msg';
+    let inner = m.bot
+      ? `<div class="sk-avatar bot">${BOT_AVATAR}</div>`
+      : `<div class="sk-avatar human">DS</div>`;
+    inner += `<div class="sk-mbody">`;
+    inner += `<div class="sk-mhead"><span class="sk-mname">${m.bot ? 'Elastic nightshift' : 'Dana Smith'}</span>`;
+    if (m.bot) inner += `<span class="sk-app">APP</span>`;
+    inner += `<span class="sk-mtime">${m.time}</span></div>`;
+    inner += `<div class="sk-mtext">${m.text}</div>`;
+    if (m.attach)       inner += `<div class="sk-attach">${m.attach}</div>`;
+    if (m.attach_green) inner += `<div class="sk-attach green">${m.attach_green}</div>`;
+    if (m.code)         inner += `<div class="sk-code">${m.code}</div>`;
+    if (m.actions)      inner += `<div class="sk-actions"><button class="sk-btn green" id="skApprove">Approve rollback</button><button class="sk-btn">Decline</button></div>`;
+    if (m.reactions)    inner += `<div class="sk-reacts">${m.reactions.map(r => `<span class="sk-react">${r}</span>`).join('')}</div>`;
+    inner += `</div>`;
+    msg.innerHTML = inner;
+    thread.appendChild(msg);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { msg.classList.add('visible'); scrollToEnd(); });
+    });
+    if (m.reactions) {
+      msg.querySelectorAll('.sk-react').forEach((r, i) => {
+        setTimeout(() => { r.classList.add('visible'); }, 700 + i * 250);
+      });
+    }
+  }
+
+  MESSAGES.forEach(m => {
+    if (m.bot) {
+      setTimeout(() => { typing.classList.add('visible'); }, m.delay - TYPING_LEAD);
+      setTimeout(() => { typing.classList.remove('visible'); addMessage(m); }, m.delay);
+    } else {
+      setTimeout(() => {
+        typing.textContent = 'Dana Smith is typing…';
+        typing.classList.add('visible');
+      }, m.delay - TYPING_LEAD);
+      setTimeout(() => {
+        typing.classList.remove('visible');
+        addMessage(m);
+        setTimeout(() => { typing.textContent = 'Elastic nightshift is typing…'; }, 300);
+      }, m.delay);
+    }
+  });
+
+  setTimeout(() => {
+    const btn = document.getElementById('skApprove');
+    if (btn) btn.classList.add('clicked');
+  }, APPROVE_CLICK);
+
+  // plays once and holds on the resolved state
+}());
+</script>
+</body>
+</html>

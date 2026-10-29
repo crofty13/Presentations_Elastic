@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>The Columnar Engine</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:46px}
+  .sub{font-size:16px;max-width:900px;margin-top:10px}
+  .logs{position:absolute;left:72px;top:214px;width:330px;height:330px;z-index:2;background:#fff;border:1px solid var(--line);overflow:hidden}
+  .logs .tag{position:relative;z-index:2;background:#fff;padding:10px 14px;border-bottom:1px solid var(--line);display:block;font-size:9.5px;white-space:nowrap}
+  .win{position:absolute;left:0;right:0;top:36px;bottom:0;overflow:hidden}
+  .scroll{padding:6px 14px;animation:up 14s linear infinite}
+  @keyframes up{to{transform:translateY(-50%)}}
+  .ln{font:400 10.5px/1.5 var(--mono);color:var(--grey);padding:5px 0;border-bottom:1px dashed var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ln .e{color:#fff;background:var(--blue);padding:0 3px}
+  .ln.dim{opacity:.45}
+  .ln .s{color:var(--blue);font-weight:600}
+  .ln .t{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-color:var(--orange);text-underline-offset:2px}
+  #scene{left:410px;top:200px;width:420px;height:280px}
+  .idx{position:absolute;left:440px;top:452px;width:360px;z-index:2}
+  .fields{display:flex;gap:6px;margin-bottom:8px}
+  .post{display:grid;grid-template-columns:110px 18px 1fr;font:500 11px/1.9 var(--mono);color:var(--char);border-top:1px solid var(--line)}
+  .post b{color:var(--ink)}
+  .post i{font-style:normal;color:var(--grey-l)}
+  .ask{position:absolute;left:850px;right:72px;top:214px;z-index:2}
+  .q{border:1.5px solid var(--ink);background:#fff;padding:12px 14px;display:flex;gap:10px;align-items:center;font:500 13px var(--mono)}
+  .q .tag{background:var(--ink);color:#fff;padding:3px 7px;font-size:10px}
+  .caret{display:inline-block;width:7px;height:14px;background:var(--blue);vertical-align:-2px;animation:bl 1s steps(1) infinite}
+  @keyframes bl{50%{opacity:0}}
+  .res{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .hero{background:#fff;border:1.5px solid var(--blue);box-shadow:6px 6px 0 var(--blue-l);padding:14px 16px;margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;opacity:0;animation:ew-in .5s cubic-bezier(.2,.7,.2,1) 1.1s both}
+  .hero b{font:500 54px/1 var(--sans);letter-spacing:-2px;color:var(--blue)}
+  .hero strong{display:block;font:600 14px var(--sans)}
+  .hero small{display:block;font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--grey);margin-top:4px}
+  .st{display:grid;grid-template-columns:92px 1fr;gap:12px;align-items:baseline;border-top:1px solid var(--line);padding:9px 0;opacity:0;animation:ew-in .5s cubic-bezier(.2,.7,.2,1) both}
+  .st b{font:500 30px/1 var(--sans);letter-spacing:-1px;color:var(--blue)}
+  .st small{font:500 10px var(--mono);text-transform:uppercase;color:var(--grey);display:block}
+  .st span{font-size:12.5px;line-height:1.35;color:var(--char)}
+  .rw{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);padding:10px 12px;opacity:0;animation:ew-in .5s cubic-bezier(.2,.7,.2,1) both}
+  .rw b{font:500 22px var(--sans);letter-spacing:-.6px;color:var(--grey)}
+  .rw strong{display:block;font:600 13px var(--sans)}
+  .rw small{display:block;font:400 10.5px var(--mono);color:var(--grey);margin-top:3px}
+  .rw .sc{height:3px;background:var(--slate-l);margin-top:7px;position:relative}
+  .rw .sc i{position:absolute;inset:0 auto 0 0;background:var(--grey-l)}
+  .rw.top{border:1.5px solid var(--blue);box-shadow:6px 6px 0 var(--blue-l)}
+  .rw.top b{color:var(--blue)}.rw.top .sc i{background:var(--blue)}
+  .ask .note{margin-top:12px;font:500 11px/1.5 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--ink)}
+  .pts{position:absolute;left:72px;right:72px;top:572px;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink);z-index:2}
+  .pts div{padding:12px 20px 0 0;font-size:14px;line-height:1.4;color:var(--grey)}
+  .pts b{color:var(--ink);font-weight:600;display:block;font-size:16px;margin-bottom:2px}
+  #flow{position:absolute;inset:0;width:1280px;height:720px;z-index:1;pointer-events:none}
+  #viz{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:1;transform-origin:620px 350px;pointer-events:none}
+  .logs{transition:height .6s cubic-bezier(.2,.7,.2,1)}
+  .ask{transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  html[data-density="4"] .pts,html[data-density="5"] .pts{grid-template-columns:repeat(4,1fr)}
+  .pts .dx{padding:2px 0 2px 12px;margin-top:12px}
+  .pts .dx p{font-size:12.5px;color:var(--char)}
+  .pts .dx b{display:inline;font-size:inherit;margin:0}
+  .dxl{position:absolute;left:72px;top:402px;width:330px;z-index:2}
+  .dxl p{font-size:12px;line-height:1.45}
+  /* density */
+  html[data-density="1"] #viz{transform:translate(20px,10px) scale(1.5)}
+  html[data-density="2"] #viz{transform:translate(-150px,30px) scale(1.3)}
+  html[data-density="2"] .ask{top:290px}
+  html[data-density="5"] .logs{height:176px}
+</style>
+</head>
+<body data-foot="The columnar engine architecture">
+<svg id="flow" viewBox="0 0 1280 720" data-d="3"></svg>
+<div class="z">
+  <div class="eyebrow in1" data-d="3">The columnar engine <b>architecture</b></div>
+  <h1 class="in2" data-d="2">Billions of tiny data points in. <span class="b">Instant answers out.</span></h1>
+  <p class="sub in3" data-d="3">Metrics are the opposite of logs: small, identical, relentless. So we built a columnar engine purpose-built for time-series, where a query reads one column and skips everything else.</p>
+</div>
+<div class="logs in3" data-d="3"><span class="tag">Every host. Every second. Same shape, forever.</span><div class="win"><div class="scroll" id="scroll"></div></div></div>
+<div id="viz" class="dz">
+<svg id="scene" class="iso" viewBox="0 0 420 280"></svg>
+<div class="idx in5">
+  <div class="fields"><span class="chip">time</span><span class="chip">host</span><span class="chip">mem</span><span class="chip on">cpu</span></div>
+  <div class="post"><b>host=web-01</b><i>→</i><span>3 blocks read</span></div>
+  <div class="post"><b>everything else</b><i>→</i><span>never decoded</span></div>
+</div>
+</div>
+<div class="ask dz" data-d="2">
+  <div class="q in4" data-d="3"><span class="tag">Ask</span>avg(cpu_usage) by host, last 24h<span class="caret"></span></div>
+  <div class="hero"><b>24ms</b><div><strong>One column read. Zero waste.</strong><small>millions of points · one sequential pass</small></div></div>
+  <div style="margin-top:10px" data-d="3">
+    <div class="st" style="animation-delay:1.25s"><div><small>up to</small><b>160×</b></div><span>faster queries than the doc store on metrics</span></div>
+    <div class="st" style="animation-delay:1.4s"><div><b>3.75</b></div><span>bytes per data point, down from 25</span></div>
+  </div>
+  <div class="note in6" data-d="3">Purpose-built for time-series. Nothing else in the way.</div>
+</div>
+<div class="dx dxl" data-d="5"><span class="dxk">How 25 bytes became 3.75</span><p>Doc-value skippers replace inverted indices and BKD trees. The <b>_id is computed</b> from the series and timestamp instead of stored. Each series stays sequential on disk, so codecs and skippers stay effective.</p><p>A general-purpose BI engine pays for its generality on every query. This one does <b>one thing: time-series</b>.</p></div>
+<div class="pts" data-d="3">
+  <div class="in5"><b>Purpose-built.</b>A time-series engine, not a general BI engine.</div>
+  <div class="in5" style="animation-delay:.8s"><b>DIM filters.</b>Significant IP: data is skipped before it is ever read.</div>
+  <div class="in5" style="animation-delay:.9s"><b>Tuned codecs.</b>Compression built for the shapes metrics take.</div>
+  <div class="dx" data-d="4"><span class="dxk">Why it is fast</span><p>Each field is its own column: a query reads <b>one column</b>, in one pass.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const L = [
+    '<span class="e">cpu_usage</span>  host=web-01  <b>0.62</b>  03:14:00',
+    '<span class="e">cpu_usage</span>  host=web-02  0.58  03:14:00',
+    'memory_used  host=web-01  1.2G  03:14:00',
+    '<span class="e">cpu_usage</span>  host=web-03  <b>0.71</b>  03:14:00',
+    'requests_ps  host=web-01  1841  03:14:00',
+    'memory_used  host=web-02  0.9G  03:14:00',
+    '<span class="e">cpu_usage</span>  host=web-01  <b>0.64</b>  03:14:01',
+    'requests_ps  host=web-02  1633  03:14:01',
+    '<span class="e">cpu_usage</span>  host=web-02  0.55  03:14:01',
+    'memory_used  host=web-03  1.4G  03:14:01'];
+  document.getElementById('scroll').innerHTML = L.concat(L).map(l => `<div class="ln${l.indexOf('cpu_usage') < 0 ? ' dim' : ''}">${l}</div>`).join('');
+  EW.dots({x: 420, y: 190, w: 420, h: 280, seed: 14, blobs: 4, thr: .5, z: 0, parent: document.getElementById('viz')});
+  const sc = EW.iso(document.getElementById('scene'), {ox: 184, oy: 118, s: .72});
+  sc.rect({x: -20, y: -20, w: 190, d: 150, delay: .1});
+  const cols = ['time', 'host', 'mem', 'cpu'], BH = 17, G = 3, N = 6;
+  cols.forEach((n, ci) => { for (let k = 0; k < N; k++){
+    const cpu = n === 'cpu', read = cpu && k >= 1 && k <= 3;
+    sc.box({x: ci * 40, y: 0, w: 30, d: 110, h: BH, z: k * (BH + G), c: read ? 'blue' : cpu ? 'white' : 'slate', wire: cpu && !read, dash: cpu && !read ? '3 3' : undefined, stroke: cpu ? '#1D1E24' : '#98A2B3', sw: cpu ? 1 : .6,
+      delay: .3 + ci * .12 + k * .05, drop: 70, shadow: k === 0, order: ci * 1000 + k * 10, float: read ? 2 : 0, phase: k}); } });
+  sc.label({at: [150, 0, N * (BH + G) - 10], side: 'r', len: 22, title: '1 · Each field,', sub: 'its own column', delay: 1.1, size: 10.5});
+  sc.label({at: [150, 30, 2 * (BH + G) + 8], side: 'r', len: 40, title: '2 · DIM filters', sub: 'proprietary IP', delay: 1.25, size: 10.5});
+  sc.label({at: [0, 110, 8], side: 'l', len: 10, title: 'Columnar store', delay: 1.35, size: 10.5});
+  sc.run();
+  const f = document.getElementById('flow'), el = EW.el;
+  const paths = ['M402,380 C430,380 440,330 470,330', 'M790,300 C820,300 820,262 850,262'];
+  const ps = paths.map(d => { el('path', {d, fill: 'none', stroke: '#1D1E24', 'stroke-width': 1, 'stroke-dasharray': '2 4'}, f); return el('path', {d, fill: 'none'}, f); });
+  const dots = [0, 1, 2, 3, 4, 5].map(i => ({p: ps[i % 2], o: i / 6, c: el('circle', {r: 3, fill: '#0B64DD'}, f)}));
+  EW.loop(t => dots.forEach(d => { const L = d.p.getTotalLength(), u = (t * .45 + d.o) % 1, q = d.p.getPointAtLength(u * L); d.c.setAttribute('cx', q.x); d.c.setAttribute('cy', q.y); d.c.setAttribute('opacity', Math.sin(u * Math.PI) * Math.min(1, t)); }));
+})();
+</script>
+</body>
+</html>

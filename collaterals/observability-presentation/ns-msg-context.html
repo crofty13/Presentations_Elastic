@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Elastic nightshift: Complete context</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .eyebrow{text-transform:none;letter-spacing:.02em}
+  .eyebrow::before{background:var(--pink)}
+  h1 .g{color:var(--grey-l)}
+  .sub{font-size:16px;max-width:600px;margin-top:14px}
+  .cards{position:absolute;left:72px;top:282px;width:580px;display:grid;grid-template-columns:1fr 1fr;gap:12px;z-index:2}
+  .cd{background:#fff;border:1px solid var(--line);padding:12px 16px;min-height:0}
+  .cd .tag{display:flex;align-items:center;gap:8px;color:var(--grey)}
+  .cd .tag i{width:9px;height:9px;border:1px solid var(--ink)}
+  .cd h3{font:600 16px var(--sans);letter-spacing:-.3px;margin:7px 0 4px}
+  .cd p{font-size:13px;line-height:1.45;color:var(--char)}
+  .call{position:absolute;left:72px;top:566px;width:580px;border:1px solid var(--ink);border-left:5px solid var(--pink);background:#fff;padding:12px 18px;z-index:2}
+  .call b{display:block;font:600 16px var(--sans)}
+  .call p{font-size:13.5px;color:var(--char);margin-top:3px}
+  .call p em{font-style:normal;color:var(--pink);font-weight:600}
+  #tower{left:680px;top:228px;width:600px;height:420px}
+  .ew-foot > span:last-child{text-transform:none;letter-spacing:.02em}
+  /* density */
+  #tower{transition:transform .7s cubic-bezier(.2,.7,.2,1);transform-origin:100% 0}
+  .ew-dots{transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+  .dxrow{position:absolute;z-index:3;left:700px;right:72px;top:562px;display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:20px}
+  .dxrow .dx p{font-size:12.5px;line-height:1.45}
+  html[data-density="1"] #tower{transform:translate(-330px,-40px) scale(1.12)}
+  html[data-density="1"] .ew-dots{transform:translateX(-330px)}
+  html[data-density="2"] #tower{transform:translate(-200px,10px) scale(1.04)}
+  html[data-density="2"] .ew-dots{transform:translateX(-200px)}
+  html[data-density="4"] #tower,html[data-density="5"] #tower{transform:scale(.82)}
+</style>
+</head>
+<body data-foot="Elastic nightshift · 02 · Complete context">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">Elastic nightshift · 02</div>
+  <h1 class="in2" data-d="2">Complete context.<br><span class="g">Not just what you could afford to keep.</span></h1>
+  <p class="sub in3" data-d="3">Context is the limiting factor of investigation quality. Elsewhere it is dropped to control costs, or fragmented across telemetry, repos, runbooks and chat.</p>
+</div>
+<div class="cards" data-d="3">
+  <div class="cd in3"><span class="tag"><i style="background:#0B64DD"></i>01</span><h3>Full-fidelity telemetry</h3><p>Stored in full, not sampled, with best-in-class storage efficiency.</p></div>
+  <div class="cd in3" style="animation-delay:.4s"><span class="tag"><i style="background:#48EFCF"></i>02</span><h3>Investigation memory</h3><p>Compounds with every incident. Nothing is re-learned from scratch.</p></div>
+  <div class="cd in4"><span class="tag"><i style="background:#DDE3EC"></i>03</span><h3>Deep code understanding</h3><p>Connects code changes to the telemetry they produce.</p></div>
+  <div class="cd in4" style="animation-delay:.6s"><span class="tag"><i style="background:#FEC514"></i>04</span><h3>Organizational knowledge</h3><p>Runbooks, past incidents, chat. The broadest corpus in the industry, retrieved precisely.</p></div>
+</div>
+<div class="call in5" data-d="3"><b>Elastic nightshift</b><p>Investigates with <em>context no other platform can match</em>. The quality of every answer starts here.</p></div>
+<svg id="tower" class="iso" viewBox="0 0 600 420"></svg>
+<div class="dxrow">
+  <div class="dx pink" data-d="4"><span class="dxk">Full fidelity is affordable</span><p>The storage efficiency behind the metrics engine means telemetry is kept in full, not sampled away.</p></div>
+  <div class="dx pink" data-d="5"><span class="dxk">Nothing re-learned</span><p>Every incident adds to investigation memory, so the next investigation starts with more context.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 700, y: 180, w: 580, h: 500, seed: 21, blobs: 5, thr: .5});
+  const sc = EW.iso(document.getElementById('tower'), {ox: 190, oy: 238, s: .8});
+  sc.rect({x: -24, y: -24, w: 218, d: 218, z: 0, delay: .1});
+  const L = [['blue', '01 · Full-fidelity telemetry'], ['teal', '02 · Investigation memory'], ['slate', '03 · Deep code understanding'], ['yellow', '04 · Organizational knowledge']];
+  L.forEach(([c, t], i) => {
+    const z = i * 34;
+    sc.box({x: 0, y: 0, w: 170, d: 170, h: 26, z, c, stroke: c === 'slate' ? false : '#1D1E24', delay: .2 + i * .2, drop: 110, order: i * 10});
+    sc.label({at: [170, 0, z + 13], side: 'r', len: 22, title: t, size: 11, delay: .8 + i * .15});
+  });
+  sc.box({x: 24, y: 24, w: 122, d: 122, h: 122, z: 150, c: 'glass', wire: true, inner: true, stroke: '#343741', delay: 1.0, drop: 60, float: 5, floatSpeed: 1.1, order: 50, shadow: false});
+  sc.box({x: 40, y: 40, w: 90, d: 90, h: 90, z: 166, c: 'pink', delay: 1.1, drop: 80, float: 5, floatSpeed: 1.1, order: 60});
+  sc.label({at: [146, 24, 150 + 70], side: 'r', len: 70, title: 'Elastic nightshift', raw: true, delay: 1.5});
+  const beams = [0, 1, 2, 3].map(i => EW.el('rect', {width: 5, height: 5, fill: '#F04E98'}, sc.top));
+  EW.loop(t => { if (t < 1.8) return beams.forEach(b => b.setAttribute('opacity', 0));
+    beams.forEach((b, i) => { const u = ((t - 1.8) * .5 + i / 4) % 1, [x, y] = sc.P(85, 85, i * 34 + 26 + u * (166 - i * 34 - 26)); b.setAttribute('x', x - 2.5); b.setAttribute('y', y - 2.5); b.setAttribute('opacity', Math.sin(u * Math.PI)); }); });
+  sc.run();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gen Kibana Dashboards</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100vh; overflow: hidden;
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: #22242C;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+      color: #fff; display: flex; flex-direction: column;
+    }
+
+    @keyframes fade-up { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none} }
+    @keyframes fade-in { from{opacity:0}to{opacity:1} }
+
+    /* ── Top bar ── */
+    .top-bar {
+      flex-shrink: 0;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: clamp(0.9rem,1.3vw,1.8rem) clamp(2rem,3.5vw,5rem);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      opacity: 0; animation: fade-up 0.4s ease forwards;
+    }
+    .eyebrow { font-size:clamp(0.58rem,0.7vw,0.82rem); font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:0.2rem; }
+    .bar-title { font-size:clamp(1.4rem,2.2vw,3rem); font-weight:800; letter-spacing:-0.03em; }
+    .bar-title em { font-style:normal; color:#00BFB3; }
+    .top-pills { display:flex; gap:0.5rem; align-items:center; }
+    .tp { font-size:clamp(0.55rem,0.65vw,0.74rem); font-weight:700; letter-spacing:0.04em; padding:0.28em 0.75em; border-radius:6px; border:1px solid var(--c); color:var(--c); background:var(--bg); }
+
+    /* ── Main ── */
+    .main { flex:1; min-height:0; display:flex; gap:clamp(1.5rem,2.5vw,4rem); padding:clamp(1rem,1.5vw,2rem) clamp(2rem,3.5vw,5rem); align-items:stretch; }
+
+    /* ── Left context ── */
+    .ctx {
+      flex-shrink:0; width:clamp(180px,24%,300px);
+      display:flex; flex-direction:column; justify-content:center;
+      gap:clamp(0.8rem,1.2vw,1.8rem);
+      opacity:0; animation:fade-up 0.5s ease forwards 0.2s;
+    }
+    .ctx-desc { font-size:clamp(0.75rem,0.9vw,1.1rem); color:rgba(255,255,255,0.5); line-height:1.6; font-weight:300; }
+    .ctx-desc strong { color:#fff; font-weight:700; }
+    .type-cards { display:flex; flex-direction:column; gap:0.42rem; }
+    .type-card { display:flex; align-items:flex-start; gap:0.6rem; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:10px; border-left:3px solid var(--tc); }
+    .tc-dot { width:7px; height:7px; border-radius:50%; background:var(--tc); flex-shrink:0; margin-top:0.3em; }
+    .tc-name { font-size:clamp(0.62rem,0.75vw,0.88rem); font-weight:700; color:rgba(255,255,255,0.88); }
+    .tc-sub { font-size:clamp(0.5rem,0.58vw,0.66rem); color:rgba(255,255,255,0.28); line-height:1.35; margin-top:0.1rem; }
+    .ctx-hint { font-size:clamp(0.52rem,0.6vw,0.7rem); color:rgba(255,255,255,0.22); font-style:italic; border-top:1px solid rgba(255,255,255,0.06); padding-top:0.5rem; }
+    .ctx-hint span { color:#00BFB3; }
+
+    /* ── Browser frame ── */
+    .frame-wrap {
+      flex: 0 1 auto;
+      height: 100%;
+      aspect-ratio: 1328 / 828;
+      display:flex; flex-direction:column;
+      border-radius:12px; overflow:hidden;
+      box-shadow:0 0 0 1px rgba(255,255,255,0.1), 0 32px 80px rgba(0,0,0,0.6);
+      opacity:0; animation:fade-in 0.6s ease forwards 0.35s;
+    }
+    .b-chrome { background:#1C2C50; border-bottom:1px solid rgba(255,255,255,0.08); padding:0.5rem 0.85rem; display:flex; align-items:center; gap:0.6rem; flex-shrink:0; }
+    .b-dots { display:flex; gap:5px; }
+    .b-dot { width:10px; height:10px; border-radius:50%; }
+    .b-url { flex:1; background:rgba(0,0,0,0.22); border-radius:4px; padding:0.18rem 0.65rem; font-family:'JetBrains Mono',monospace; font-size:clamp(0.46rem,0.55vw,0.64rem); color:rgba(255,255,255,0.3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* ── Kibana body ── */
+    .ki-body { background:#f8f9fc; flex:1; min-height:0; display:flex; flex-direction:column; font-family:'Inter',-apple-system,sans-serif; color:#343741; }
+
+    /* ── Kibana global nav ── */
+    .ki-gnav { flex-shrink:0; height:clamp(36px,3.2vw,46px); background:#fff; border-bottom:1px solid #d3dae6; display:flex; align-items:center; padding:0 clamp(10px,1.4vw,18px); gap:clamp(6px,0.9vw,12px); }
+    .ki-hamburger { font-size:clamp(13px,1.3vw,17px); color:#69707d; cursor:default; line-height:1; }
+    .ki-brand { font-size:clamp(10px,1vw,14px); font-weight:800; letter-spacing:-0.02em; color:#343741; }
+    .ki-brand b { color:#0073e6; }
+    .ki-bc { display:flex; align-items:center; gap:clamp(3px,0.4vw,5px); font-size:clamp(9px,0.84vw,12px); color:#69707d; flex:1; overflow:hidden; white-space:nowrap; }
+    .ki-bc a { color:#0073e6; text-decoration:none; cursor:default; }
+    .ki-bc .sep { color:#c2c9d6; }
+    .ki-bc .cur { color:#343741; font-weight:500; }
+    .ki-gnav-right { display:flex; align-items:center; gap:clamp(4px,0.5vw,8px); }
+    .ki-btn { font-size:clamp(8px,0.76vw,10px); font-weight:600; padding:clamp(3px,0.35vw,5px) clamp(7px,0.85vw,12px); border-radius:4px; border:1px solid; cursor:default; white-space:nowrap; }
+    .ki-btn-pri { background:#0073e6; color:#fff; border-color:#0073e6; }
+    .ki-btn-sec { background:#fff; color:#343741; border-color:#d3dae6; }
+
+    /* ── Filter bar ── */
+    .ki-fbar { flex-shrink:0; background:#fff; border-bottom:1px solid #d3dae6; padding:clamp(4px,0.55vw,7px) clamp(10px,1.4vw,18px); display:flex; align-items:center; gap:clamp(5px,0.6vw,9px); }
+    .ki-finput { flex:1; background:#f5f7fa; border:1px solid #d3dae6; border-radius:4px; padding:clamp(3px,0.38vw,5px) clamp(6px,0.75vw,11px); font-size:clamp(8px,0.76vw,10px); color:#69707d; font-family:'Inter',-apple-system,sans-serif; }
+    .ki-fadd { font-size:clamp(8px,0.76vw,10px); color:#0073e6; cursor:default; font-weight:600; white-space:nowrap; }
+    .ki-time { font-size:clamp(8px,0.76vw,10px); padding:clamp(3px,0.38vw,5px) clamp(7px,0.85vw,11px); border:1px solid #d3dae6; border-radius:4px; background:#fff; color:#343741; cursor:default; white-space:nowrap; }
+
+    /* ── Views ── */
+    .ki-views { flex:1; min-height:0; position:relative; }
+    .ki-view { position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; pointer-events:none; transition:opacity 0.3s ease; overflow:hidden; background:#f8f9fc; }
+    .ki-view.active { opacity:1; pointer-events:auto; }
+
+    /* ── Agent Builder ── */
+    .ab-wrap { display:flex; flex:1; min-height:0; overflow:hidden; }
+
+    .ab-chat { flex:1; min-height:0; background:#fff; display:flex; flex-direction:column; }
+    .ab-chat-hdr { flex-shrink:0; padding:clamp(6px,0.8vw,11px) clamp(10px,1.3vw,16px); border-bottom:1px solid #d3dae6; display:flex; align-items:center; gap:clamp(5px,0.6vw,9px); }
+    .ab-chat-title { font-size:clamp(9px,0.87vw,12px); font-weight:700; color:#343741; }
+    .ab-ai-badge { font-size:clamp(6.5px,0.65vw,8.5px); font-weight:700; padding:2px 6px; background:linear-gradient(135deg,#0073e6,#7C3AED); color:#fff; border-radius:4px; letter-spacing:0.04em; }
+    .ab-msgs { flex:1; min-height:0; overflow-y:auto; padding:clamp(8px,1vw,13px); display:flex; flex-direction:column; gap:clamp(6px,0.85vw,11px); }
+    .ab-msg-u { align-self:flex-end; background:#0073e6; color:#fff; border-radius:10px 10px 2px 10px; padding:clamp(5px,0.6vw,8px) clamp(8px,1vw,13px); font-size:clamp(8px,0.78vw,11px); max-width:85%; line-height:1.4; }
+    .ab-reasoning { display:flex; align-items:center; gap:5px; font-size:clamp(7px,0.67vw,9px); color:#38A169; font-style:italic; padding:0 2px; }
+    .ab-msg-ai { align-self:flex-start; background:#f5f7fa; border:1px solid #e4e8ef; border-radius:2px 10px 10px 10px; padding:clamp(6px,0.78vw,10px) clamp(8px,1vw,13px); font-size:clamp(7.5px,0.73vw,10px); max-width:96%; color:#343741; line-height:1.5; }
+    .ab-code { background:#f0f2f5; border:1px solid #d3dae6; border-radius:4px; padding:clamp(4px,0.48vw,6px) clamp(6px,0.75vw,9px); margin:clamp(4px,0.48vw,7px) 0; font-family:'JetBrains Mono',monospace; font-size:clamp(6px,0.6vw,8px); color:#343741; line-height:1.45; }
+    .ab-sec { font-size:clamp(6.5px,0.65vw,8.5px); font-weight:700; color:#343741; text-transform:uppercase; letter-spacing:0.07em; margin:clamp(3px,0.4vw,5px) 0 clamp(2px,0.3vw,3px); }
+    .ab-item { font-size:clamp(7px,0.67vw,9px); color:#69707d; padding:1px 0 1px clamp(6px,0.7vw,9px); border-left:2px solid #d3dae6; margin-left:2px; }
+    .ab-footer { flex-shrink:0; padding:clamp(6px,0.8vw,11px); border-top:1px solid #d3dae6; display:flex; gap:clamp(4px,0.5vw,7px); }
+    .ab-finput { flex:1; border:1px solid #d3dae6; border-radius:20px; padding:clamp(4px,0.5vw,7px) clamp(8px,1vw,13px); font-size:clamp(7.5px,0.73vw,10px); color:#69707d; font-family:'Inter',-apple-system,sans-serif; background:#fff; }
+
+    /* ── Preview panel ── */
+    .ab-preview { flex:1; min-height:0; display:flex; flex-direction:column; background:#f8f9fc; overflow:hidden; }
+    .ab-prev-bar { flex-shrink:0; padding:clamp(5px,0.65vw,9px) clamp(10px,1.3vw,16px); border-bottom:1px solid #d3dae6; display:flex; align-items:center; justify-content:space-between; background:#fff; }
+    .ab-prev-badge { font-size:clamp(7px,0.67vw,9px); font-weight:700; padding:2px 8px; background:#fef3c7; color:#92400e; border:1px solid #fde68a; border-radius:4px; }
+    .ab-prev-actions { display:flex; gap:clamp(4px,0.48vw,6px); }
+    .ab-prev-btn { font-size:clamp(7.5px,0.73vw,10px); font-weight:600; padding:clamp(3px,0.38vw,5px) clamp(7px,0.85vw,11px); border-radius:4px; cursor:pointer; }
+    .ab-prev-btn-edit { background:#fff; color:#343741; border:1px solid #d3dae6; }
+    .ab-prev-btn-save { background:#0073e6; color:#fff; border:1px solid #0073e6; }
+    .ab-prev-body { flex:1; min-height:0; padding:clamp(8px,1vw,13px); display:flex; flex-direction:column; gap:clamp(6px,0.78vw,10px); overflow:hidden; }
+    .ab-prev-title { font-size:clamp(10px,1vw,14px); font-weight:800; color:#343741; letter-spacing:-0.02em; }
+    .ab-prev-desc { font-size:clamp(7px,0.7vw,9.5px); color:#69707d; line-height:1.45; }
+
+    /* ── Dashboard panels ── */
+    .db-kpi-row { display:flex; gap:clamp(5px,0.65vw,9px); flex-shrink:0; }
+    .db-kpi { flex:1; background:#fff; border:1px solid #d3dae6; border-radius:6px; padding:clamp(6px,0.75vw,11px); box-shadow:0 1px 3px rgba(17,43,134,0.06); }
+    .db-kpi-val { font-size:clamp(13px,1.5vw,20px); font-weight:800; color:#343741; letter-spacing:-0.02em; line-height:1.1; }
+    .db-kpi-lbl { font-size:clamp(6.5px,0.63vw,8.5px); color:#69707d; margin-top:2px; }
+    .db-kpi-delta { font-size:clamp(6px,0.6vw,8px); margin-top:2px; }
+    .db-charts { display:flex; gap:clamp(5px,0.65vw,9px); flex:1; min-height:0; overflow:hidden; }
+    .db-chart { flex:1; background:#fff; border:1px solid #d3dae6; border-radius:6px; padding:clamp(5px,0.65vw,9px); box-shadow:0 1px 3px rgba(17,43,134,0.06); display:flex; flex-direction:column; overflow:hidden; }
+    .db-chart-ttl { font-size:clamp(7px,0.68vw,9.5px); font-weight:700; color:#343741; flex-shrink:0; margin-bottom:3px; }
+    .db-chart-svg { flex:1; min-height:0; width:100%; display:block; }
+
+    /* ── Canvas (full/scrolled dashboard) ── */
+    .db-canvas { flex:1; min-height:0; padding:clamp(7px,0.9vw,13px); display:flex; flex-direction:column; gap:clamp(6px,0.75vw,10px); overflow:hidden; }
+    .db-row { display:flex; gap:clamp(5px,0.65vw,9px); }
+    .db-panel { background:#fff; border:1px solid #d3dae6; border-radius:6px; padding:clamp(6px,0.75vw,10px); box-shadow:0 1px 3px rgba(17,43,134,0.06); overflow:hidden; display:flex; flex-direction:column; }
+    .db-panel-ttl { font-size:clamp(7px,0.68vw,9.5px); font-weight:700; color:#343741; flex-shrink:0; margin-bottom:clamp(3px,0.4vw,6px); }
+
+    /* ── Save dialog ── */
+    .save-bg { flex:1; display:flex; align-items:center; justify-content:center; background:rgba(34,36,44,0.6); }
+    .save-modal { background:#fff; border-radius:8px; padding:clamp(16px,2vw,26px); width:clamp(240px,32%,360px); box-shadow:0 8px 48px rgba(0,0,0,0.3); display:flex; flex-direction:column; gap:clamp(10px,1.2vw,16px); }
+    .save-ttl { font-size:clamp(12px,1.1vw,16px); font-weight:800; color:#343741; }
+    .save-fg { display:flex; flex-direction:column; gap:3px; }
+    .save-lbl { font-size:clamp(7.5px,0.75vw,10px); font-weight:600; color:#343741; }
+    .save-inp { border:1px solid #d3dae6; border-radius:4px; padding:clamp(4px,0.48vw,6px) clamp(7px,0.8vw,10px); font-size:clamp(8px,0.76vw,10px); color:#343741; font-family:'Inter',-apple-system,sans-serif; background:#fbfcfd; width:100%; }
+    .save-ta { border:1px solid #d3dae6; border-radius:4px; padding:clamp(4px,0.48vw,6px) clamp(7px,0.8vw,10px); font-size:clamp(8px,0.76vw,10px); color:#343741; font-family:'Inter',-apple-system,sans-serif; background:#fbfcfd; resize:none; height:clamp(42px,4.5vw,58px); width:100%; line-height:1.5; }
+    .save-tags { display:flex; flex-wrap:wrap; gap:4px; border:1px solid #d3dae6; border-radius:4px; padding:5px 7px; background:#fbfcfd; }
+    .save-tag { font-size:clamp(7px,0.68vw,9px); background:#e0f0ff; color:#0073e6; border:1px solid #b8d9fb; border-radius:3px; padding:2px 6px; }
+    .save-toggle-row { display:flex; align-items:center; gap:8px; }
+    .save-toggle { width:30px; height:17px; background:#0073e6; border-radius:9px; position:relative; flex-shrink:0; }
+    .save-toggle::after { content:''; position:absolute; right:2px; top:2px; width:13px; height:13px; background:#fff; border-radius:50%; }
+    .save-toggle-lbl { font-size:clamp(7.5px,0.73vw,10px); color:#343741; }
+    .save-actions { display:flex; justify-content:flex-end; gap:7px; }
+    .save-btn { font-size:clamp(8px,0.78vw,10.5px); font-weight:600; padding:clamp(5px,0.55vw,7px) clamp(10px,1.1vw,15px); border-radius:4px; cursor:pointer; }
+    .save-cancel { background:#fff; color:#343741; border:1px solid #d3dae6; }
+    .save-save { background:#0073e6; color:#fff; border:1px solid #0073e6; }
+
+    /* ── Horizontal bar ── */
+    .hbar-row { display:flex; align-items:center; gap:6px; font-size:clamp(6.5px,0.62vw,8.5px); }
+    .hbar-lbl { flex:0 0 clamp(50px,5.5vw,75px); text-align:right; color:#69707d; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .hbar-track { flex:1; background:#e4e8ef; border-radius:2px; height:6px; }
+    .hbar-fill { height:100%; background:#0073e6; border-radius:2px; }
+    .hbar-val { color:#343741; font-weight:600; min-width:30px; }
+
+    /* ── Demo nav ── */
+    .demo-nav {
+      position:fixed; bottom:clamp(0.6rem,1.1vw,1.4rem); left:50%; transform:translateX(-50%);
+      display:flex; gap:0.3rem; z-index:9000;
+      background:rgba(34,36,44,0.85); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      border:1px solid rgba(255,255,255,0.12); border-radius:40px; padding:0.28rem 0.45rem;
+    }
+    .dnav-btn {
+      width:clamp(20px,2.1vw,27px); height:clamp(20px,2.1vw,27px); border-radius:50%;
+      background:transparent; border:none; color:rgba(255,255,255,0.38);
+      font-size:clamp(0.54rem,0.63vw,0.71rem); font-weight:700; cursor:pointer;
+      transition:background 0.15s, color 0.15s; font-family:'Inter',-apple-system,sans-serif;
+    }
+    .dnav-btn:hover { background:rgba(255,255,255,0.13); color:#fff; }
+    .dnav-btn.on { background:rgba(0,191,179,0.22); color:#00BFB3; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <div class="eyebrow">Elastic Observability · Demo</div>
+    <div class="bar-title">Generative <em>Kibana Dashboards</em></div>
+  </div>
+  <div class="top-pills">
+    <span class="tp" style="--c:#38A169;--bg:rgba(56,161,105,0.12)">Gen O11y</span>
+    <span class="tp" style="--c:#00BFB3;--bg:rgba(0,191,179,0.1)">AI-Native</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ── Left context ── -->
+  <div class="ctx">
+    <p class="ctx-desc">Describe what you need. Get a <strong>full Kibana dashboard</strong>: charts, metrics, and analysis: generated in seconds.</p>
+    <div class="type-cards">
+      <div class="type-card" style="--tc:#0073e6">
+        <div class="tc-dot"></div>
+        <div>
+          <div class="tc-name">AI Dashboard Generation</div>
+          <div class="tc-sub">Natural language → 13 Kibana panels instantly</div>
+        </div>
+      </div>
+      <div class="type-card" style="--tc:#7C3AED">
+        <div class="tc-dot"></div>
+        <div>
+          <div class="tc-name">Schema-Aware Reasoning</div>
+          <div class="tc-sub">Agent inspects your data, picks the right visualizations</div>
+        </div>
+      </div>
+      <div class="type-card" style="--tc:#00BFB3">
+        <div class="tc-dot"></div>
+        <div>
+          <div class="tc-name">Fully Editable</div>
+          <div class="tc-sub">Save, customize, and extend AI-generated dashboards</div>
+        </div>
+      </div>
+    </div>
+    <p class="ctx-hint"><span>Click the steps below</span> to walk through dashboard generation</p>
+  </div>
+
+  <!-- ── Browser frame ── -->
+  <div class="frame-wrap">
+    <div class="b-chrome">
+      <div class="b-dots">
+        <div class="b-dot" style="background:#FF5F57"></div>
+        <div class="b-dot" style="background:#FFBD2E"></div>
+        <div class="b-dot" style="background:#28CA42"></div>
+      </div>
+      <div class="b-url" id="url-bar">app/kibana#/agent-builder</div>
+    </div>
+
+    <div class="ki-body">
+
+      <!-- Global nav (hidden on view 1, shown for views 2–4) -->
+      <div class="ki-gnav" style="display:none">
+        <div class="ki-hamburger">☰</div>
+        <div class="ki-brand"><b>e</b>lastic</div>
+        <div class="ki-bc" id="ki-bc">
+          <a href="#">Analytics</a>
+          <span class="sep">›</span>
+          <span class="cur">Agent Builder</span>
+        </div>
+        <div class="ki-gnav-right" id="ki-gnav-right"></div>
+      </div>
+
+      <!-- Views -->
+      <div class="ki-views">
+
+        <!-- ── View 1: GIF ── -->
+        <div class="ki-view active" id="v-builder" style="background:#fff;overflow:hidden;">
+          <img src="images/mo2.gif" style="width:100%;height:105%;margin-top:-5%;display:block;object-fit:fill;">
+        </div>
+
+        <!-- ── View 2: Save dialog ── -->
+        <div class="ki-view" id="v-save">
+          <div class="save-bg">
+            <div class="save-modal">
+              <div class="save-ttl">Save dashboard as</div>
+              <div class="save-fg">
+                <div class="save-lbl">Title</div>
+                <input class="save-inp" type="text" value="Sample Logs Monitoring" readonly>
+              </div>
+              <div class="save-fg">
+                <div class="save-lbl">Description</div>
+                <textarea class="save-ta" readonly>AI-generated dashboard for monitoring sample log data: request volumes, error rates, and performance analysis.</textarea>
+              </div>
+              <div class="save-fg">
+                <div class="save-lbl">Tags</div>
+                <div class="save-tags">
+                  <span class="save-tag">logs</span>
+                  <span class="save-tag">monitoring</span>
+                  <span class="save-tag">ai-generated</span>
+                </div>
+              </div>
+              <div class="save-toggle-row">
+                <div class="save-toggle"></div>
+                <div class="save-toggle-lbl">Store time range with dashboard</div>
+              </div>
+              <div class="save-actions">
+                <button class="save-btn save-cancel" onclick="showView('v-builder')">Cancel</button>
+                <button class="save-btn save-save" onclick="showView('v-dashboard')">Save dashboard</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── View 3: Full dashboard ── -->
+        <div class="ki-view" id="v-dashboard">
+          <div class="ki-fbar">
+            <div class="ki-finput">Search…</div>
+            <div class="ki-fadd">+ Add filter</div>
+            <div class="ki-time">Last 30 days ▾</div>
+            <div class="ki-time">↺</div>
+          </div>
+          <div class="db-canvas">
+            <!-- KPI row -->
+            <div class="db-row">
+              <div class="db-panel" style="flex:1">
+                <div class="db-panel-ttl">Total Requests</div>
+                <div style="font-size:clamp(15px,1.7vw,22px);font-weight:800;color:#343741;letter-spacing:-0.02em;line-height:1.1">14,074</div>
+                <div style="font-size:clamp(6.5px,0.63vw,8.5px);color:#38A169;margin-top:3px">▲ 12.4% vs prev period</div>
+              </div>
+              <div class="db-panel" style="flex:1">
+                <div class="db-panel-ttl">Error Rate</div>
+                <div style="font-size:clamp(15px,1.7vw,22px);font-weight:800;color:#bd271e;letter-spacing:-0.02em;line-height:1.1">7.1%</div>
+                <div style="font-size:clamp(6.5px,0.63vw,8.5px);color:#bd271e;margin-top:3px">▲ 2.3% vs prev period</div>
+              </div>
+              <div class="db-panel" style="flex:1">
+                <div class="db-panel-ttl">Avg Response Time</div>
+                <div style="font-size:clamp(15px,1.7vw,22px);font-weight:800;color:#343741;letter-spacing:-0.02em;line-height:1.1">248ms</div>
+                <div style="font-size:clamp(6.5px,0.63vw,8.5px);color:#38A169;margin-top:3px">▼ 18ms vs prev period</div>
+              </div>
+              <div class="db-panel" style="flex:1">
+                <div class="db-panel-ttl">P99 Latency</div>
+                <div style="font-size:clamp(15px,1.7vw,22px);font-weight:800;color:#f5a700;letter-spacing:-0.02em;line-height:1.1">1,240ms</div>
+                <div style="font-size:clamp(6.5px,0.63vw,8.5px);color:#f5a700;margin-top:3px">▲ spike detected</div>
+              </div>
+            </div>
+            <!-- Traffic chart row -->
+            <div class="db-row" style="flex:1;min-height:0">
+              <div class="db-panel" style="flex:3">
+                <div class="db-panel-ttl">HTTP Traffic Over Time</div>
+                <svg width="100%" height="calc(100% - 20px)" viewBox="0 0 400 90" preserveAspectRatio="none" style="display:block">
+                  <defs>
+                    <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#0073e6" stop-opacity="0.22"/>
+                      <stop offset="100%" stop-color="#0073e6" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,75 C25,68 45,62 70,52 S100,56 125,42 S152,28 175,34 S200,20 225,14 S252,22 275,10 S300,6 325,12 S355,8 380,4 L400,8 L400,90 L0,90Z" fill="url(#g3)"/>
+                  <path d="M0,75 C25,68 45,62 70,52 S100,56 125,42 S152,28 175,34 S200,20 225,14 S252,22 275,10 S300,6 325,12 S355,8 380,4 L400,8" fill="none" stroke="#0073e6" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="db-panel" style="flex:2">
+                <div class="db-panel-ttl">Status Code Distribution</div>
+                <svg width="100%" height="calc(100% - 20px)" viewBox="0 0 200 85" preserveAspectRatio="none" style="display:block">
+                  <rect x="8" y="15" width="26" height="65" rx="2" fill="#38A169" opacity="0.85"/>
+                  <rect x="42" y="38" width="26" height="42" rx="2" fill="#0073e6" opacity="0.85"/>
+                  <rect x="76" y="28" width="26" height="52" rx="2" fill="#f5a700" opacity="0.85"/>
+                  <rect x="110" y="55" width="26" height="25" rx="2" fill="#bd271e" opacity="0.85"/>
+                  <rect x="144" y="68" width="26" height="12" rx="2" fill="#7C3AED" opacity="0.85"/>
+                  <text x="21" y="83" text-anchor="middle" font-size="7" fill="#69707d" font-family="Inter,sans-serif">200</text>
+                  <text x="55" y="83" text-anchor="middle" font-size="7" fill="#69707d" font-family="Inter,sans-serif">301</text>
+                  <text x="89" y="83" text-anchor="middle" font-size="7" fill="#69707d" font-family="Inter,sans-serif">304</text>
+                  <text x="123" y="83" text-anchor="middle" font-size="7" fill="#69707d" font-family="Inter,sans-serif">404</text>
+                  <text x="157" y="83" text-anchor="middle" font-size="7" fill="#69707d" font-family="Inter,sans-serif">500</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── View 4: Scrolled dashboard ── -->
+        <div class="ki-view" id="v-scrolled">
+          <div class="ki-fbar">
+            <div class="ki-finput">Search…</div>
+            <div class="ki-fadd">+ Add filter</div>
+            <div class="ki-time">Last 30 days ▾</div>
+            <div class="ki-time">↺</div>
+          </div>
+          <div class="db-canvas">
+            <!-- Row: Top URLs + Histogram + Donut -->
+            <div class="db-row" style="flex:1;min-height:0">
+              <div class="db-panel" style="flex:2">
+                <div class="db-panel-ttl">Top Requested URLs</div>
+                <div style="display:flex;flex-direction:column;gap:4px;margin-top:2px">
+                  <div class="hbar-row"><span class="hbar-lbl">/api/metrics</span><div class="hbar-track"><div class="hbar-fill" style="width:82%"></div></div><span class="hbar-val">3,241</span></div>
+                  <div class="hbar-row"><span class="hbar-lbl">/api/logs</span><div class="hbar-track"><div class="hbar-fill" style="width:64%"></div></div><span class="hbar-val">2,543</span></div>
+                  <div class="hbar-row"><span class="hbar-lbl">/health</span><div class="hbar-track"><div class="hbar-fill" style="width:48%"></div></div><span class="hbar-val">1,908</span></div>
+                  <div class="hbar-row"><span class="hbar-lbl">/api/trace</span><div class="hbar-track"><div class="hbar-fill" style="width:35%"></div></div><span class="hbar-val">1,392</span></div>
+                  <div class="hbar-row"><span class="hbar-lbl">/api/alerts</span><div class="hbar-track"><div class="hbar-fill" style="width:22%"></div></div><span class="hbar-val">878</span></div>
+                </div>
+              </div>
+              <div class="db-panel" style="flex:1">
+                <div class="db-panel-ttl">Response Time Distribution</div>
+                <svg width="100%" height="calc(100% - 18px)" viewBox="0 0 140 75" preserveAspectRatio="none" style="display:block">
+                  <rect x="4" y="48" width="18" height="24" rx="1" fill="#38A169" opacity="0.85"/>
+                  <rect x="26" y="22" width="18" height="50" rx="1" fill="#38A169" opacity="0.85"/>
+                  <rect x="48" y="8" width="18" height="64" rx="1" fill="#0073e6" opacity="0.85"/>
+                  <rect x="70" y="28" width="18" height="44" rx="1" fill="#f5a700" opacity="0.85"/>
+                  <rect x="92" y="48" width="18" height="24" rx="1" fill="#f5a700" opacity="0.85"/>
+                  <rect x="114" y="62" width="18" height="10" rx="1" fill="#bd271e" opacity="0.85"/>
+                  <text x="13" y="74" text-anchor="middle" font-size="6" fill="#69707d" font-family="Inter,sans-serif">&lt;50</text>
+                  <text x="35" y="74" text-anchor="middle" font-size="6" fill="#69707d" font-family="Inter,sans-serif">100</text>
+                  <text x="57" y="74" text-anchor="middle" font-size="6" fill="#69707d" font-family="Inter,sans-serif">250</text>
+                  <text x="79" y="74" text-anchor="middle" font-size="6" fill="#69707d" font-family="Inter,sans-serif">500</text>
+                  <text x="101" y="74" text-anchor="middle" font-size="6" fill="#69707d" font-family="Inter,sans-serif">1s</text>
+                  <text x="123" y="74" text-anchor="middle" font-size="6" fill="#69707d" font-family="Inter,sans-serif">5s+</text>
+                </svg>
+              </div>
+              <div class="db-panel" style="flex:1">
+                <div class="db-panel-ttl">Log Levels</div>
+                <div style="display:flex;align-items:center;gap:8px;flex:1;min-height:0;padding-top:4px">
+                  <svg viewBox="0 0 80 80" style="flex-shrink:0;width:clamp(44px,4.8vw,60px);height:clamp(44px,4.8vw,60px)">
+                    <circle cx="40" cy="40" r="27" fill="none" stroke="#e4e8ef" stroke-width="13"/>
+                    <circle cx="40" cy="40" r="27" fill="none" stroke="#38A169" stroke-width="13" stroke-dasharray="85 85" stroke-dashoffset="0" transform="rotate(-90 40 40)"/>
+                    <circle cx="40" cy="40" r="27" fill="none" stroke="#0073e6" stroke-width="13" stroke-dasharray="29 141" stroke-dashoffset="-85" transform="rotate(-90 40 40)"/>
+                    <circle cx="40" cy="40" r="27" fill="none" stroke="#f5a700" stroke-width="13" stroke-dasharray="21 149" stroke-dashoffset="-114" transform="rotate(-90 40 40)"/>
+                    <circle cx="40" cy="40" r="27" fill="none" stroke="#bd271e" stroke-width="13" stroke-dasharray="15 155" stroke-dashoffset="-135" transform="rotate(-90 40 40)"/>
+                  </svg>
+                  <div style="display:flex;flex-direction:column;gap:3px">
+                    <div style="display:flex;align-items:center;gap:4px;font-size:clamp(6.5px,0.62vw,8.5px)"><span style="width:7px;height:7px;background:#38A169;border-radius:1px;flex-shrink:0"></span>INFO</div>
+                    <div style="display:flex;align-items:center;gap:4px;font-size:clamp(6.5px,0.62vw,8.5px)"><span style="width:7px;height:7px;background:#0073e6;border-radius:1px;flex-shrink:0"></span>DEBUG</div>
+                    <div style="display:flex;align-items:center;gap:4px;font-size:clamp(6.5px,0.62vw,8.5px)"><span style="width:7px;height:7px;background:#f5a700;border-radius:1px;flex-shrink:0"></span>WARN</div>
+                    <div style="display:flex;align-items:center;gap:4px;font-size:clamp(6.5px,0.62vw,8.5px)"><span style="width:7px;height:7px;background:#bd271e;border-radius:1px;flex-shrink:0"></span>ERROR</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row: Heatmap + Error Timeline -->
+            <div class="db-row" style="flex:1;min-height:0">
+              <div class="db-panel" style="flex:3">
+                <div class="db-panel-ttl">Requests Heatmap: Hour of Day × Day of Week</div>
+                <div id="heatmap-grid" style="display:grid;grid-template-columns:repeat(24,1fr);gap:1.5px;margin-top:5px;flex:1"></div>
+              </div>
+              <div class="db-panel" style="flex:2">
+                <div class="db-panel-ttl">Error Timeline</div>
+                <svg width="100%" height="calc(100% - 18px)" viewBox="0 0 200 75" preserveAspectRatio="none" style="display:block">
+                  <defs>
+                    <linearGradient id="g4" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#bd271e" stop-opacity="0.22"/>
+                      <stop offset="100%" stop-color="#bd271e" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,65 C15,60 28,62 45,55 S62,35 80,42 S98,48 112,32 S130,44 148,28 S165,38 180,22 L200,30 L200,75 L0,75Z" fill="url(#g4)"/>
+                  <path d="M0,65 C15,60 28,62 45,55 S62,35 80,42 S98,48 112,32 S130,44 148,28 S165,38 180,22 L200,30" fill="none" stroke="#bd271e" stroke-width="1.8"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.ki-views -->
+    </div><!-- /.ki-body -->
+  </div><!-- /.frame-wrap -->
+</div><!-- /.main -->
+
+<!-- Demo nav -->
+<div class="demo-nav">
+  <button class="dnav-btn on" data-view="v-builder" onclick="showView('v-builder')">1</button>
+  <button class="dnav-btn" data-view="v-save" onclick="showView('v-save')">2</button>
+  <button class="dnav-btn" data-view="v-dashboard" onclick="showView('v-dashboard')">3</button>
+  <button class="dnav-btn" data-view="v-scrolled" onclick="showView('v-scrolled')">4</button>
+</div>
+
+<script src="js/fuckslides.js"></script>
+<script>
+'use strict';
+
+const VIEWS = ['v-builder','v-save','v-dashboard','v-scrolled'];
+
+const URLS = {
+  'v-builder': 'app/kibana#/agent-builder',
+  'v-save':    'app/kibana#/agent-builder',
+  'v-dashboard': 'app/dashboards#/view/sample-logs-monitoring',
+  'v-scrolled':  'app/dashboards#/view/sample-logs-monitoring',
+};
+
+const BCS = {
+  'v-builder':   '<a href="#">Analytics</a><span class="sep">›</span><span class="cur">Agent Builder</span>',
+  'v-save':      '<a href="#">Analytics</a><span class="sep">›</span><span class="cur">Agent Builder</span>',
+  'v-dashboard': '<a href="#">Dashboards</a><span class="sep">›</span><span class="cur">Editing: Sample Logs Monitoring</span>',
+  'v-scrolled':  '<a href="#">Dashboards</a><span class="sep">›</span><span class="cur">Sample Logs Monitoring</span>',
+};
+
+const NAV_RIGHT = {
+  'v-builder':   '',
+  'v-save':      '',
+  'v-dashboard': '<button class="ki-btn ki-btn-sec">Share</button><button class="ki-btn ki-btn-pri">Save</button>',
+  'v-scrolled':  '<button class="ki-btn ki-btn-sec">Share</button><button class="ki-btn ki-btn-pri">Edit</button>',
+};
+
+function showView(id) {
+  VIEWS.forEach(v => {
+    document.getElementById(v).classList.toggle('active', v === id);
+    const b = document.querySelector(`.dnav-btn[data-view="${v}"]`);
+    if (b) b.classList.toggle('on', v === id);
+  });
+  document.getElementById('url-bar').textContent = URLS[id] || '';
+  document.getElementById('ki-bc').innerHTML = BCS[id] || '';
+  document.getElementById('ki-gnav-right').innerHTML = NAV_RIGHT[id] || '';
+  // hide the Kibana nav bar on the GIF view: it has its own
+  document.querySelector('.ki-gnav').style.display = id === 'v-builder' ? 'none' : '';
+}
+
+// Generate heatmap cells
+(function () {
+  const grid = document.getElementById('heatmap-grid');
+  if (!grid) return;
+  const pattern = [
+    [1,1,1,1,1,1,2,3,4,5,5,4,3,3,4,5,5,4,3,2,2,1,1,1],
+    [1,1,1,1,1,1,2,4,5,5,5,4,3,4,5,5,5,4,3,2,2,1,1,1],
+    [1,1,1,1,1,1,2,3,4,4,5,4,3,3,4,5,4,3,3,2,2,1,1,1],
+    [1,1,1,1,1,1,2,4,5,5,5,5,4,4,5,5,5,4,3,2,2,1,1,1],
+    [1,1,1,1,1,1,2,3,4,5,5,4,3,3,4,5,4,3,2,2,2,1,1,1],
+    [1,1,1,1,1,1,1,2,3,3,3,3,2,2,3,3,3,2,2,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1],
+  ];
+  const colors = ['#e4e8ef','#b8d9fb','#7ab8f7','#4495f3','#0073e6','#005cb0'];
+  pattern.forEach(row => {
+    row.forEach(v => {
+      const cell = document.createElement('div');
+      cell.style.cssText = `height:clamp(7px,1vw,13px);background:${colors[v-1]};border-radius:1px;`;
+      grid.appendChild(cell);
+    });
+  });
+})();
+</script>
+</body>
+</html>

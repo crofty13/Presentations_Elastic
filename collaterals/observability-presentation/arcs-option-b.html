@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Arcs: Option B</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .eyebrow::before{background:var(--pink)}
+  h1{font-size:40px;letter-spacing:-1.2px;max-width:960px}
+  .cols{position:absolute;left:72px;right:72px;top:190px;bottom:66px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;z-index:2}
+  .col{position:relative;border-top:1px solid var(--ink);padding-top:14px}
+  .col.next{border-top-style:dashed;border-top-color:var(--grey-l)}
+  .col .hd{display:flex;justify-content:space-between;align-items:center}
+  .col .hd .tag i{margin-right:6px}
+  .badge{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border:1px dashed var(--grey-l);color:var(--grey)}
+  .badge.now{background:var(--pink);border:1px solid var(--pink);color:#fff}
+  .col svg{position:relative;display:block;width:100%;height:290px;overflow:visible}
+  .col h2{font:600 30px var(--sans);letter-spacing:-1px;margin-top:4px}
+  .col.next h2{color:var(--grey-l)}
+  .col p{font-size:14px;line-height:1.45;color:var(--char);margin-top:6px;max-width:330px}
+  .col.next p{color:var(--grey)}
+  .col.now{background:linear-gradient(180deg,rgba(240,78,152,.05),rgba(240,78,152,0) 70%)}
+</style>
+</head>
+<body data-foot="The three arcs">
+<div class="z">
+  <div class="eyebrow in1"><span style="text-transform:none">Elastic nightshift</span> · The Three Arcs</div>
+  <h1 class="in2">We start with <span class="b" style="color:var(--pink)">RCA</span>: nail the investigation, and everything else builds on it.</h1>
+</div>
+<div class="cols">
+  <div class="col next in3">
+    <div class="hd"><span class="tag"><i>01</i>Developer Arc</span><span class="badge">Next</span></div>
+    <svg id="a0" class="iso" viewBox="0 0 363 290"></svg>
+    <h2>Developer</h2><p>Code quality and delivery: from error to merged fix.</p>
+  </div>
+  <div class="col now in2">
+    <div class="hd"><span class="tag"><i>02</i>Reliability Arc</span><span class="badge now">Focus now</span></div>
+    <svg id="a1" class="iso" viewBox="0 0 363 290"></svg>
+    <h2>Reliability</h2><p>Incident operations: from alert to resolution.</p>
+  </div>
+  <div class="col next in4">
+    <div class="hd"><span class="tag"><i>03</i>Infrastructure Arc</span><span class="badge">Next</span></div>
+    <svg id="a2" class="iso" viewBox="0 0 363 290"></svg>
+    <h2>Infrastructure</h2><p>Resource efficiency: cost, scale, and drift under control.</p>
+  </div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 462, y: 236, w: 356, h: 250, seed: 21, blobs: 4, thr: .5});
+  const arcs = [
+    [['Sentry', 'Error → Fix → PR'], ['Perf', 'Regression → Commit'], ['Deploy', 'Rollout → Safe / Stop']],
+    [['RCA', 'Incident → Root cause'], ['Triage', 'Page → Brief'], ['SLO', 'Burn → Mitigation']],
+    [['Cost', 'Waste → Savings'], ['Capacity', 'Trend → Pre-scale'], ['Drift', 'Diverge → PR']]
+  ];
+  const Z = [0, 50, 100], H = 36, W = 92;
+  let rca;
+  arcs.forEach((items, a) => {
+    const now = a === 1, sc = EW.iso(document.getElementById('a' + a), {ox: 92, oy: 170, s: .95});
+    items.forEach(([n, f], i) => {
+      const base = now ? .35 + i * .18 : .55 + i * .1;
+      const c = now ? (i === 0 ? 'pink' : i === 1 ? 'blue' : 'white') : 'white';
+      const b = sc.box({x: 0, y: 0, w: W, d: W, h: H, z: Z[i], c, stroke: now ? '#1D1E24' : '#98A2B3', dash: now ? null : '3 3', wire: !now, delay: base, drop: now ? 90 : 0, snap: now, order: i * 100, shadow: now && i === 0, op: now ? 1 : .9});
+      if (now && i === 0) rca = {sc, b};
+      sc.label({at: [W, 0, Z[i] + H / 2], side: 'r', len: 28, title: n, sub: now && i === 0 ? [f, '● Today'] : f, raw: true, delay: base + .4});
+    });
+    if (now){ sc.rect({x: -18, y: -18, w: W + 36, d: W + 36, z: 0, delay: .2}); }
+    sc.run();
+  });
+  document.querySelectorAll('#a1 text').forEach(t => { if (t.textContent === '● Today'){ t.setAttribute('fill', '#F04E98'); t.setAttribute('font-weight', 600); } });
+  // RCA is the foundation: a pulse rises from it through the arc
+  const {sc} = rca, rings = [0, 1, 2].map(() => EW.el('polygon', {fill: 'none', stroke: '#F04E98', 'stroke-width': 1.3, opacity: 0}, sc.top));
+  const sq = (z, g) => [[-g, -g], [W + g, -g], [W + g, W + g], [-g, W + g]].map(([x, y]) => sc.P(x, y, z).join(',')).join(' ');
+  EW.loop(t => {
+    rings.forEach((r, i) => {
+      if (t < 1.5){ r.setAttribute('opacity', 0); return; }
+      const k = ((t - 1.5) / 2.4 + i / 3) % 1;
+      r.setAttribute('points', sq(H + k * 104, 2 + k * 6));
+      r.setAttribute('opacity', (Math.sin(k * Math.PI) * .7).toFixed(2));
+    });
+  });
+})();
+</script>
+</body>
+</html>

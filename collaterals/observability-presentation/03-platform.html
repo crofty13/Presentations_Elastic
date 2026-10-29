@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three Layers. One Structural Advantage.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100vh;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #1C1E26;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fade-up { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+
+    /* ── Stack ── */
+    .stack { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+    /* ── Layer ── */
+    .layer {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: clamp(2rem, 3.5vw, 5rem) 1fr auto;
+      align-items: center;
+      gap: clamp(1.5rem, 2.5vw, 3.5rem);
+      padding-right: clamp(2rem, 3.5vw, 5rem);
+      border-left: 4px solid var(--c);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+    }
+
+    .layer-3 { --c: #E5601A; animation: fade-up 0.5s ease forwards 0.08s; }
+    .layer-2 { --c: #00BFB3; animation: fade-up 0.5s ease forwards 0.22s; }
+    .layer-1 { --c: #2363F4; animation: fade-up 0.5s ease forwards 0.36s; }
+
+    /* Ghost number */
+    .ghost-num {
+      position: absolute;
+      right: -0.05em; bottom: -0.2em;
+      font-size: clamp(9rem, 20vw, 26rem);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--c);
+      opacity: 0.035;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -0.05em;
+    }
+
+    /* Num column */
+    .layer-num {
+      font-size: clamp(0.6rem, 0.72vw, 0.85rem);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--c);
+      opacity: 0.7;
+      text-align: center;
+    }
+
+    /* Main */
+    .layer-main { position: relative; z-index: 1; }
+    .layer-name {
+      font-size: clamp(2.4rem, 4.2vw, 6rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: #fff;
+    }
+    .layer-claim {
+      font-size: clamp(0.85rem, 1vw, 1.25rem);
+      font-weight: 400;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.5;
+      margin-top: clamp(0.35rem, 0.5vw, 0.65rem);
+      max-width: 480px;
+    }
+    .layer-pills {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: clamp(0.5rem, 0.7vw, 0.9rem);
+    }
+    .pill {
+      font-size: clamp(0.54rem, 0.63vw, 0.72rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--c);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 0.22em 0.75em;
+    }
+
+    /* Right: stats */
+    .layer-stats {
+      display: flex;
+      gap: clamp(1.5rem, 2.5vw, 3.5rem);
+      flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+    .stat { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+    .stat-num {
+      font-size: clamp(1.5rem, 2.4vw, 3.4rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--c);
+    }
+    .stat-label {
+      font-size: clamp(0.54rem, 0.64vw, 0.76rem);
+      font-weight: 500;
+      color: rgba(255,255,255,0.3);
+      text-align: center;
+      line-height: 1.4;
+      max-width: 80px;
+    }
+
+    /* Right: bullets */
+    .layer-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.45rem, 0.6vw, 0.8rem);
+      position: relative; z-index: 1;
+    }
+    .layer-bullets li {
+      font-size: clamp(0.8rem, 0.92vw, 1.1rem);
+      color: rgba(255,255,255,0.4);
+      line-height: 1.4;
+      padding-left: 1em;
+      position: relative;
+      max-width: 280px;
+    }
+    .layer-bullets li::before {
+      content: '';
+      position: absolute; left: 0; top: 0.52em;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--c); opacity: 0.5;
+    }
+
+    /* ── Chain bar ── */
+    .chain-bar {
+      height: 50px;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.025);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      opacity: 0;
+      animation: fade-up 0.45s ease forwards 0.5s;
+    }
+    .chain-item { font-size: clamp(0.8rem, 1vw, 1.2rem); font-weight: 700; }
+    .c-blue   { color: #7BA8FF; }
+    .c-teal   { color: #5DD9D3; }
+    .c-orange { color: #F4956A; }
+    .c-dim    { color: rgba(255,255,255,0.7); }
+    .chain-arrow { color: rgba(255,255,255,0.18); }
+    .chain-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.12); margin: 0 1rem; }
+    .chain-caption { font-size: clamp(0.62rem, 0.76vw, 0.88rem); font-style: italic; color: rgba(255,255,255,0.28); }
+  </style>
+</head>
+<body>
+
+  <div class="stack">
+
+    <div class="layer layer-3">
+      <div class="ghost-num">03</div>
+      <div class="layer-num">03</div>
+      <div class="layer-main">
+        <div class="layer-name">Elastic nightshift</div>
+        <div class="layer-claim">Investigates incidents, generates hypotheses, proposes and executes fixes — around the clock, without a page.</div>
+        <div class="layer-pills">
+          <span class="pill">Autonomous RCA</span>
+          <span class="pill">Auto-Remediation</span>
+          <span class="pill">Full Audit Trail</span>
+          <span class="pill">Configurable Trust</span>
+        </div>
+      </div>
+      <ul class="layer-bullets">
+        <li>Parallel hypotheses, ranked by evidence</li>
+        <li>Executes fixes at the trust level you set</li>
+        <li>Every step cited and auditable</li>
+      </ul>
+    </div>
+
+    <div class="layer layer-2">
+      <div class="ghost-num">02</div>
+      <div class="layer-num">02</div>
+      <div class="layer-main">
+        <div class="layer-name">AI Index</div>
+        <div class="layer-claim">Builds a live model of your environment — topology, baselines, SLOs — so the agent never works blind.</div>
+        <div class="layer-pills">
+          <span class="pill">Knowledge Indicators</span>
+          <span class="pill">Live Topology</span>
+          <span class="pill">Significant Events</span>
+        </div>
+      </div>
+      <ul class="layer-bullets">
+        <li>Extracts KIs from every signal stream</li>
+        <li>Maintains real-time baseline models</li>
+        <li>Surfaces only what the agent needs</li>
+      </ul>
+    </div>
+
+    <div class="layer layer-1">
+      <div class="ghost-num">01</div>
+      <div class="layer-num">01</div>
+      <div class="layer-main">
+        <div class="layer-name">Elasticsearch</div>
+        <div class="layer-claim">The most efficient datastore for logs and metrics. Every signal at scale.</div>
+        <div class="layer-pills">
+          <span class="pill">LogsDB</span>
+          <span class="pill">Columnar Metrics</span>
+          <span class="pill">ES|QL</span>
+        </div>
+      </div>
+      <div class="layer-stats">
+        <div class="stat">
+          <div class="stat-num">65%</div>
+          <div class="stat-label">log storage reduction</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">~40%</div>
+          <div class="stat-label">faster query time</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">30×</div>
+          <div class="stat-label">vs Prometheus &amp; Mimir</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="chain-bar">
+    <span class="chain-item c-blue">Data</span>
+    <span class="chain-arrow">→</span>
+    <span class="chain-item c-teal">AI Index</span>
+    <span class="chain-arrow">→</span>
+    <span class="chain-item c-dim">Agent</span>
+    <span class="chain-arrow">→</span>
+    <span class="chain-item c-orange">Action</span>
+    <div class="chain-divider"></div>
+    <span class="chain-caption">Each layer feeds the next. You can't skip the chain.</span>
+  </div>
+
+<script src="js/fuckslides.js"></script>
+</body>
+</html>

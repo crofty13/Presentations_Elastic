@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elastic nightshift: Agentic SRE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100vh; overflow: hidden;
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-color: #22242C;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+      color: #fff; display: flex; flex-direction: column;
+    }
+
+    @keyframes fade-up  { from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none} }
+    @keyframes fade-in  { from{opacity:0}to{opacity:1} }
+    @keyframes dot-pulse {
+      0%,80%,100% { transform:translateY(0); opacity:0.4; }
+      40%          { transform:translateY(-5px); opacity:1; }
+    }
+
+    /* ── Top bar ── */
+    .top-bar {
+      flex-shrink: 0;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: clamp(0.9rem, 1.3vw, 1.8rem) clamp(2rem, 3.5vw, 5rem);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      opacity: 0; animation: fade-up 0.4s ease forwards;
+    }
+    .eyebrow { font-size: clamp(0.58rem, 0.7vw, 0.82rem); font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.28); margin-bottom: 0.2rem; }
+    .bar-title { font-size: clamp(1.4rem, 2.2vw, 3rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+    .bar-title .hl { background: linear-gradient(135deg,#38BDF8,#BAE6FD); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .status-pills { display: flex; gap: 0.5rem; align-items: center; }
+    .sp {
+      font-size: clamp(0.55rem, 0.65vw, 0.74rem); font-weight: 700; letter-spacing: 0.04em;
+      padding: 0.28em 0.75em; border-radius: 6px;
+      border: 1px solid var(--c); color: var(--c); background: var(--bg);
+    }
+
+    /* ── Main ── */
+    .main { flex: 1; min-height: 0; display: flex; gap: clamp(1.5rem, 2.5vw, 4rem); padding: clamp(1rem, 1.5vw, 2rem) clamp(2rem, 3.5vw, 5rem); align-items: stretch; }
+
+    /* ── Left context ── */
+    .ctx {
+      flex-shrink: 0; width: clamp(180px, 24%, 300px);
+      display: flex; flex-direction: column; justify-content: center;
+      gap: clamp(0.8rem, 1.2vw, 1.8rem);
+      opacity: 0; animation: fade-up 0.5s ease forwards 0.2s;
+      overflow: hidden; min-width: 0;
+      transition: width 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
+    }
+    .ctx-desc { font-size: clamp(0.75rem, 0.9vw, 1.1rem); color: rgba(255,255,255,0.5); line-height: 1.6; font-weight: 300; }
+    .ctx-desc strong { color: #fff; font-weight: 700; }
+    .type-cards { display: flex; flex-direction: column; gap: 0.42rem; }
+    .type-card { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; border-left: 3px solid var(--tc); }
+    .tc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--tc); flex-shrink: 0; margin-top: 0.3em; }
+    .tc-name { font-size: clamp(0.62rem, 0.75vw, 0.88rem); font-weight: 700; color: rgba(255,255,255,0.88); }
+    .tc-sub { font-size: clamp(0.5rem, 0.58vw, 0.66rem); color: rgba(255,255,255,0.28); line-height: 1.35; margin-top: 0.1rem; }
+    .ctx-hint { font-size: clamp(0.52rem, 0.6vw, 0.7rem); color: rgba(255,255,255,0.22); font-style: italic; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.5rem; }
+    .ctx-hint span { color: #00BFB3; }
+
+    /* ── Browser frame ── */
+    .frame-wrap {
+      flex: 1; min-height: 0; display: flex; flex-direction: column;
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 32px 80px rgba(0,0,0,0.6);
+      opacity: 0; animation: fade-in 0.6s ease forwards 0.35s;
+    }
+    .b-chrome { background: #1C2C50; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0.5rem 0.85rem; display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+    .b-dots { display: flex; gap: 5px; }
+    .b-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .b-url { flex: 1; background: rgba(0,0,0,0.22); border-radius: 4px; padding: 0.18rem 0.65rem; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.46rem, 0.55vw, 0.64rem); color: rgba(255,255,255,0.3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── Elastic nightshift UI shell ── */
+    .ns-ui {
+      background: #fff; color: #1a1a1a;
+      flex: 1; min-height: 0; display: flex; flex-direction: column;
+      font-family: 'Inter', -apple-system, sans-serif;
+      position: relative; overflow: hidden;
+    }
+
+    /* ── Scrollable main area ── */
+    .frame-scroll {
+      flex: 1; min-height: 0;
+      overflow-y: auto; overflow-x: hidden;
+      padding: clamp(12px,1.4vw,20px) clamp(14px,1.8vw,22px) 0;
+      scrollbar-width: thin;
+      scrollbar-color: #CBD5E0 transparent;
+    }
+    .frame-scroll::-webkit-scrollbar { width: 4px; }
+    .frame-scroll::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 4px; }
+
+    /* ── Fixed bottom area ── */
+    .frame-bottom {
+      flex-shrink: 0;
+      padding: clamp(8px,1vw,10px) clamp(14px,1.8vw,22px) clamp(10px,1.2vw,12px);
+      border-top: 1px solid #EEF2F8;
+      background: #fff;
+    }
+
+    /* ── Elastic nightshift badge ── */
+    .ns-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #111; color: #fff;
+      font-size: clamp(10px,0.95vw,13px); font-weight: 700; letter-spacing: 0.08em;
+      padding: 3px 9px; border-radius: 20px;
+    }
+
+    /* ── Title area ── */
+    .ns-title-wrap { margin-bottom: clamp(8px,1vw,12px); }
+    .ns-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .ns-title {
+      font-size: clamp(0.9rem, 1.2vw, 1.15rem);
+      font-weight: 800; color: #1a202c; line-height: 1.2;
+    }
+    .ns-subtitle {
+      font-size: clamp(0.65rem, 0.8vw, 0.82rem);
+      color: #718096; line-height: 1.4;
+    }
+
+    /* ── Blast radius card ── */
+    .br-card {
+      border: 1px solid #E2E8F0; border-radius: 10px;
+      padding: clamp(10px,1.1vw,14px) clamp(12px,1.4vw,16px); margin-bottom: 10px;
+    }
+    .br-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+    .br-gauge { flex-shrink: 0; }
+    .br-info { flex: 1; }
+    .br-label { font-size: clamp(11px,1.05vw,14px); font-weight: 600; color: #718096; margin-bottom: 2px; }
+    .br-label-row { display: flex; justify-content: space-between; align-items: center; }
+    .br-time { font-size: clamp(10px,0.9vw,12px); color: #A0AEC0; }
+    .br-severity { font-size: clamp(13px,1.2vw,16px); font-weight: 800; color: #C53030; margin-bottom: 4px; }
+    .br-desc { font-size: clamp(11px,1.05vw,14px); color: #4A5568; line-height: 1.5; }
+
+    .chip {
+      display: inline-flex; align-items: center;
+      font-size: clamp(10px,0.9vw,12px); font-weight: 700;
+      padding: 1px 6px; border-radius: 10px;
+      vertical-align: middle; line-height: 1.6;
+    }
+    .chip-red   { background: #FEE2E2; color: #C53030; }
+    .chip-orange{ background: #FEF3C7; color: #92400E; }
+
+    /* ── Blast radius micro viz ── */
+    .blast-viz {
+      display: flex; align-items: center; gap: 6px;
+      padding: clamp(8px,0.9vw,12px) 0 clamp(4px,0.5vw,6px);
+      border-top: 1px solid #F0F4F8;
+    }
+    .bv-source { flex-shrink: 0; }
+    .bv-svg { flex: 1; height: clamp(60px,7vw,80px); min-width: 30px; overflow: visible; }
+    .bv-targets { flex-shrink: 0; display: flex; flex-direction: column; gap: clamp(4px,0.5vw,6px); }
+    .bv-node {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: clamp(4px,0.45vw,6px) clamp(7px,0.8vw,10px);
+      border-radius: 8px; font-size: clamp(10px,0.95vw,12px); font-weight: 600;
+      position: relative; white-space: nowrap;
+    }
+    .bv-node--critical { background: #FEE2E2; border: 1.5px solid #FC8181; color: #C53030; }
+    .bv-node--degraded { background: #FEF3C7; border: 1px solid #F59E0B; color: #92400E; }
+    .bv-node--risk     { background: #FFFBEB; border: 1px solid #FCD34D; color: #78350F; }
+    .bv-label {
+      font-size: clamp(7px,0.65vw,9px); font-weight: 700; letter-spacing: 0.05em;
+      padding: 1px 5px; border-radius: 4px; background: rgba(0,0,0,0.07); margin-left: 2px;
+    }
+    .bv-pulse {
+      position: absolute; inset: -3px; border-radius: 10px;
+      border: 1.5px solid #FC8181; opacity: 0;
+      animation: bv-ring 1.8s ease-out infinite;
+    }
+    @keyframes bv-ring {
+      0%   { opacity:0.65; transform:scale(1); }
+      100% { opacity:0;    transform:scale(1.22); }
+    }
+
+    /* ── Action section ── */
+    .action-section {
+      background: #F7F9FC; border-radius: 8px;
+      padding: clamp(9px,1vw,12px) clamp(11px,1.2vw,14px); margin-bottom: 10px;
+    }
+    .action-text { font-size: clamp(11px,1.05vw,14px); color: #4A5568; line-height: 1.5; margin-bottom: 8px; }
+    .action-btns { display: flex; gap: 7px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: inherit; font-size: clamp(11px,1.05vw,14px); font-weight: 600;
+      padding: clamp(5px,0.6vw,7px) clamp(10px,1.1vw,14px); border-radius: 7px; cursor: pointer;
+      border: 1px solid; transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-outline { background: #fff; border-color: #CBD5E0; color: #2D3748; }
+    .btn-purple  { background: #EDE9FE; border-color: #C4B5FD; color: #5B21B6; }
+    .btn-ghost   { background: transparent; border-color: #E2E8F0; color: #718096; }
+    .btn-purple-solid { background: #7C3AED; border-color: #7C3AED; color: #fff; }
+
+    /* ── Chat input ── */
+    .chat-input-wrap {
+      border: 1.5px solid #2363F4; border-radius: 8px;
+      padding: clamp(7px,0.8vw,9px) clamp(10px,1.1vw,12px);
+      margin-bottom: 5px;
+    }
+    .chat-input-placeholder { font-size: clamp(11px,1.05vw,14px); color: #A0AEC0; margin-bottom: 8px; }
+    .chat-input-bar { display: flex; align-items: center; justify-content: space-between; }
+    .chat-input-left { display: flex; align-items: center; gap: 8px; font-size: clamp(11px,1.05vw,14px); color: #718096; }
+    .sonnet-badge { display: inline-flex; align-items: center; gap: 4px; font-size: clamp(10px,0.9vw,12px); font-weight: 600; color: #4A5568; }
+    .send-btn { width: 24px; height: 24px; background: #2363F4; border-radius: 6px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .send-btn svg { width: 11px; height: 11px; }
+
+    /* ── Footer links ── */
+    .footer-links { font-size: clamp(10px,0.9vw,12px); color: #A0AEC0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .footer-link { display: inline-flex; align-items: center; gap: 4px; color: #2363F4; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .footer-link:hover { text-decoration: underline; }
+
+    /* ── DETAIL PANEL ── */
+    .detail-panel {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: min(52%, 400px);
+      background: #fff;
+      border-left: 1px solid #E2E8F0;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+      display: flex; flex-direction: column;
+      transform: translateX(101%);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      z-index: 100;
+    }
+    .detail-panel.open { transform: translateX(0); }
+
+    .dp-header { flex-shrink: 0; padding: 12px 14px; border-bottom: 1px solid #E2E8F0; }
+    .dp-header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+    .dp-title { font-size: clamp(12px,1.1vw,15px); font-weight: 700; color: #1a202c; line-height: 1.3; }
+    .dp-close { flex-shrink: 0; background: none; border: none; cursor: pointer; color: #A0AEC0; font-size: 15px; line-height: 1; padding: 0 2px; transition: color 0.15s; }
+    .dp-close:hover { color: #4A5568; }
+    .dp-detected { font-size: clamp(10px,0.9vw,12px); color: #A0AEC0; display: flex; align-items: center; gap: 4px; }
+
+    .dp-metrics { flex-shrink: 0; display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid #E2E8F0; }
+    .dp-metric { padding: clamp(7px,0.8vw,10px) clamp(8px,0.9vw,12px); border-right: 1px solid #F0F4F8; }
+    .dp-metric:last-child { border-right: none; }
+    .dp-metric-label { font-size: clamp(9px,0.82vw,11px); font-weight: 600; color: #A0AEC0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+    .dp-metric-val { font-size: clamp(11px,1.05vw,14px); font-weight: 700; color: #2D3748; }
+    .badge-critical { display: inline-block; background: #FEE2E2; color: #C53030; font-size: clamp(10px,0.9vw,12px); font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+    .badge-escalate { display: inline-flex; align-items: center; gap: 3px; background: #FEF3C7; color: #92400E; font-size: clamp(10px,0.9vw,12px); font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+
+    .dp-body { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 14px; scrollbar-width: thin; scrollbar-color: #CBD5E0 transparent; }
+    .dp-body::-webkit-scrollbar { width: 3px; }
+    .dp-body::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 3px; }
+
+    .dp-section-head { display: flex; align-items: center; justify-content: space-between; font-size: clamp(12px,1.1vw,15px); font-weight: 700; color: #2D3748; padding: 6px 0; border-bottom: 1px solid #F0F4F8; margin-bottom: 8px; cursor: pointer; }
+    .dp-sub-label { font-size: clamp(10px,0.9vw,12px); font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; margin-top: 8px; }
+    .dp-body-text { font-size: clamp(11px,1.05vw,14px); color: #4A5568; line-height: 1.65; margin-bottom: 8px; }
+
+    .dp-root-cause { display: flex; gap: 10px; margin-bottom: 10px; }
+    .dp-root-icon { flex-shrink: 0; margin-top: 1px; }
+
+    .dp-reco-box { background: #FFFBEB; border: 1px solid #F59E0B; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
+    .dp-reco-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .dp-reco-label { font-size: clamp(11px,1.05vw,14px); font-weight: 700; color: #2D3748; }
+    .dp-reco-text { font-size: clamp(11px,1.05vw,14px); color: #4A5568; line-height: 1.5; }
+
+    /* ── CHAT VIEW ── */
+    .chat-top-card { display: flex; gap: 10px; align-items: flex-start; border: 1px solid #E2E8F0; border-radius: 9px; padding: clamp(9px,1vw,12px) clamp(11px,1.2vw,14px); margin-bottom: 10px; }
+    .chat-mini-info { flex: 1; }
+    .chat-mini-title { font-size: clamp(12px,1.1vw,15px); font-weight: 700; color: #1a202c; margin: 3px 0; }
+    .chat-mini-desc { font-size: clamp(10px,0.9vw,12px); color: #718096; line-height: 1.5; }
+    .chat-mini-btns { display: flex; gap: 6px; margin-top: 7px; }
+
+    .chat-convo { display: flex; flex-direction: column; gap: 8px; padding-bottom: 8px; }
+
+    .msg-user { display: flex; justify-content: flex-end; opacity: 0; }
+    .msg-user.show { animation: fade-up 0.3s ease forwards; }
+    .bubble-user {
+      background: #EDE9FE; color: #3B1F8C;
+      font-size: clamp(11px,1.05vw,14px); line-height: 1.55;
+      padding: 8px 12px; border-radius: 12px 12px 3px 12px;
+      max-width: 90%;
+    }
+
+    .msg-thinking { display: flex; align-items: center; gap: 8px; opacity: 0; font-size: clamp(11px,1.05vw,14px); color: #A0AEC0; }
+    .msg-thinking.show { animation: fade-in 0.25s ease forwards; }
+    .dots { display: flex; gap: 4px; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: #A0AEC0; animation: dot-pulse 1.2s ease-in-out infinite; }
+    .dot:nth-child(1) { animation-delay: 0s; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .msg-reasoning { display: flex; align-items: center; gap: 6px; font-size: clamp(10px,0.9vw,12px); color: #718096; opacity: 0; }
+    .msg-reasoning.show { animation: fade-in 0.25s ease forwards; }
+    .reasoning-icon { color: #7C3AED; }
+
+    .msg-ai { opacity: 0; }
+    .msg-ai.show { animation: fade-up 0.35s ease forwards; }
+
+    .ai-section { margin-bottom: 10px; }
+    .ai-section-title { font-size: clamp(12px,1.1vw,15px); font-weight: 800; color: #1a202c; padding-bottom: 6px; border-bottom: 1px solid #E2E8F0; margin-bottom: 8px; }
+    .ai-h2 { font-size: clamp(11px,1.0vw,14px); font-weight: 700; color: #1a202c; margin-bottom: 5px; }
+    .ai-body { font-size: clamp(11px,1.05vw,14px); color: #4A5568; line-height: 1.65; margin-bottom: 6px; }
+    .ai-body strong { color: #1a202c; }
+
+    code, .mono {
+      font-family: 'JetBrains Mono', monospace;
+      background: #F1F5F9; color: #1a202c;
+      padding: 0.1em 0.35em; border-radius: 3px;
+      font-size: 0.88em;
+    }
+
+    .evidence-table { width: 100%; border-collapse: collapse; font-size: clamp(10px,0.9vw,13px); margin-top: 4px; }
+    .evidence-table th { text-align: left; font-weight: 700; color: #718096; padding: 3px 7px; border-bottom: 1.5px solid #E2E8F0; background: #F7F9FC; }
+    .evidence-table td { padding: 5px 7px; border-bottom: 1px solid #F0F4F8; color: #4A5568; vertical-align: top; }
+    .evidence-table tr:last-child td { border-bottom: none; }
+    .weight-high { display: inline-flex; align-items: center; gap: 3px; font-size: clamp(10px,0.9vw,12px); font-weight: 700; color: #C53030; }
+    .weight-dot { width: 5px; height: 5px; border-radius: 50%; background: #C53030; }
+
+    .steps-list { list-style: none; display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
+    .steps-list li { display: flex; gap: 7px; align-items: flex-start; font-size: clamp(11px,1.05vw,14px); color: #4A5568; line-height: 1.5; }
+    .step-num { flex-shrink: 0; width: 17px; height: 17px; border-radius: 50%; background: #EDE9FE; color: #5B21B6; font-size: clamp(9px,0.82vw,11px); font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+
+    /* view crossfade */
+    .ns-views { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; }
+    .ns-view { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; display: flex; flex-direction: column; }
+    .ns-view.active { opacity: 1; pointer-events: auto; }
+
+    /* ── TERMINAL PANEL ── */
+    .term-panel {
+      flex-shrink: 0; width: 0; overflow: hidden;
+      transition: width 0.42s cubic-bezier(0.4,0,0.2,1);
+    }
+    .term-panel.open { width: min(46vw, 580px); }
+    .term-inner {
+      width: min(46vw, 580px); height: 100%;
+      display: flex; flex-direction: column;
+      background: #0D1117;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 20px 60px rgba(0,0,0,0.6);
+    }
+    .term-chrome {
+      flex-shrink: 0; background: #161B22;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0.5rem 0.85rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .term-title {
+      flex: 1; text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: rgba(255,255,255,0.32);
+    }
+    .term-body {
+      flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+      padding: 12px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; line-height: 1.7;
+      scrollbar-width: thin; scrollbar-color: #30363D transparent;
+    }
+    .term-body::-webkit-scrollbar { width: 3px; }
+    .term-body::-webkit-scrollbar-thumb { background: #30363D; border-radius: 3px; }
+    @keyframes term-fade { from{opacity:0} to{opacity:1} }
+    .term-line { opacity: 0; animation: term-fade 0.18s ease forwards; white-space: nowrap; overflow: hidden; }
+    .term-blank { height: 0.55em; opacity: 1; }
+    .tl-cmd  { color: #7EE787; }
+    .tl-cmd::before { content: '$ '; color: rgba(255,255,255,0.28); }
+    .tl-out  { color: rgba(255,255,255,0.52); }
+    .tl-head { color: rgba(255,255,255,0.28); }
+    .tl-ok   { color: #3FB950; font-weight: 600; }
+    .tl-warn { color: #D29922; }
+    .tl-err  { color: #FF7B72; }
+
+    /* ── AGENT ACTION PROPOSAL ── */
+    .msg-action { opacity: 0; }
+    .msg-action.show { animation: fade-up 0.35s ease forwards; }
+    .action-proposal {
+      background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 10px;
+      padding: clamp(8px,0.9vw,11px) clamp(10px,1.1vw,13px);
+    }
+    .action-proposal p { font-size: clamp(11px,1.05vw,14px); color: #0C4A6E; line-height: 1.55; margin-bottom: 7px; }
+    .action-proposal p strong { color: #0369A1; }
+    .action-btns-row { display: flex; gap: 6px; align-items: center; }
+    .btn-exec { background: #0369A1; border-color: #0369A1; color: #fff; font-weight: 700; }
+    .btn-exec:hover { opacity: 0.88; }
+
+    /* ── STATUS MESSAGES ── */
+    .msg-status {
+      display: flex; align-items: flex-start; gap: 6px;
+      font-size: clamp(11px,1.05vw,14px); color: #718096; line-height: 1.5;
+      padding-left: 2px; opacity: 0;
+    }
+    .msg-status.show { animation: fade-in 0.25s ease forwards; }
+    .msg-status.done { color: #15803D; font-weight: 600; }
+
+    /* ── FAILURE SIGNATURE CARD ── */
+    .sig-card {
+      border-radius: 12px;
+      background: linear-gradient(140deg, #F5F3FF 0%, #F0F9FF 100%);
+      border: 1px solid #C4B5FD;
+      overflow: hidden;
+      opacity: 0;
+      box-shadow: 0 2px 12px rgba(124,58,237,0.10);
+    }
+    .sig-card.show { animation: fade-up 0.45s ease forwards; }
+    .sig-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: clamp(8px,0.9vw,11px) clamp(10px,1.1vw,14px) clamp(7px,0.8vw,9px);
+      border-bottom: 1px solid rgba(196,181,253,0.35);
+    }
+    .sig-icon { font-size: clamp(16px,1.5vw,20px); flex-shrink: 0; line-height: 1; }
+    .sig-title { font-size: clamp(11px,1.05vw,14px); font-weight: 800; color: #3B1F8C; line-height: 1.2; }
+    .sig-sub { font-size: clamp(9px,0.85vw,11px); color: #7C3AED; margin-top: 2px; font-weight: 500; }
+    .sig-brain-badge {
+      margin-left: auto; flex-shrink: 0;
+      background: #7C3AED; color: #fff;
+      font-size: clamp(9px,0.85vw,11px); font-weight: 700; letter-spacing: 0.05em;
+      padding: 3px 9px; border-radius: 20px;
+    }
+    .sig-rows {
+      padding: clamp(7px,0.8vw,10px) clamp(10px,1.1vw,14px);
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .sig-row { display: flex; gap: 10px; font-size: clamp(10px,0.95vw,13px); line-height: 1.5; }
+    .sig-key { flex-shrink: 0; width: 90px; font-weight: 700; color: #5B21B6; }
+    .sig-val { color: #374151; }
+    .sig-footer {
+      background: rgba(124,58,237,0.06);
+      border-top: 1px solid rgba(196,181,253,0.35);
+      padding: clamp(7px,0.8vw,9px) clamp(10px,1.1vw,14px);
+      display: flex; align-items: center; gap: 7px;
+    }
+    .sig-brain-note { font-size: clamp(10px,0.95vw,13px); color: #5B21B6; font-weight: 600; }
+    .sig-brain-pulse {
+      width: 8px; height: 8px; border-radius: 50%; background: #7C3AED; flex-shrink: 0;
+      animation: brain-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes brain-pulse {
+      0%,100% { opacity:1; transform:scale(1); box-shadow:0 0 0 0 rgba(124,58,237,0.4); }
+      50% { opacity:0.8; transform:scale(1.15); box-shadow:0 0 0 5px rgba(124,58,237,0); }
+    }
+
+    /* ── MODE SWITCHER ── */
+    .mode-bar {
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 0.45rem clamp(2rem,3.5vw,5rem);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.12);
+    }
+    .mode-label {
+      font-size: clamp(0.5rem,0.58vw,0.65rem); font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.2); margin-right: 4px;
+    }
+    .mode-pill {
+      display: flex; align-items: center; gap: 4px;
+      padding: 3px 13px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1); background: transparent;
+      color: rgba(255,255,255,0.38); font-family: inherit;
+      font-size: clamp(0.58rem,0.68vw,0.76rem); font-weight: 600;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em;
+    }
+    .mode-pill:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.72); }
+    .mode-pill.active { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.45); color: #38BDF8; }
+
+    /* ── BACKGROUND (HEADLESS) VIEW ── */
+    .hl-ui { flex: 1; min-height: 0; display: flex; flex-direction: column; background: #0D1117; }
+    .hl-header {
+      flex-shrink: 0; display: flex; align-items: center; gap: 10px;
+      padding: 7px 14px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: #161B22; font-family: 'JetBrains Mono', monospace;
+    }
+    .hl-mode-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.07em;
+      padding: 2px 8px; border-radius: 4px;
+      background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.3); color: #38BDF8;
+    }
+    .hl-incident { font-size: 11px; color: rgba(255,255,255,0.55); flex: 1; }
+    .hl-elapsed  { font-size: 10px; color: rgba(255,255,255,0.28); font-variant-numeric: tabular-nums; }
+    .hl-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; }
+    .hl-col { display: flex; flex-direction: column; overflow: hidden; }
+    .hl-col:first-child { border-right: 1px solid rgba(255,255,255,0.06); }
+    .hl-col-head {
+      flex-shrink: 0; font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.22); padding: 6px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .hl-events {
+      flex: 1; overflow-y: auto; padding: 8px 12px;
+      display: flex; flex-direction: column; gap: 5px;
+      scrollbar-width: thin; scrollbar-color: #30363D transparent;
+    }
+    .hl-events::-webkit-scrollbar { width: 3px; }
+    .hl-events::-webkit-scrollbar-thumb { background: #30363D; }
+    .hl-event {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.5;
+      opacity: 0; animation: term-fade 0.2s ease forwards;
+    }
+    .hl-ts  { color: rgba(255,255,255,0.25); flex-shrink: 0; font-size: 10px; padding-top: 1px; }
+    .hl-ev  { color: rgba(255,255,255,0.65); }
+    .hl-ev-ok  { color: #3FB950; font-weight: 600; }
+    .hl-ev-err { color: #FF7B72; }
+    .hl-ev-hi  { color: #79C0FF; }
+    .hl-term-bg {
+      flex: 1; overflow-y: auto; padding: 8px 12px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.7;
+      scrollbar-width: thin; scrollbar-color: #30363D transparent;
+    }
+    .hl-term-bg::-webkit-scrollbar { width: 3px; }
+    .hl-term-bg::-webkit-scrollbar-thumb { background: #30363D; }
+
+    /* ── AGENT CLIENT VIEW ── */
+    .agent-ui { flex: 1; min-height: 0; display: flex; flex-direction: column; background: #1C1C1E; }
+    .agent-chrome {
+      flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+      padding: 7px 14px; background: #2A2A2C; border-bottom: 1px solid rgba(255,255,255,0.07);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .agent-badge { font-size: 11px; font-weight: 700; color: #FF9F0A; }
+    .agent-sep   { color: rgba(255,255,255,0.15); }
+    .agent-cmd   { font-size: 10px; color: rgba(255,255,255,0.35); }
+    .agent-body  {
+      flex: 1; min-height: 0; overflow-y: auto; padding: 14px 18px;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.75;
+      scrollbar-width: thin; scrollbar-color: #48484A transparent;
+    }
+    .agent-body::-webkit-scrollbar { width: 3px; }
+    .agent-body::-webkit-scrollbar-thumb { background: #48484A; }
+    .at-line  { opacity: 0; animation: term-fade 0.2s ease forwards; }
+    .at-blank { height: 0.6em; opacity: 1; }
+    .at-tool  { color: #FF9F0A; }
+    .at-tool-name { color: #FFD60A; font-weight: 700; }
+    .at-out   { color: rgba(255,255,255,0.45); padding-left: 18px; }
+    .at-out::before { content: '⎿ '; color: rgba(255,255,255,0.2); }
+    .at-text  { color: rgba(255,255,255,0.72); }
+    .at-ok    { color: #30D158; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div>
+      <div class="eyebrow">Observability · Agentic SRE</div>
+      <div class="bar-title"><span class="hl">Elastic nightshift</span>, the Elastic AI SRE</div>
+    </div>
+    <div class="status-pills">
+      <span class="sp" style="--c:#FF6B6B;--bg:rgba(255,107,107,0.08)">🔴 Blast Radius: HIGH</span>
+      <span class="sp" style="--c:#00BFB3;--bg:rgba(0,191,179,0.08)">🌙 Elastic nightshift Active</span>
+      <span class="sp" style="--c:#7BA8FF;--bg:rgba(123,168,255,0.08)">🤖 Agent Ready</span>
+    </div>
+  </div>
+
+  <div class="mode-bar">
+    <span class="mode-label">Mode</span>
+    <button class="mode-pill active" data-mode="chat">💬 Chat</button>
+    <button class="mode-pill" data-mode="background">🤖 Background</button>
+    <button class="mode-pill" data-mode="agent">⌨ Agent Client</button>
+  </div>
+
+  <div class="main">
+
+    <div class="ctx">
+      <div class="ctx-desc">
+        <strong>Elastic nightshift</strong> monitors your systems while your team rests: detecting anomalies, grouping significant events, and surfacing <strong>AI-driven remediation</strong> the moment something goes wrong.
+      </div>
+      <div class="type-cards">
+        <div class="type-card" style="--tc:#FF6B6B">
+          <div class="tc-dot"></div>
+          <div><div class="tc-name">Blast Radius</div><div class="tc-sub">Real-time scoring of how far an incident has spread across your system</div></div>
+        </div>
+        <div class="type-card" style="--tc:#7BA8FF">
+          <div class="tc-dot"></div>
+          <div><div class="tc-name">AI Remediation</div><div class="tc-sub">Agent-driven root cause analysis with kubectl-ready next steps</div></div>
+        </div>
+        <div class="type-card" style="--tc:#00BFB3">
+          <div class="tc-dot"></div>
+          <div><div class="tc-name">Background Execution</div><div class="tc-sub">Run remediation autonomously: wake up to a resolved incident</div></div>
+        </div>
+      </div>
+      <div class="ctx-hint"><span>Click the buttons</span> to explore the remediation flow →</div>
+    </div>
+
+    <!-- Browser frame -->
+    <div class="frame-wrap">
+      <div class="b-chrome">
+        <div class="b-dots">
+          <div class="b-dot" style="background:#FF5F57"></div>
+          <div class="b-dot" style="background:#FFBD2E"></div>
+          <div class="b-dot" style="background:#28C940"></div>
+        </div>
+        <div class="b-url" id="browser-url">app/observability/nightshift/overview</div>
+      </div>
+
+      <!-- Elastic nightshift UI -->
+      <div class="ns-ui">
+
+        <!-- DETAIL PANEL (overlays the UI) -->
+        <div class="detail-panel" id="detail-panel">
+          <div class="dp-header">
+            <div class="dp-header-top">
+              <div class="dp-title">Payment Service: payment processing failures</div>
+              <button class="dp-close" id="dp-close-btn">✕</button>
+            </div>
+            <div class="dp-detected">🕐 Detected 5 minutes ago</div>
+          </div>
+          <div class="dp-metrics">
+            <div class="dp-metric">
+              <div class="dp-metric-label">Severity</div>
+              <div class="dp-metric-val"><span class="badge-critical">Critical</span></div>
+            </div>
+            <div class="dp-metric">
+              <div class="dp-metric-label">Criticality</div>
+              <div class="dp-metric-val">● High</div>
+            </div>
+            <div class="dp-metric">
+              <div class="dp-metric-label">Impact</div>
+              <div class="dp-metric-val" style="color:#C53030">High</div>
+            </div>
+            <div class="dp-metric">
+              <div class="dp-metric-label">Recommended action</div>
+              <div class="dp-metric-val"><span class="badge-escalate">⚠️ Escalate</span></div>
+            </div>
+          </div>
+          <div class="dp-body">
+            <div class="dp-section-head">General information <span>∨</span></div>
+
+            <div class="dp-sub-label">Summary</div>
+            <div class="dp-body-text">
+              This signal was raised on <code>logs.otel</code>. Payment Service: payment processing failures reflects a statistically significant deviation from the expected pattern for the selected window: review downstream dependencies and blast radius before changes propagate.
+            </div>
+
+            <div class="dp-root-cause">
+              <div class="dp-root-icon">
+                <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="3" fill="#2363F4"/>
+                  <circle cx="11" cy="11" r="6" stroke="#2363F4" stroke-width="1.5" fill="none" opacity="0.45"/>
+                  <circle cx="11" cy="11" r="10" stroke="#2363F4" stroke-width="1" fill="none" opacity="0.2"/>
+                </svg>
+              </div>
+              <div>
+                <div class="dp-sub-label" style="margin-top:0">Root cause</div>
+                <div class="dp-body-text">
+                  The checkout service's <code>placeOrder</code> gRPC call fails with <code>ECONNREFUSED</code> to <code>10.103.136.237:9999</code>: the payment service's upstream dependency remains unreachable. Confirmed by KI query returning 5 rows at 09:08 UTC, all showing gRPC code 13 INTERNAL. The failure has persisted for 3.5+ hours since onset at ~05:30 UTC.
+                </div>
+              </div>
+            </div>
+
+            <div class="dp-reco-box">
+              <div class="dp-reco-row">
+                <div class="dp-reco-label">Recommendations plan</div>
+                <span class="badge-escalate">⚠️ Escalate</span>
+              </div>
+              <div class="dp-reco-text">We recommend a <strong>2 step plan</strong> to understand what the remediation of this might be.</div>
+            </div>
+
+            <button class="btn btn-purple-solid" style="width:100%;justify-content:center;padding:8px;" id="remediate-from-panel">
+              🤖 Remediate
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable views -->
+        <div class="frame-scroll" id="frame-scroll">
+          <div class="ns-views" id="ns-views">
+
+            <!-- OVERVIEW VIEW -->
+            <div class="ns-view active" id="view-overview">
+              <div class="ns-title-wrap">
+                <div class="ns-title-row">
+                  <span class="ns-badge">🌙 Elastic nightshift</span>
+                  <div class="ns-title">🔴 payment-service is down</div>
+                </div>
+                <div class="ns-subtitle">CrashLoopBackOff in payments namespace — checkout and order pipelines blocked.</div>
+              </div>
+
+              <div class="br-card">
+                <div class="br-top">
+                  <div class="br-gauge">
+                    <svg width="66" height="66" viewBox="0 0 70 70">
+                      <circle cx="35" cy="35" r="28" fill="none" stroke="#FED7D7" stroke-width="6"
+                        stroke-dasharray="132 44" stroke-linecap="round"
+                        transform="rotate(135 35 35)"/>
+                      <circle cx="35" cy="35" r="28" fill="none" stroke="#C53030" stroke-width="6"
+                        stroke-dasharray="112 64" stroke-linecap="round"
+                        transform="rotate(135 35 35)"/>
+                      <text x="35" y="40" text-anchor="middle" font-size="15" font-weight="800" fill="#C53030" font-family="Inter,sans-serif">85</text>
+                    </svg>
+                  </div>
+                  <div class="br-info">
+                    <div class="br-label-row">
+                      <div class="br-label">Blast radius score</div>
+                      <div class="br-time">(5 minutes ago) ↺</div>
+                    </div>
+                    <div class="br-severity">HIGH</div>
+                    <div class="br-desc">
+                      <strong>payment-service</strong> is in CrashLoopBackOff — gRPC port 9999 unbound after <span class="chip chip-red">14 restarts</span>. Checkout and order pipelines blocked, <span class="chip chip-orange">3 downstream services</span> degraded.
+                    </div>
+                  </div>
+                </div>
+                <div class="blast-viz">
+                  <!-- Source node -->
+                  <div class="bv-source">
+                    <div class="bv-node bv-node--critical">
+                      <div class="bv-pulse"></div>
+                      ⊗ payment-service
+                      <span class="bv-label">DOWN</span>
+                    </div>
+                  </div>
+
+                  <!-- Animated connector lines -->
+                  <svg class="bv-svg" viewBox="0 0 60 80" preserveAspectRatio="none">
+                    <line x1="0" y1="40" x2="60" y2="11" stroke="#FC8181" stroke-width="1.5" stroke-dasharray="4 3">
+                      <animate attributeName="stroke-dashoffset" from="0" to="-7" dur="0.55s" repeatCount="indefinite"/>
+                    </line>
+                    <line x1="0" y1="40" x2="60" y2="40" stroke="#F59E0B" stroke-width="1.5" stroke-dasharray="4 3">
+                      <animate attributeName="stroke-dashoffset" from="0" to="-7" dur="0.75s" repeatCount="indefinite"/>
+                    </line>
+                    <line x1="0" y1="40" x2="60" y2="69" stroke="#FCD34D" stroke-width="1.5" stroke-dasharray="4 3">
+                      <animate attributeName="stroke-dashoffset" from="0" to="-7" dur="0.95s" repeatCount="indefinite"/>
+                    </line>
+                  </svg>
+
+                  <!-- Target nodes -->
+                  <div class="bv-targets">
+                    <div class="bv-node bv-node--degraded">⚠ checkout-service <span class="bv-label">DEGRADED</span></div>
+                    <div class="bv-node bv-node--degraded">⚠ order-processor <span class="bv-label">DEGRADED</span></div>
+                    <div class="bv-node bv-node--risk">○ fraud-detector <span class="bv-label">AT RISK</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="action-section">
+                <div class="action-text">You can start remediation now or let Elastic nightshift handle it in the background.</div>
+                <div class="action-btns">
+                  <button class="btn btn-outline" id="btn-review-details">⊗ Blast Radius</button>
+                  <button class="btn btn-purple" id="btn-remediate-chat">🤖 Remediate</button>
+                  <button class="btn btn-ghost">↺ Run in background</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CHAT VIEW -->
+            <div class="ns-view" id="view-chat">
+              <div style="text-align:center;margin-bottom:6px;">
+                <span class="ns-badge">🌙 Elastic nightshift</span>
+              </div>
+              <div class="ns-title-wrap">
+                <div class="ns-title" style="font-size:clamp(0.82rem,1.3vw,1.15rem)">🎯 Your system requires attention</div>
+                <div class="ns-subtitle" style="font-size:clamp(0.58rem,0.7vw,0.74rem);">We are detecting more unusual behaviour than normal, review the impact and details and start remediation or further actions.</div>
+              </div>
+
+              <div class="chat-top-card">
+                <div class="br-gauge">
+                  <svg width="48" height="48" viewBox="0 0 52 52">
+                    <circle cx="26" cy="26" r="21" fill="none" stroke="#FED7D7" stroke-width="5"
+                      stroke-dasharray="99 33" stroke-linecap="round"
+                      transform="rotate(135 26 26)"/>
+                    <circle cx="26" cy="26" r="21" fill="none" stroke="#C53030" stroke-width="5"
+                      stroke-dasharray="89 43" stroke-linecap="round"
+                      transform="rotate(135 26 26)"/>
+                    <text x="26" y="30" text-anchor="middle" font-size="11" font-weight="800" fill="#C53030" font-family="Inter,sans-serif">90</text>
+                  </svg>
+                </div>
+                <div class="chat-mini-info">
+                  <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                    <span class="chip chip-red" style="font-size:8px;">⊗ Critical</span>
+                    <span style="font-size:9px;color:#A0AEC0;">(5 minutes ago)</span>
+                  </div>
+                  <div class="chat-mini-title">Payment Service: payment processing failures</div>
+                  <div class="chat-mini-desc">2,778 total alerts in the last few hours; peak 1,418 in a 30-min window. gRPC connection refused on port 9999.</div>
+                  <div class="chat-mini-btns">
+                    <button class="btn btn-purple" style="font-size:9px;padding:3px 9px;" id="btn-chat-remediate">🤖 Remediate in Chat</button>
+                    <button class="btn btn-outline" style="font-size:9px;padding:3px 9px;" id="btn-chat-view-details">View Details</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chat-convo" id="chat-convo"></div>
+            </div>
+
+          </div><!-- ns-views -->
+        </div><!-- frame-scroll -->
+
+        <!-- Fixed bottom -->
+        <div class="frame-bottom">
+          <div class="chat-input-wrap">
+            <div class="chat-input-placeholder">Body copy</div>
+            <div class="chat-input-bar">
+              <div class="chat-input-left">
+                <span>+</span>
+                <span class="sonnet-badge">🌟 Sonnet 4.5</span>
+              </div>
+              <button class="send-btn">
+                <svg viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 10V2M2 6l4-4 4 4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="footer-links">
+            <span>Other helpful actions:</span>
+            <a class="footer-link">⬡ Topology view</a>
+            <a class="footer-link">⊞ Open Significant events</a>
+            <a class="footer-link">⊕ Open Discover</a>
+          </div>
+        </div>
+
+      </div><!-- ns-ui -->
+    </div><!-- frame-wrap -->
+
+    <!-- Background (headless) panel -->
+    <div id="bg-panel" style="display:none;flex:1;min-height:0;flex-direction:column;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,0.1),0 32px 80px rgba(0,0,0,0.6);">
+      <div class="b-chrome">
+        <div class="b-dots">
+          <div class="b-dot" style="background:#FF5F57"></div>
+          <div class="b-dot" style="background:#FFBD2E"></div>
+          <div class="b-dot" style="background:#28C940"></div>
+        </div>
+        <div class="b-url">nightshift://autonomous · incident #IN-247</div>
+      </div>
+      <div class="hl-ui">
+        <div class="hl-header">
+          <span class="hl-mode-badge">🤖 AUTONOMOUS</span>
+          <span class="hl-incident">payment-service · payments namespace</span>
+          <span class="hl-elapsed" id="hl-elapsed">00:00</span>
+        </div>
+        <div class="hl-body">
+          <div class="hl-col">
+            <div class="hl-col-head">Activity feed</div>
+            <div class="hl-events" id="hl-events"></div>
+          </div>
+          <div class="hl-col">
+            <div class="hl-col-head">Remote execution</div>
+            <div class="hl-term-bg" id="hl-term-bg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent client panel -->
+    <div id="agent-panel" style="display:none;flex:1;min-height:0;flex-direction:column;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,0.1),0 32px 80px rgba(0,0,0,0.6);">
+      <div class="b-chrome">
+        <div class="b-dots">
+          <div class="b-dot" style="background:#FF5F57"></div>
+          <div class="b-dot" style="background:#FFBD2E"></div>
+          <div class="b-dot" style="background:#28C940"></div>
+        </div>
+        <div class="b-url">claude --mcp nightshift-sre --namespace payments</div>
+      </div>
+      <div class="agent-ui">
+        <div class="agent-chrome">
+          <span class="agent-badge">claude</span>
+          <span class="agent-sep">·</span>
+          <span class="agent-cmd">nightshift-sre mcp active · payments namespace</span>
+        </div>
+        <div class="agent-body" id="agent-body"></div>
+      </div>
+    </div>
+
+    <!-- Terminal panel — slides in during remediation -->
+    <div class="term-panel" id="term-panel">
+      <div class="term-inner">
+        <div class="term-chrome">
+          <div class="b-dots">
+            <div class="b-dot" style="background:#FF5F57"></div>
+            <div class="b-dot" style="background:#FFBD2E"></div>
+            <div class="b-dot" style="background:#28C940"></div>
+          </div>
+          <span class="term-title">nightshift — payments</span>
+        </div>
+        <div class="term-body" id="term-body"></div>
+      </div>
+    </div>
+
+  </div><!-- main -->
+
+  <script>
+  (function() {
+    const viewOverview = document.getElementById('view-overview');
+    const viewChat     = document.getElementById('view-chat');
+    const detailPanel  = document.getElementById('detail-panel');
+    const frameScroll  = document.getElementById('frame-scroll');
+    const chatConvo    = document.getElementById('chat-convo');
+    const browserUrl   = document.getElementById('browser-url');
+    const termPanel    = document.getElementById('term-panel');
+    const termBody     = document.getElementById('term-body');
+
+    function openDetail() {
+      detailPanel.classList.add('open');
+      browserUrl.textContent = 'app/observability/nightshift/event/payment-service';
+    }
+
+    function closeDetail() {
+      detailPanel.classList.remove('open');
+      browserUrl.textContent = viewChat.classList.contains('active')
+        ? 'app/observability/nightshift/chat'
+        : 'app/observability/nightshift/overview';
+    }
+
+    const ctxEl = document.querySelector('.ctx');
+
+    function resetTerminal() {
+      termPanel.classList.remove('open');
+      termBody.innerHTML = '';
+      if (ctxEl) {
+        ctxEl.style.flexShrink = '';
+        ctxEl.style.width = '';
+        ctxEl.style.opacity = '';
+      }
+    }
+
+    function showChat() {
+      closeDetail();
+      resetTerminal();
+      conversationRunning = false;
+      viewOverview.classList.remove('active');
+      viewChat.classList.add('active');
+      browserUrl.textContent = 'app/observability/nightshift/chat';
+      frameScroll.scrollTop = 0;
+      setTimeout(runConversation, 200);
+    }
+
+    document.getElementById('btn-review-details').addEventListener('click', openDetail);
+    document.getElementById('btn-remediate-chat').addEventListener('click', showChat);
+    document.getElementById('dp-close-btn').addEventListener('click', closeDetail);
+    document.getElementById('remediate-from-panel').addEventListener('click', showChat);
+    document.getElementById('btn-chat-view-details').addEventListener('click', openDetail);
+    document.getElementById('btn-chat-remediate').addEventListener('click', function() {
+      conversationRunning = false;
+      remediationScheduled = false;
+      resetTerminal();
+      chatConvo.innerHTML = '';
+      runConversation();
+    });
+
+    const userText = 'Help me remediate: Payment Service: payment processing failures. What are the possible root causes and recommended next steps?';
+
+    const aiHTML = `
+      <div class="ai-section">
+        <div class="ai-section-title">Payment Service: Payment Processing Failures — Root Cause Analysis</div>
+      </div>
+      <div class="ai-section">
+        <div class="ai-h2">🔴 Root Cause (Confirmed: High Confidence)</div>
+        <div class="ai-body">
+          <strong>The payment service is unreachable on TCP port <code>9999</code>.</strong> The <code>checkout</code> service's gRPC <code>placeOrder</code> call is failing with <code>ECONNREFUSED</code> to <strong>10.103.136.237:9999</strong>, meaning the payment service is either down, not listening, or blocked by a network policy.
+        </div>
+        <div class="ai-body">
+          Secondary: the <strong>payment service cannot reach the GCP metadata endpoint</strong> (<code>169.254.169.254</code>), suggesting a misconfigured workload identity — likely the root trigger.
+        </div>
+      </div>
+      <div class="ai-section">
+        <div class="ai-h2">📊 Evidence</div>
+        <table class="evidence-table">
+          <thead><tr><th>Source</th><th>Details</th><th>Weight</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>logs.otel</code></td>
+              <td>"could not charge the card: rpc error: code = ECONNREFUSED"</td>
+              <td><span class="weight-high"><span class="weight-dot"></span>High</span></td>
+            </tr>
+            <tr>
+              <td><code>metrics.k8s</code></td>
+              <td>1,418 TCP failures on port 9999 in 30-min window at 04:30</td>
+              <td><span class="weight-high"><span class="weight-dot"></span>High</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="ai-section">
+        <div class="ai-h2">🛠 Remediation Plan</div>
+        <ol class="steps-list">
+          <li><span class="step-num">1</span><span>Verify pod status — <code>kubectl get pods -n payments</code></span></li>
+          <li><span class="step-num">2</span><span>Confirm port 9999 not bound — netstat inside pod</span></li>
+          <li><span class="step-num">3</span><span>Delete CrashLoopBackOff pod — let Kubernetes restart clean</span></li>
+          <li><span class="step-num">4</span><span>Watch recovery and verify port 9999 responds</span></li>
+        </ol>
+      </div>
+    `;
+
+    let conversationRunning = false;
+    let remediationScheduled = false;
+
+    function runConversation() {
+      if (conversationRunning) return;
+      conversationRunning = true;
+      remediationScheduled = false;
+      chatConvo.innerHTML = '';
+
+      function scrollBottom() { frameScroll.scrollTop = frameScroll.scrollHeight; }
+
+      setTimeout(function() {
+        const msgUser = document.createElement('div');
+        msgUser.className = 'msg-user';
+        msgUser.innerHTML = '<div class="bubble-user">' + userText + '</div>';
+        chatConvo.appendChild(msgUser);
+        requestAnimationFrame(function() { msgUser.classList.add('show'); scrollBottom(); });
+
+        setTimeout(function() {
+          const msgThink = document.createElement('div');
+          msgThink.className = 'msg-thinking';
+          msgThink.innerHTML = '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span>Reasoning...</span>';
+          chatConvo.appendChild(msgThink);
+          requestAnimationFrame(function() { msgThink.classList.add('show'); scrollBottom(); });
+
+          setTimeout(function() {
+            msgThink.style.display = 'none';
+
+            const msgReason = document.createElement('div');
+            msgReason.className = 'msg-reasoning';
+            msgReason.innerHTML = '<span class="reasoning-icon">✦</span> Completed reasoning <span style="color:#A0AEC0">›</span>';
+            chatConvo.appendChild(msgReason);
+            requestAnimationFrame(function() { msgReason.classList.add('show'); });
+
+            const delays = [80, 230, 380, 530];
+            const parser = new DOMParser();
+            const doc = parser.parseFromString('<div>' + aiHTML + '</div>', 'text/html');
+            Array.from(doc.body.firstChild.children).forEach(function(section, i) {
+              const wrapper = document.createElement('div');
+              wrapper.className = 'msg-ai ai-section';
+              wrapper.innerHTML = section.innerHTML;
+              chatConvo.appendChild(wrapper);
+              setTimeout(function() { wrapper.classList.add('show'); scrollBottom(); }, delays[i] || i * 150);
+            });
+
+            conversationRunning = false;
+            setTimeout(scrollBottom, 600);
+            if (!remediationScheduled) { remediationScheduled = true; setTimeout(runRemediation, 900); }
+          }, 1800);
+        }, 400);
+      }, 600);
+    }
+
+    function runRemediation() {
+      var started = false;
+      function scrollBottom() { frameScroll.scrollTop = frameScroll.scrollHeight; }
+
+      var msgAction = document.createElement('div');
+      msgAction.className = 'msg-action';
+      msgAction.innerHTML =
+        '<div class="action-proposal">' +
+        '<p><strong>Root cause confirmed.</strong> The payment-service pod is in CrashLoopBackOff (14 restarts) and port 9999 is unbound. I can execute the remediation now — delete the stuck pod and monitor recovery.</p>' +
+        '<div class="action-btns-row">' +
+        '<button class="btn btn-exec" id="btn-approve">✓ Approve &amp; Execute</button>' +
+        '<button class="btn btn-ghost" id="btn-decline">Decline</button>' +
+        '</div></div>';
+      chatConvo.appendChild(msgAction);
+      requestAnimationFrame(function() { msgAction.classList.add('show'); scrollBottom(); });
+
+      function startExecution() {
+        if (started) return;
+        started = true;
+        msgAction.querySelector('.action-btns-row').innerHTML =
+          '<span style="font-size:9px;color:#0369A1;font-weight:700;">✓ Approved — executing now</span>';
+
+        // Collapse sidebar to give terminal room
+        if (ctxEl) {
+          ctxEl.style.flexShrink = '1';
+          ctxEl.style.width = '0';
+          ctxEl.style.opacity = '0';
+        }
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() { termPanel.classList.add('open'); });
+        });
+
+        var LINES = [
+          { cls: 'tl-cmd',    text: 'kubectl get pods -n payments',                                          delay: 400 },
+          { cls: 'tl-head',   text: 'NAME                                  READY   STATUS            RESTARTS   AGE', delay: 950 },
+          { cls: 'tl-err',    text: 'payment-service-7d9f8b6c5-xk8pq      0/1     CrashLoopBackOff  14         47m', delay: 1050 },
+          { cls: 'tl-out',    text: 'checkout-service-6b4d9f7c8-wl3rt      1/1     Running           0          2h',  delay: 1150 },
+          { cls: 'tl-out',    text: 'fraud-detector-85c6d9f4b-m9pjx        1/1     Running           0          2h',  delay: 1250 },
+          { cls: 'term-blank', delay: 1450 },
+          { cls: 'tl-cmd',    text: 'kubectl logs payment-service-7d9f8b6c5-xk8pq -n payments --tail=5', delay: 1700 },
+          { cls: 'tl-warn',   text: 'FATAL: listen tcp 0.0.0.0:9999: bind: address already in use',      delay: 2150 },
+          { cls: 'tl-warn',   text: 'FATAL: listen tcp 0.0.0.0:9999: bind: address already in use',      delay: 2250 },
+          { cls: 'tl-warn',   text: 'FATAL: listen tcp 0.0.0.0:9999: bind: address already in use',      delay: 2350 },
+          { cls: 'term-blank', delay: 2550 },
+          { cls: 'tl-cmd',    text: 'kubectl delete pod payment-service-7d9f8b6c5-xk8pq -n payments',    delay: 2750 },
+          { cls: 'tl-out',    text: 'pod "payment-service-7d9f8b6c5-xk8pq" deleted',                     delay: 3300 },
+          { cls: 'term-blank', delay: 3500 },
+          { cls: 'tl-cmd',    text: 'kubectl get pods -n payments -w',                                   delay: 3700 },
+          { cls: 'tl-head',   text: 'NAME                                  READY   STATUS              RESTARTS   AGE', delay: 4050 },
+          { cls: 'tl-out',    text: 'payment-service-7d9f8b6c5-xk8pq      0/1     Terminating         14         48m', delay: 4200 },
+          { cls: 'tl-out',    text: 'payment-service-7d9f8b6c5-r4nms      0/1     Pending             0          3s',  delay: 4700 },
+          { cls: 'tl-out',    text: 'payment-service-7d9f8b6c5-r4nms      0/1     ContainerCreating   0          4s',  delay: 5200 },
+          { cls: 'tl-out',    text: 'payment-service-7d9f8b6c5-xk8pq      0/1     Terminating         14         48m', delay: 5500 },
+          { cls: 'tl-ok',     text: 'payment-service-7d9f8b6c5-r4nms      1/1     Running             0          8s',  delay: 6100 },
+          { cls: 'term-blank', delay: 6400 },
+          { cls: 'tl-cmd',    text: 'kubectl exec payment-service-7d9f8b6c5-r4nms -n payments -- nc -zv localhost 9999', delay: 6600 },
+          { cls: 'tl-ok',     text: 'Connection to localhost (10.103.136.237) 9999 port [tcp] succeeded!', delay: 7200 },
+          { cls: 'term-blank', delay: 7400 },
+          { cls: 'tl-ok',     text: '✓ Port 9999 bound and accepting connections',                        delay: 7600 },
+          { cls: 'tl-ok',     text: '✓ gRPC placeOrder: 0 errors in last 60s',                           delay: 7900 },
+          { cls: 'tl-ok',     text: '✓ Incident resolved — 0 alerts firing',                             delay: 8200 },
+        ];
+
+        LINES.forEach(function(line) {
+          setTimeout(function() {
+            var el = document.createElement('div');
+            el.className = 'term-line ' + line.cls;
+            if (line.cls !== 'term-blank') el.textContent = line.text;
+            termBody.appendChild(el);
+            termBody.scrollTop = termBody.scrollHeight;
+          }, line.delay);
+        });
+
+        var STATUSES = [
+          { delay: 500,  text: '⚙ Inspecting pods and logs in payments namespace...', done: false },
+          { delay: 2850, text: '⚙ Deleting CrashLoopBackOff pod — triggering clean restart...', done: false },
+          { delay: 5300, text: '⚙ Monitoring pod recovery...', done: false },
+          { delay: 8400, text: '✅ Incident resolved. payment-service healthy — port 9999 responding. 0 alerts firing.', done: true },
+        ];
+
+        STATUSES.forEach(function(s) {
+          setTimeout(function() {
+            var el = document.createElement('div');
+            el.className = 'msg-status' + (s.done ? ' done' : '');
+            el.textContent = s.text;
+            chatConvo.appendChild(el);
+            requestAnimationFrame(function() { el.classList.add('show'); scrollBottom(); });
+          }, s.delay);
+        });
+
+        // ── Failure signature hydration ──
+        setTimeout(function() {
+          var thinkEl = document.createElement('div');
+          thinkEl.className = 'msg-reasoning';
+          thinkEl.innerHTML = '<span class="reasoning-icon">🧠</span> Generating failure signature for Elastic Brain...';
+          chatConvo.appendChild(thinkEl);
+          requestAnimationFrame(function() { thinkEl.classList.add('show'); scrollBottom(); });
+        }, 9100);
+
+        setTimeout(function() {
+          chatConvo.querySelector('.msg-reasoning:last-child').style.display = 'none';
+
+          var sigEl = document.createElement('div');
+          sigEl.className = 'sig-card';
+          sigEl.innerHTML =
+            '<div class="sig-header">' +
+              '<div class="sig-icon">⚡</div>' +
+              '<div>' +
+                '<div class="sig-title">Failure Signature Captured</div>' +
+                '<div class="sig-sub">Hydrated into Elastic Brain · will match future incidents</div>' +
+              '</div>' +
+              '<div class="sig-brain-badge">🧠 Brain</div>' +
+            '</div>' +
+            '<div class="sig-rows">' +
+              '<div class="sig-row"><span class="sig-key">Service</span><span class="sig-val">payment-service / payments namespace</span></div>' +
+              '<div class="sig-row"><span class="sig-key">Root cause</span><span class="sig-val">Port 9999 bind failure — leaked socket from previous process not released on restart</span></div>' +
+              '<div class="sig-row"><span class="sig-key">Pattern</span><span class="sig-val">CrashLoopBackOff (14×) · gRPC listener failing silently · no port output on netstat</span></div>' +
+              '<div class="sig-row"><span class="sig-key">Fix</span><span class="sig-val">Force pod termination — clean init clears bind conflict, port recovers immediately</span></div>' +
+              '<div class="sig-row"><span class="sig-key">TTR</span><span class="sig-val">8 min · 0 pages sent · team uninterrupted</span></div>' +
+            '</div>' +
+            '<div class="sig-footer">' +
+              '<div class="sig-brain-pulse"></div>' +
+              '<div>' +
+                '<div class="sig-brain-note">✓ Failure signature saved to Elastic Brain</div>' +
+                '<div style="font-size:clamp(9px,0.85vw,11px);color:#7C3AED;margin-top:2px;">Next matching incident auto-resolves in &lt;60s — no human required</div>' +
+              '</div>' +
+            '</div>';
+          chatConvo.appendChild(sigEl);
+          requestAnimationFrame(function() { sigEl.classList.add('show'); scrollBottom(); });
+        }, 9800);
+
+        setTimeout(function() {
+          var savedEl = document.createElement('div');
+          savedEl.className = 'msg-status done';
+          savedEl.textContent = '🧠 Failure signature saved to Elastic Brain.';
+          chatConvo.appendChild(savedEl);
+          requestAnimationFrame(function() { savedEl.classList.add('show'); scrollBottom(); });
+        }, 10600);
+      }
+
+      var approveBtn = document.getElementById('btn-approve');
+      var declineBtn = document.getElementById('btn-decline');
+      if (approveBtn) approveBtn.addEventListener('click', startExecution);
+      if (declineBtn) declineBtn.addEventListener('click', function() {
+        if (!started) {
+          started = true;
+          msgAction.querySelector('.action-btns-row').innerHTML =
+            '<span style="font-size:9px;color:#A0AEC0;">Declined.</span>';
+        }
+      });
+
+      setTimeout(function() {
+        if (!started) {
+          var btn = document.getElementById('btn-approve');
+          if (btn) btn.click();
+        }
+      }, 2000);
+    }
+  })();
+
+  // ── Mode switcher ──────────────────────────────────────────────────────────
+  (function() {
+    var currentMode = 'chat';
+    var bgRunning = false;
+    var agentRunning = false;
+    var timerInterval = null;
+
+    var viewOverview = document.getElementById('view-overview');
+    var viewChat     = document.getElementById('view-chat');
+    var frameWrap    = document.querySelector('.frame-wrap');
+    var bgPanel      = document.getElementById('bg-panel');
+    var agentPanel   = document.getElementById('agent-panel');
+    var ctxEl2       = document.querySelector('.ctx');
+    var termPanel2   = document.getElementById('term-panel');
+    var termBody2    = document.getElementById('term-body');
+    var chatConvoEl  = document.getElementById('chat-convo');
+
+    function resetAll() {
+      [viewOverview, viewChat].forEach(function(v) { if (v) v.classList.remove('active'); });
+      if (termPanel2) { termPanel2.classList.remove('open'); termBody2.innerHTML = ''; }
+      if (ctxEl2) { ctxEl2.style.flexShrink = ''; ctxEl2.style.width = ''; ctxEl2.style.opacity = ''; }
+      if (chatConvoEl) chatConvoEl.innerHTML = '';
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      bgRunning = false;
+      agentRunning = false;
+      // hide alt panels
+      bgPanel.style.display = 'none';
+      agentPanel.style.display = 'none';
+      frameWrap.style.display = '';
+    }
+
+    document.querySelectorAll('.mode-pill').forEach(function(pill) {
+      pill.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var mode = this.dataset.mode;
+        if (mode === currentMode) return;
+        document.querySelectorAll('.mode-pill').forEach(function(p) { p.classList.remove('active'); });
+        this.classList.add('active');
+        currentMode = mode;
+        resetAll();
+
+        if (mode === 'chat') {
+          ctxEl2.style.display = '';
+          viewOverview.classList.add('active');
+        } else if (mode === 'background') {
+          ctxEl2.style.display = 'none';
+          frameWrap.style.display = 'none';
+          bgPanel.style.display = 'flex';
+          document.getElementById('hl-events').innerHTML = '';
+          document.getElementById('hl-term-bg').innerHTML = '';
+          document.getElementById('hl-elapsed').textContent = '00:00';
+          setTimeout(runBackgroundMode, 400);
+        } else if (mode === 'agent') {
+          ctxEl2.style.display = 'none';
+          frameWrap.style.display = 'none';
+          agentPanel.style.display = 'flex';
+          document.getElementById('agent-body').innerHTML = '';
+          setTimeout(runAgentMode, 400);
+        }
+      });
+    });
+
+    function runBackgroundMode() {
+      if (bgRunning) return;
+      bgRunning = true;
+
+      var eventsEl = document.getElementById('hl-events');
+      var termEl   = document.getElementById('hl-term-bg');
+      var elapsedEl = document.getElementById('hl-elapsed');
+      var t0 = Date.now();
+
+      timerInterval = setInterval(function() {
+        if (currentMode !== 'background') { clearInterval(timerInterval); return; }
+        var s = Math.floor((Date.now() - t0) / 1000);
+        elapsedEl.textContent = String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+      }, 1000);
+
+      var EVENTS = [
+        { delay: 300,  cls: 'hl-ev-err', text: '🔴 Incident detected: payment-service CrashLoopBackOff (14 restarts)' },
+        { delay: 800,  cls: 'hl-ev-hi',  text: '🧠 Blast radius: 3 downstream services affected' },
+        { delay: 1400, cls: 'hl-ev-hi',  text: '🔍 Root cause: port 9999 bind failure — leaked socket' },
+        { delay: 2000, cls: 'hl-ev',     text: '⚙ Remediation: kubectl delete pod → monitor recovery' },
+        { delay: 2600, cls: 'hl-ev',     text: '⚙ Deleting pod payment-service-7d9f8b6c5-xk8pq...' },
+        { delay: 3500, cls: 'hl-ev',     text: '🔄 New pod scheduled: payment-service-7d9f8b6c5-r4nms' },
+        { delay: 5800, cls: 'hl-ev',     text: '⟳ Verifying port 9999 connectivity...' },
+        { delay: 7200, cls: 'hl-ev-ok',  text: '✓ payment-service healthy — port 9999 responding' },
+        { delay: 7600, cls: 'hl-ev-ok',  text: '✓ Resolved in 7m · 0 pages sent · team uninterrupted' },
+        { delay: 8000, cls: 'hl-ev-ok',  text: '🧠 Failure signature saved to Elastic Brain' },
+      ];
+
+      EVENTS.forEach(function(ev) {
+        setTimeout(function() {
+          if (currentMode !== 'background') return;
+          var now = new Date();
+          var ts = [now.getHours(), now.getMinutes(), now.getSeconds()].map(function(n){return String(n).padStart(2,'0');}).join(':');
+          var el = document.createElement('div');
+          el.className = 'hl-event';
+          el.innerHTML = '<span class="hl-ts">' + ts + '</span><span class="' + ev.cls + '">' + ev.text + '</span>';
+          eventsEl.appendChild(el);
+          eventsEl.scrollTop = eventsEl.scrollHeight;
+        }, ev.delay);
+      });
+
+      var BG_LINES = [
+        { cls: 'tl-cmd',    text: 'kubectl get pods -n payments',                                          delay: 500 },
+        { cls: 'tl-head',   text: 'NAME                                  READY   STATUS            RESTARTS   AGE', delay: 950 },
+        { cls: 'tl-err',    text: 'payment-service-7d9f8b6c5-xk8pq      0/1     CrashLoopBackOff  14         47m', delay: 1050 },
+        { cls: 'tl-out',    text: 'checkout-service-6b4d9f7c8-wl3rt      1/1     Running           0          2h',  delay: 1150 },
+        { cls: 'term-blank', delay: 1400 },
+        { cls: 'tl-cmd',    text: 'kubectl logs payment-service-7d9f8b6c5-xk8pq --tail=3',                delay: 1600 },
+        { cls: 'tl-warn',   text: 'FATAL: listen tcp 0.0.0.0:9999: bind: address already in use',         delay: 2000 },
+        { cls: 'term-blank', delay: 2200 },
+        { cls: 'tl-cmd',    text: 'kubectl delete pod payment-service-7d9f8b6c5-xk8pq -n payments',       delay: 2500 },
+        { cls: 'tl-out',    text: 'pod "payment-service-7d9f8b6c5-xk8pq" deleted',                        delay: 3100 },
+        { cls: 'term-blank', delay: 3300 },
+        { cls: 'tl-cmd',    text: 'kubectl get pods -n payments -w',                                      delay: 3500 },
+        { cls: 'tl-out',    text: 'payment-service-7d9f8b6c5-r4nms      0/1     ContainerCreating   0     4s', delay: 4000 },
+        { cls: 'tl-ok',     text: 'payment-service-7d9f8b6c5-r4nms      1/1     Running             0     8s', delay: 5700 },
+        { cls: 'term-blank', delay: 6000 },
+        { cls: 'tl-ok',     text: '✓ Port 9999 responding',                                               delay: 6300 },
+        { cls: 'tl-ok',     text: '✓ Incident resolved — 0 alerts firing',                               delay: 6600 },
+      ];
+
+      BG_LINES.forEach(function(line) {
+        setTimeout(function() {
+          if (currentMode !== 'background') return;
+          var el = document.createElement('div');
+          el.className = 'term-line ' + line.cls;
+          if (line.cls !== 'term-blank') el.textContent = line.text;
+          termEl.appendChild(el);
+          termEl.scrollTop = termEl.scrollHeight;
+        }, line.delay);
+      });
+    }
+
+    function runAgentMode() {
+      if (agentRunning) return;
+      agentRunning = true;
+
+      var bodyEl = document.getElementById('agent-body');
+
+      var LINES = [
+        { cls: 'at-text', text: '> Elastic nightshift SRE monitoring active — watching 14 services across 3 namespaces', delay: 200 },
+        { cls: 'at-blank', delay: 600 },
+        { cls: 'at-tool', text: '● nightshift:detect_incident', delay: 900 },
+        { cls: 'at-out',  text: 'payment-service · CrashLoopBackOff · namespace: payments · restarts: 14', delay: 1200 },
+        { cls: 'at-blank', delay: 1450 },
+        { cls: 'at-text', text: 'Incident detected. Analyzing root cause...', delay: 1700 },
+        { cls: 'at-blank', delay: 2000 },
+        { cls: 'at-tool', text: '● nightshift:kubectl_get_pods', delay: 2200 },
+        { cls: 'at-out',  text: 'payment-service-7d9f8b6c5-xk8pq  0/1  CrashLoopBackOff  14  47m', delay: 2500 },
+        { cls: 'at-blank', delay: 2700 },
+        { cls: 'at-tool', text: '● nightshift:kubectl_logs', delay: 2900 },
+        { cls: 'at-out',  text: 'FATAL: listen tcp 0.0.0.0:9999: bind: address already in use', delay: 3200 },
+        { cls: 'at-out',  text: 'FATAL: listen tcp 0.0.0.0:9999: bind: address already in use', delay: 3300 },
+        { cls: 'at-blank', delay: 3550 },
+        { cls: 'at-text', text: 'Root cause confirmed: port 9999 bind failure — leaked socket from previous process.', delay: 3800 },
+        { cls: 'at-text', text: 'Fix: force pod termination. Clean init will release the bind conflict.', delay: 4100 },
+        { cls: 'at-blank', delay: 4400 },
+        { cls: 'at-tool', text: '● nightshift:kubectl_delete_pod', delay: 4600 },
+        { cls: 'at-out',  text: 'pod "payment-service-7d9f8b6c5-xk8pq" deleted', delay: 5000 },
+        { cls: 'at-blank', delay: 5200 },
+        { cls: 'at-tool', text: '● nightshift:kubectl_watch_pods', delay: 5400 },
+        { cls: 'at-out',  text: 'payment-service-7d9f8b6c5-r4nms  0/1  ContainerCreating  0  3s', delay: 5800 },
+        { cls: 'at-out',  text: 'payment-service-7d9f8b6c5-r4nms  1/1  Running            0  8s', delay: 7200 },
+        { cls: 'at-blank', delay: 7500 },
+        { cls: 'at-tool', text: '● nightshift:verify_connectivity', delay: 7700 },
+        { cls: 'at-out',  text: 'Connection to 10.103.136.237:9999 succeeded', delay: 8100 },
+        { cls: 'at-blank', delay: 8400 },
+        { cls: 'at-ok',   text: '✓ Incident resolved · TTR: 8 min · 0 pages sent', delay: 8700 },
+        { cls: 'at-ok',   text: '🧠 Failure signature saved to Elastic Brain', delay: 9100 },
+      ];
+
+      LINES.forEach(function(line) {
+        setTimeout(function() {
+          if (currentMode !== 'agent') return;
+          var el = document.createElement('div');
+          el.className = 'at-line ' + line.cls;
+          if (line.cls !== 'at-blank') el.textContent = line.text;
+          bodyEl.appendChild(el);
+          bodyEl.scrollTop = bodyEl.scrollHeight;
+        }, line.delay);
+      });
+    }
+  })();
+  </script>
+
+<script src="js/fuckslides.js"></script>
+</body>
+</html>

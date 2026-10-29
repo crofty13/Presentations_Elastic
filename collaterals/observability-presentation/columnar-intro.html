@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>From 25 to 3.75 Bytes</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .num{font:500 250px/1 var(--sans);letter-spacing:-14px;color:var(--ink);margin-top:120px;margin-left:-12px;font-variant-numeric:tabular-nums;transition:color .4s}
+  .num.settled{color:var(--blue)}
+  .unit{display:flex;align-items:baseline;gap:14px;margin-top:10px}
+  .unit b{font:600 32px var(--sans);letter-spacing:-1px}
+  .unit span{font:500 14px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey)}
+  .tagline{margin-top:54px;font:400 30px/1.2 var(--mono);color:var(--grey);opacity:0;transform:translateY(10px);transition:opacity .6s,transform .6s}
+  .tagline b{color:var(--ink);font-weight:600}
+  .tagline.show{opacity:1;transform:none}
+  #stack{left:700px;top:0;width:580px;height:720px}
+  .progress{position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--blue);transform-origin:left;transform:scaleX(0);z-index:6}
+  .progress.run{transition:transform 3.6s linear;transform:scaleX(1)}
+  .num,.tagline{transition:color .4s,opacity .6s,transform .6s,margin-top .6s cubic-bezier(.2,.7,.2,1),font-size .6s cubic-bezier(.2,.7,.2,1)}
+  .dxs{margin-top:28px;width:560px;display:flex;flex-direction:column;gap:12px}
+  html[data-density="1"] .num{margin-top:190px}
+  html[data-density="2"] .num{margin-top:150px}
+  html[data-density="4"] .num{margin-top:64px;font-size:210px}
+  html[data-density="5"] .num{margin-top:40px;font-size:180px;letter-spacing:-10px}
+  html[data-density="4"] .tagline,html[data-density="5"] .tagline{margin-top:30px;font-size:26px}
+</style>
+</head>
+<body data-foot="Columnar engine · Architecture shift">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">Columnar engine · <b>Architecture shift</b></div>
+  <div class="num in2" id="num">25</div>
+  <div class="unit in3"><b>bytes</b><span>per data point</span></div>
+  <div class="tagline" id="tagline" data-d="2">Here is <b>how we did it.</b></div>
+  <div class="dxs">
+    <div class="dx" data-d="4"><span class="dxk">Why metrics were heavy</span><p>A metric is tiny: a timestamp, a value, a few dimensions. A document store wraps it in machinery built for documents: an <b>_id, sequence numbers, inverted index entries and per-field metadata</b>.</p></div>
+    <div class="dx" data-d="5"><span class="dxk">And reading it back</span><p>Querying meant scanning the full document, effectively a full table scan. The columnar engine reads <b>one column</b> and skips everything else.</p></div>
+  </div>
+</div>
+<svg id="stack" class="iso" viewBox="0 0 580 720"></svg>
+<div class="progress" id="progress"></div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 640, y: 60, w: 640, h: 620, seed: 31, blobs: 5, thr: .48});
+  const sc = EW.iso(document.getElementById('stack'), {ox: 290, oy: 425, s: 1});
+  const H = 11, G = 3, C0 = .75, C1 = 1.7;
+  const ghost = sc.box({x: 0, y: 0, w: 150, d: 150, h: 25 * (H + G), c: 'white', wire: true, dash: '3 4', stroke: '#98A2B3', delay: 1.4, drop: 0, snap: false, dur: .4, shadow: false, order: 100});
+  sc.rect({x: -24, y: -24, w: 198, d: 198, delay: .05});
+  const slabs = [];
+  for (let i = 0; i < 25; i++){
+    const keep = i < 4, h = i === 3 ? H * .75 : H;
+    const b = sc.box({x: 0, y: 0, w: 150, d: 150, h, z: i * (H + G), c: keep ? 'blue' : 'slate', stroke: keep ? '#1D1E24' : '#98A2B3', sw: keep ? 1 : .6, delay: .05 + i * .014, drop: 60, dur: .4, shadow: i === 0, order: i * 1000});
+    b.i = i; slabs.push(b);
+    if (!keep) b.onFrame = (t, it) => { const k = EW.ease((t - C0 - (24 - it.i) * .016) / .55); if (k <= 0) return;
+      it.g.setAttribute('transform', `translate(${k * 40},${-k * (80 + it.i * 3)})`); it.g.setAttribute('opacity', Math.max(0, 1 - k * 1.3)); };
+  }
+  sc.label({at: [150, 0, 25 * (H + G) - 8], side: 'r', len: 30, title: 'Before', sub: '25 bytes', delay: 1.55});
+  sc.label({at: [150, 0, 3.75 * (H + G) / 2 + 2], side: 'r', len: 30, title: 'Now', sub: '3.75 bytes', delay: 1.6});
+  sc.run();
+  const num = document.getElementById('num');
+  const t0 = performance.now();
+  (function step(now){ const p = Math.min(1, Math.max(0, ((now - t0) / 1000 - C0) / (C1 - C0))), e = 1 - Math.pow(1 - p, 3), v = 25 - 21.25 * e;
+    num.textContent = p >= 1 ? '3.75' : v >= 10 ? v.toFixed(1) : v.toFixed(2);
+    if (p < 1) requestAnimationFrame(step); else { num.classList.add('settled'); document.getElementById('tagline').classList.add('show');
+      if (window !== window.top){ const dl = +document.documentElement.dataset.density || 3, hold = dl >= 4 ? 9000 : 4200, pg = document.getElementById('progress'); pg.style.transitionDuration = (hold - 600) / 1000 + 's';
+      setTimeout(() => pg.classList.add('run'), 500); setTimeout(() => window.parent.postMessage({type: 'keydown', key: 'ArrowRight'}, '*'), hold); } } })(t0);
+})();
+</script>
+</body>
+</html>

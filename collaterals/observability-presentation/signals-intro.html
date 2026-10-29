@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-density="1">
+<head>
+<meta charset="UTF-8">
+<title>Signals: Every Observability Experience</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:76px;letter-spacing:-3px;margin-top:16px}
+  .sub{max-width:560px;font-size:18px}
+  #scene{left:700px;top:20px;width:560px;height:250px}
+  .sigs{position:absolute;left:72px;right:72px;top:268px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;z-index:2}
+  .sig{background:#fff;border:1px solid var(--line);border-top:4px solid var(--c);padding:12px 14px 10px}
+  .sig .tag{display:flex;align-items:center;gap:8px}
+  .sig .tag .sw{background:var(--c)}
+  .sig h3{font:600 19px var(--sans);letter-spacing:-.4px;margin:6px 0 3px}
+  .sig p{font-size:12.5px;line-height:1.4;color:var(--grey);min-height:36px}
+  .sig ul{list-style:none;margin-top:8px;border-top:1px solid var(--line);padding-top:6px}
+  .sig li{font:500 10px/1.3 var(--mono);color:var(--char);padding:3px 0 3px 12px;position:relative}
+  .sig li::before{content:'';position:absolute;left:0;top:8px;width:5px;height:1px;background:var(--ink)}
+  .bot{position:absolute;left:72px;right:72px;top:490px;display:grid;grid-template-columns:1fr 1fr;gap:14px;z-index:2}
+  .pan{border:1px solid var(--ink);background:#fff;padding:12px 16px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center}
+  .pan h4{font:600 15px var(--sans);letter-spacing:-.3px;margin:5px 0 3px}
+  .pan p{font-size:11.5px;line-height:1.38;color:var(--grey)}
+  .nums{display:flex;gap:14px}
+  .nums div{text-align:left}
+  .nums b{display:block;font:500 28px/1 var(--sans);letter-spacing:-1px;color:var(--blue)}
+  .nums span{display:block;font:500 9.5px/1.3 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--grey);margin-top:5px}
+  .pan.alt{border-color:var(--line);background:var(--bg)}
+  .pan.alt .nums b{color:var(--ink)}
+  #scene,.ew-dots,.sigs,.bot,h1{transition:transform .7s cubic-bezier(.2,.7,.2,1),top .6s cubic-bezier(.2,.7,.2,1),font-size .6s}
+  .dxrow{position:absolute;left:72px;right:72px;top:606px;display:grid;grid-template-columns:1fr 1fr;gap:24px;z-index:2}
+  /* density 1: the platform scene alone, centered */
+  html[data-density="1"] #scene{transform:translate(-340px,190px) scale(1.7)}
+  html[data-density="1"] .ew-dots{transform:translate(-340px,150px)}
+  /* density 2: title + the five signals, no detail lists */
+  #scene{transform-origin:100% 0}
+  html[data-density="2"] #scene{transform:translate(-40px,20px) scale(1.3)}
+  html[data-density="2"] .ew-dots{transform:translate(-40px,30px)}
+  html[data-density="2"] .sigs{top:370px}
+  /* density 4-5: tighten to make room for context */
+  html[data-density="4"] h1,html[data-density="5"] h1{font-size:60px;letter-spacing:-2.4px}
+  html[data-density="4"] .sigs,html[data-density="5"] .sigs{top:242px}
+  html[data-density="4"] #scene,html[data-density="5"] #scene{transform:translate(0,-6px) scale(.86)}
+  html[data-density="4"] .ew-dots,html[data-density="5"] .ew-dots{transform:translate(0,-14px)}
+  html[data-density="4"] .sig p,html[data-density="5"] .sig p{min-height:0}
+  html[data-density="4"] .bot,html[data-density="5"] .bot{top:448px}
+  html[data-density="2"] .sig p{min-height:0}
+</style>
+</head>
+<body data-foot="02 · Pillar · Signals">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">02 · Pillar · <b>Signals</b></div>
+  <h1 class="in2" data-d="2">Signals<span class="b">.</span></h1>
+  <p class="sub in3" data-d="3">Every observability experience on one platform: Logs, Metrics, Traces, Synthetics, and Profiles.</p>
+</div>
+<svg id="scene" class="iso" viewBox="0 0 600 290"></svg>
+<div class="sigs" data-d="2">
+  <div class="sig in3" style="--c:var(--pink)"><div class="tag"><i class="sw"></i>01</div><h3>Logs</h3><p>Structure, search, and analyze every log at scale.</p><ul data-d="3"><li>LogsDB · 65% smaller storage</li><li>ES|QL for fast ad-hoc queries</li><li>Pattern analysis &amp; clustering</li></ul></div>
+  <div class="sig in3" style="--c:var(--blue);animation-delay:.38s"><div class="tag"><i class="sw"></i>02</div><h3>Metrics</h3><p>Prometheus-native. Columnar storage. At any scale.</p><ul data-d="3"><li>Native PromQL support</li><li>30× faster than Prometheus</li><li>Kubernetes &amp; cloud out of the box</li></ul></div>
+  <div class="sig in3" style="--c:var(--teal-d);animation-delay:.46s"><div class="tag"><i class="sw"></i>03</div><h3>Traces</h3><p>Distributed tracing and service dependency mapping.</p><ul data-d="3"><li>OTel-native ingestion</li><li>Service map &amp; topology</li><li>Trace-to-log correlation</li></ul></div>
+  <div class="sig in3" style="--c:var(--orange);animation-delay:.54s"><div class="tag"><i class="sw"></i>04</div><h3>Synthetics</h3><p>Proactive uptime and performance monitoring.</p><ul data-d="3"><li>Browser &amp; API monitors</li><li>SLA tracking &amp; alerting</li><li>Global monitoring locations</li></ul></div>
+  <div class="sig in3" style="--c:var(--yellow);animation-delay:.62s"><div class="tag"><i class="sw"></i>05</div><h3>Profiles</h3><p>Continuous profiling for CPU, memory, and latency.</p><ul data-d="3"><li>Always-on, low overhead</li><li>Flamegraphs in context</li><li>Correlated with traces &amp; logs</li></ul></div>
+</div>
+<div class="bot" data-d="3">
+  <div class="pan in5"><div><div class="tag">Datastore efficiency</div><h4>The most efficient store for logs and metrics</h4><p>LogsDB and columnar metrics storage deliver dramatic cost reduction without sacrificing query speed.</p></div>
+    <div class="nums"><div><b>65%</b><span>log storage<br>reduction</span></div><div><b>30×</b><span>faster metrics<br>vs Prometheus</span></div><div><b>~40%</b><span>faster query<br>time</span></div></div></div>
+  <div class="pan alt in6"><div><div class="tag">GTM focus · Metrics</div><h4>Winning the Prometheus migration</h4><p>Native PromQL, remote write, and Kubernetes integrations make Elastic the obvious destination for teams moving off Prometheus.</p></div>
+    <div class="nums"><div><b>PromQL</b><span>fully<br>native</span></div><div><b>OTel</b><span>standard<br>ingestion</span></div><div><b>k8s</b><span>out of<br>the box</span></div></div></div>
+</div>
+<div class="dxrow">
+  <div class="dx" data-d="4"><span class="dxk">Why one platform</span><p>Traces, synthetics and profiles run on the same platform as logs and metrics: <b>same query language, one bill</b>. One platform is not a slogan, it is a TCO argument.</p></div>
+  <div class="dx" data-d="5"><span class="dxk">What it means in practice</span><p>Every signal is correlated in one place: jump from a trace to its logs, and from a slow service to the profile behind it, <b>without switching tools</b>.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 680, y: 10, w: 600, h: 250, seed: 9, blobs: 5, thr: .45});
+  const sc = EW.iso(document.getElementById('scene'), {ox: 250, oy: 150, s: .6});
+  sc.rect({x: -24, y: -24, w: 368, d: 128, delay: .05});
+  sc.box({x: 0, y: 0, w: 320, d: 80, h: 26, c: 'white', delay: .1, drop: 90, order: -1000});
+  const cols = ['pink', 'blue', 'teal', 'orange', 'yellow'], hs = [96, 140, 112, 74, 88];
+  cols.forEach((c, i) => sc.box({x: 14 + i * 62, y: 14, w: 44, d: 52, h: hs[i], z: 26, c, delay: .4 + i * .09, drop: 110, float: i === 1 ? 3 : 0, phase: i}));
+  sc.label({at: [320, 40, 13], side: 'r', len: 34, title: 'One platform', sub: 'Five signals', delay: 1.2});
+  sc.run();
+})();
+</script>
+</body>
+</html>

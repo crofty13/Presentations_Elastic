@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>A Lovable Kubernetes OOTB Experience</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:44px;letter-spacing:-1.4px;margin-top:12px}
+  .sub{font-size:17px;margin-top:6px}
+  .body{position:absolute;left:72px;right:72px;top:184px;bottom:62px;display:flex;gap:14px;z-index:2}
+  .left-card{width:250px;flex-shrink:0;position:relative;display:flex;flex-direction:column}
+  .lc-head{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-bottom:6px}
+  .lc-big{font:500 72px/1 var(--sans);letter-spacing:-3px;color:var(--blue)}
+  .lc-stat{font-size:14px;font-weight:500;color:var(--ink);line-height:1.35;margin-top:6px}
+  .lc-sub{font-size:12.5px;color:var(--grey);line-height:1.5;margin-top:6px}
+  #kiso{left:0;top:190px;width:250px;height:150px}
+  .bullets{list-style:none;display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--ink);padding-top:8px}
+  .bullets li{font-size:13px;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .bullets li::before{content:'';width:7px;height:7px;background:var(--blue);flex-shrink:0}
+
+  .kb{flex:1;min-width:0;background:#fff;border:1px solid var(--ink);overflow:hidden;display:flex;flex-direction:column;box-shadow:8px 8px 0 var(--slate-l)}
+  .kb-topbar{height:24px;background:var(--bg);border-bottom:1px solid var(--line);padding:0 10px;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0}
+  .kb-tbtn{font-size:8.5px;color:var(--grey);display:flex;align-items:center;gap:3px}
+  .kb-tsep{width:1px;height:11px;background:var(--line)}
+  .kb-filterbar{height:25px;border-bottom:1px solid var(--line);padding:0 7px;display:flex;align-items:center;gap:4px;flex-shrink:0}
+  .kb-ficon{width:18px;height:18px;border:1px solid var(--line);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:7px;color:var(--grey);flex-shrink:0}
+  .kb-fbadge{width:17px;height:17px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;flex-shrink:0}
+  .kb-fsearch{flex:1;height:18px;background:#fff;border:1px solid var(--line);border-radius:3px;padding:0 6px;font-size:8px;color:var(--grey-l);display:flex;align-items:center;gap:4px}
+  .kb-ftime{font-size:8px;color:var(--ink);height:18px;border:1px solid var(--line);border-radius:3px 0 0 3px;padding:0 5px;display:flex;align-items:center;white-space:nowrap;flex-shrink:0}
+  .kb-farrow{width:18px;height:18px;border:1px solid var(--line);border-left:none;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--grey);flex-shrink:0}
+  .kb-frefresh{height:18px;background:var(--blue);color:#fff;border-radius:3px;padding:0 7px;display:flex;align-items:center;gap:3px;font-size:8px;font-weight:600;flex-shrink:0;margin-left:3px}
+  .kb-databar{height:18px;border-bottom:1px solid var(--line);padding:0 7px;display:flex;align-items:center;gap:3px;flex-shrink:0}
+  .kb-dlbl{font-size:7.5px;color:var(--grey)}
+  .kb-dtag{background:var(--blue-l);color:var(--blue-d);border-radius:3px;padding:1px 5px;font-size:7.5px}
+  .kb-tabs{height:24px;border-bottom:1px solid var(--line);padding:0 7px;display:flex;align-items:flex-end;flex-shrink:0}
+  .kb-tab{font-size:9.5px;padding:0 9px;height:22px;display:flex;align-items:center;color:var(--grey);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+  .kb-tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+  .kb-content{flex:1;min-height:0;overflow:hidden;padding:6px 8px 4px;display:flex;flex-direction:column}
+  .kb-sep{height:1px;background:var(--line);margin:4px 0;flex-shrink:0}
+  .kb-sec-hdr{font-size:10px;font-weight:600;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:4px;flex-shrink:0}
+  .kb-caret{font-size:9px;color:var(--grey-l)}
+  .kb-sec-body{display:flex;gap:10px;flex:1;min-height:0}
+  .kb-stats{width:96px;flex-shrink:0;display:flex;flex-direction:column}
+  .kb-srow{display:flex;gap:10px;margin-bottom:5px;flex-shrink:0}
+  .kb-sitem{display:flex;flex-direction:column}
+  .kb-snum{font-size:19px;font-weight:600;line-height:1;color:var(--ink)}
+  .kb-szero{font-size:17px;font-weight:300;line-height:1;color:var(--ink)}
+  .kb-slbl{font-size:7.5px;color:var(--grey);margin-top:2px}
+  .kb-bklbl{font-size:7.5px;color:var(--grey);margin-bottom:3px;display:flex;align-items:center;gap:2px;flex-shrink:0}
+  .ii{display:inline-flex;align-items:center;justify-content:center;width:9px;height:9px;border-radius:50%;border:1px solid var(--grey-l);font-size:6px;color:var(--grey-l)}
+  .kb-donut{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+  .kb-donut svg{width:74px;height:74px}
+  .kb-charts{flex:1;min-width:0;display:flex;gap:7px}
+  .kb-chart-col{flex:1;min-width:0;display:flex;flex-direction:column}
+  .kb-chtitle{font-size:7.5px;font-weight:500;color:var(--ink);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+  .kb-chwrap{flex:1;min-height:34px;position:relative}
+  .kb-chwrap canvas{position:absolute;inset:0;display:block}
+  .kb-legend{flex-shrink:0;margin-top:3px;font-size:7px}
+  .kb-lhdr{display:flex;padding:0 0 2px 10px;border-bottom:1px solid var(--line);color:var(--grey-l)}
+  .kb-lhdr .lh{width:24px;text-align:right;font-weight:500}
+  .kb-lhdr .lh0{flex:1}
+  .kb-lr{display:flex;align-items:center;padding:1.5px 0}
+  .kb-ldot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-right:4px}
+  .kb-lname{flex:1;color:var(--grey);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .kb-lval{width:24px;text-align:right;color:var(--ink);font-weight:500}
+
+  .console{width:232px;flex-shrink:0;background:var(--ink);overflow:hidden;display:flex;flex-direction:column}
+  .con-hdr{height:26px;border-bottom:1px solid #343741;padding:0 10px;display:flex;align-items:center;gap:5px;flex-shrink:0}
+  .cdot{width:8px;height:8px;border-radius:50%;border:1px solid #69707D;flex-shrink:0}
+  .con-title{font:500 9px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:#98A2B3;margin-left:4px}
+  .con-body{flex:1;padding:9px 11px;overflow:hidden;font:400 9.5px/1.55 var(--mono);color:#DDE3EC;display:flex;flex-direction:column}
+  .cl{min-height:1em}
+  .cg{color:#48EFCF}.cy{color:#FEC514}.cm{color:#98A2B3}.cb{font-weight:700;color:#fff}
+  .cursor{display:inline-block;width:6px;height:11px;background:#48EFCF;vertical-align:middle;animation:blink 1s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+  .body{transition:transform .7s cubic-bezier(.2,.7,.2,1);transform-origin:0 0}
+  .left-card{transition:opacity .4s}
+  .lc-big{transition:font-size .6s cubic-bezier(.2,.7,.2,1)}
+  .left-card .dx{margin-top:12px}
+  .left-card .dx p{font-size:12px}
+  /* density */
+  html[data-density="1"] .left-card{visibility:hidden;opacity:0}
+  html[data-density="1"] .body{transform:translate(-237px,-104px) scale(1.15)}
+  html[data-density="4"] .lc-big,html[data-density="5"] .lc-big{font-size:54px}
+  #kiso{transition:transform .6s cubic-bezier(.2,.7,.2,1);transform-origin:0 0}
+  .kh2{transition:margin-top .6s cubic-bezier(.2,.7,.2,1)}
+  html[data-density="4"] #kiso,html[data-density="5"] #kiso{transform:translate(122px,-174px) scale(.5)}
+  html[data-density="4"] .kh2,html[data-density="5"] .kh2{margin-top:18px!important}
+</style>
+</head>
+<body data-foot="Kubernetes · Enhanced OTel Experience">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">Kubernetes · <b>OOTB</b></div>
+  <h1 class="in2" data-d="2">A Lovable Kubernetes <span class="b">OOTB</span> Experience</h1>
+  <p class="sub in3" data-d="3">The most widely deployed cloud infrastructure</p>
+</div>
+<div class="body">
+    <div class="left-card in3">
+      <div class="lc-head">Why It Matters</div>
+      <div class="lc-big" id="k93">93%</div>
+      <div class="lc-stat">of companies using or evaluating Kubernetes</div>
+      <div class="lc-sub" data-d="3">Customers are eager for richer monitoring and observability experiences that just work.</div>
+      <svg id="kiso" class="iso" viewBox="0 0 250 150" data-d="3"></svg>
+      <div class="lc-head kh2" style="margin-top:156px" data-d="3">Enhanced OTel Experience</div>
+      <ul class="bullets" data-d="3">
+        <li>Revamped Dashboards &amp; Alerts</li>
+        <li>OOTB SLOs &amp; Agent Skills</li>
+        <li>Kubernetes Workflows</li>
+      </ul>
+      <div class="dx" data-d="4"><span class="dxk">Value on day one</span><p>No instrumentation project, no dashboard-building sprint. It is there from the start.</p></div>
+      <div class="dx" data-d="5"><span class="dxk">Lovable OOTB</span><p>Value before configuration. <span style="color:var(--grey)">Source for 93%: CNCF 2024 Annual Survey.</span></p></div>
+    </div>
+
+    <!-- Kibana dashboard -->
+    <div class="kb">
+      <div class="kb-topbar">
+        <div class="kb-tbtn">↗ Share</div>
+        <div class="kb-tbtn">⤓ Export</div>
+        <div class="kb-tsep"></div>
+        <div class="kb-tbtn">✎ Edit</div>
+      </div>
+      <div class="kb-filterbar">
+        <div class="kb-ficon">⊞</div>
+        <div class="kb-ficon" style="font-size:6px">▼</div>
+        <div class="kb-fbadge">1</div>
+        <div class="kb-fsearch">🔍 Filter your data using KQL syntax</div>
+        <div class="kb-ftime">⏱ Last 15 minutes</div>
+        <div class="kb-farrow">‹</div>
+        <div class="kb-farrow">🔍</div>
+        <div class="kb-farrow" style="border-radius:0 3px 3px 0">›</div>
+        <div class="kb-frefresh">↺ Refresh</div>
+      </div>
+      <div class="kb-databar">
+        <span class="kb-dlbl">data_stream.dataset: is one of</span>
+        <span class="kb-dtag">k8sclusterreceiver.otel, kubeletstatereceiver.otel ×</span>
+      </div>
+      <div class="kb-tabs">
+        <div class="kb-tab active">Overview</div>
+        <div class="kb-tab">Clusters</div>
+        <div class="kb-tab">Nodes</div>
+        <div class="kb-tab">Namespaces</div>
+        <div class="kb-tab">Workload resources</div>
+        <div class="kb-tab">Pods</div>
+      </div>
+
+      <div class="kb-content">
+
+        <!-- Clusters -->
+        <div class="kb-sec-hdr"><span class="kb-caret">∨</span> Clusters</div>
+        <div class="kb-sec-body">
+          <div class="kb-stats">
+            <div class="kb-srow">
+              <div class="kb-sitem"><div class="kb-snum">5</div><div class="kb-slbl">Total clusters</div></div>
+              <div class="kb-sitem"><div class="kb-snum">5</div><div class="kb-slbl">Healthy</div></div>
+              <div class="kb-sitem"><div class="kb-szero">Ø</div><div class="kb-slbl">Unhealthy</div></div>
+            </div>
+            <div class="kb-bklbl">Clusters breakdown by health <span class="ii">i</span></div>
+            <div class="kb-donut">
+              <svg viewBox="0 0 90 90" width="90" height="90">
+                <circle cx="45" cy="45" r="33" fill="none" stroke="#EEF1F6" stroke-width="13"/>
+                <circle cx="45" cy="45" r="33" fill="none" stroke="#0B64DD" stroke-width="13"
+                  stroke-dasharray="207.3 0" transform="rotate(-90 45 45)"/>
+                <text x="45" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="#0B64DD" font-weight="600">Healthy 5</text>
+              </svg>
+            </div>
+          </div>
+          <div class="kb-charts">
+            <div class="kb-chart-col">
+              <div class="kb-chtitle">Top 10 clusters by CPU utilization <span style="color:#98A2B3">ⓘ</span></div>
+              <div class="kb-chwrap"><canvas id="c-cpu"></canvas></div>
+              <div class="kb-legend">
+                <div class="kb-lhdr"><div class="lh0"></div><div class="lh">Avg</div><div class="lh">Min</div><div class="lh">Max</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#0B64DD"></div><div class="kb-lname">unknown_k8s_cluster</div><div class="kb-lval">62%</div><div class="kb-lval">54%</div><div class="kb-lval">101%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#02BCB7"></div><div class="kb-lname">oteldemo-esyox</div><div class="kb-lval">22%</div><div class="kb-lval">6%</div><div class="kb-lval">52%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#98A2B3"></div><div class="kb-lname">jmiller-robot-shop</div><div class="kb-lval"></div><div class="kb-lval"></div><div class="kb-lval"></div></div>
+              </div>
+            </div>
+            <div class="kb-chart-col">
+              <div class="kb-chtitle">Top 10 clusters by memory working set utilization <span style="color:#98A2B3">ⓘ</span></div>
+              <div class="kb-chwrap"><canvas id="c-mem"></canvas></div>
+              <div class="kb-legend">
+                <div class="kb-lhdr"><div class="lh0"></div><div class="lh">Avg</div><div class="lh">Min</div><div class="lh">Max</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#0B64DD"></div><div class="kb-lname">unknown_k8s_cluster</div><div class="kb-lval">62%</div><div class="kb-lval">60%</div><div class="kb-lval">71%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#02BCB7"></div><div class="kb-lname">oteldemo-esyox</div><div class="kb-lval">43%</div><div class="kb-lval">31%</div><div class="kb-lval">57%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#98A2B3"></div><div class="kb-lname">jmiller-robot-shop</div><div class="kb-lval"></div><div class="kb-lval"></div><div class="kb-lval"></div></div>
+              </div>
+            </div>
+            <div class="kb-chart-col">
+              <div class="kb-chtitle">Top 10 clusters by disk usage <span style="color:#98A2B3">ⓘ</span></div>
+              <div class="kb-chwrap"><canvas id="c-disk"></canvas></div>
+              <div class="kb-legend">
+                <div class="kb-lhdr"><div class="lh0"></div><div class="lh">Avg</div><div class="lh">Min</div><div class="lh">Max</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#F04E98"></div><div class="kb-lname">unknown_k8s_cluster</div><div class="kb-lval">15%</div><div class="kb-lval">15%</div><div class="kb-lval">15%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#02BCB7"></div><div class="kb-lname">oteldemo-esyox</div><div class="kb-lval">15%</div><div class="kb-lval">12%</div><div class="kb-lval">16%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#98A2B3"></div><div class="kb-lname">jmiller-robot-shop</div><div class="kb-lval">16%</div><div class="kb-lval">16%</div><div class="kb-lval">16%</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kb-sep"></div>
+
+        <!-- Nodes -->
+        <div class="kb-sec-hdr"><span class="kb-caret">∨</span> Nodes</div>
+        <div class="kb-sec-body">
+          <div class="kb-stats">
+            <div class="kb-srow">
+              <div class="kb-sitem"><div class="kb-snum">29</div><div class="kb-slbl">Total nodes</div></div>
+              <div class="kb-sitem"><div class="kb-snum">29</div><div class="kb-slbl">Ready</div></div>
+              <div class="kb-sitem"><div class="kb-szero">Ø</div><div class="kb-slbl">Not ready</div></div>
+            </div>
+            <div class="kb-bklbl">Nodes breakdown by readiness <span class="ii">i</span></div>
+            <div class="kb-donut">
+              <svg viewBox="0 0 90 90" width="90" height="90">
+                <circle cx="45" cy="45" r="33" fill="none" stroke="#EEF1F6" stroke-width="13"/>
+                <circle cx="45" cy="45" r="33" fill="none" stroke="#0B64DD" stroke-width="13"
+                  stroke-dasharray="207.3 0" transform="rotate(-90 45 45)"/>
+                <text x="45" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="#0B64DD" font-weight="600">Ready 29</text>
+              </svg>
+            </div>
+          </div>
+          <div class="kb-charts">
+            <div class="kb-chart-col">
+              <div class="kb-chtitle">Top 10 nodes by CPU utilization <span style="color:#98A2B3">ⓘ</span></div>
+              <div class="kb-chwrap"><canvas id="n-cpu"></canvas></div>
+              <div class="kb-legend">
+                <div class="kb-lhdr"><div class="lh0"></div><div class="lh">Avg</div><div class="lh">Min</div><div class="lh">Max</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#FF7E62"></div><div class="kb-lname">gke-ensemble-ensemble-o...</div><div class="kb-lval">103%</div><div class="kb-lval">98%</div><div class="kb-lval">104%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#02BCB7"></div><div class="kb-lname">gke-ensemble-ensemble-...</div><div class="kb-lval"></div><div class="kb-lval"></div><div class="kb-lval"></div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#98A2B3"></div><div class="kb-lname">gke-jmiller-bookinfo-def...</div><div class="kb-lval">5%</div><div class="kb-lval">4%</div><div class="kb-lval">6%</div></div>
+              </div>
+            </div>
+            <div class="kb-chart-col">
+              <div class="kb-chtitle">Top 10 nodes by memory working set utilization <span style="color:#98A2B3">ⓘ</span></div>
+              <div class="kb-chwrap"><canvas id="n-mem"></canvas></div>
+              <div class="kb-legend">
+                <div class="kb-lhdr"><div class="lh0"></div><div class="lh">Avg</div><div class="lh">Min</div><div class="lh">Max</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#FF7E62"></div><div class="kb-lname">gke-ensemble-ensemble-o...</div><div class="kb-lval">83%</div><div class="kb-lval">83%</div><div class="kb-lval">84%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#02BCB7"></div><div class="kb-lname">gke-ensemble-ensemble-o...</div><div class="kb-lval"></div><div class="kb-lval"></div><div class="kb-lval"></div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#98A2B3"></div><div class="kb-lname">gke-jmiller-bookinfo-def...</div><div class="kb-lval">17%</div><div class="kb-lval">17%</div><div class="kb-lval">18%</div></div>
+              </div>
+            </div>
+            <div class="kb-chart-col">
+              <div class="kb-chtitle">Top 10 nodes by disk usage <span style="color:#98A2B3">ⓘ</span></div>
+              <div class="kb-chwrap"><canvas id="n-disk"></canvas></div>
+              <div class="kb-legend">
+                <div class="kb-lhdr"><div class="lh0"></div><div class="lh">Avg</div><div class="lh">Min</div><div class="lh">Max</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#FF7E62"></div><div class="kb-lname">gke-ensemble-ensemble-o...</div><div class="kb-lval">17%</div><div class="kb-lval">17%</div><div class="kb-lval">17%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#02BCB7"></div><div class="kb-lname">gke-ensemble-ensemble-o...</div><div class="kb-lval">14%</div><div class="kb-lval">14%</div><div class="kb-lval">14%</div></div>
+                <div class="kb-lr"><div class="kb-ldot" style="background:#98A2B3"></div><div class="kb-lname">gke-jmiller-bookinfo-def...</div><div class="kb-lval">12%</div><div class="kb-lval">12%</div><div class="kb-lval">12%</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Console -->
+    <div class="console">
+      <div class="con-hdr">
+        <div class="cdot"></div><div class="cdot"></div><div class="cdot"></div>
+        <div class="con-title">elastic-ai · root cause</div>
+      </div>
+      <div class="con-body" id="con-body">
+        <span class="cursor" id="cursor"></span>
+      </div>
+    </div>
+
+  </div>
+<script>
+'use strict';
+const N = 52;
+function rng(seed) { let s = seed; return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; }; }
+
+const CFGS = {
+  'c-cpu':  { yMax:1.25, cols:['#0B64DD','#02BCB7','#98A2B3'], base:[0.72,0.26,0.16], vol:[0.13,0.08,0.04], spiky:[true,true,false] },
+  'c-mem':  { yMax:0.88, cols:['#0B64DD','#02BCB7','#98A2B3'], base:[0.63,0.44,0.26], vol:[0.03,0.04,0.02], spiky:[false,false,false] },
+  'c-disk': { yMax:0.22, cols:['#F04E98','#02BCB7','#98A2B3'], base:[0.152,0.148,0.160], vol:[0.003,0.005,0.002], spiky:[false,false,false] },
+  'n-cpu':  { yMax:1.25, cols:['#FF7E62','#02BCB7','#0B64DD','#98A2B3','#F04E98'], base:[1.02,0.46,0.33,0.08,0.18], vol:[0.05,0.14,0.11,0.05,0.07], spiky:[false,true,true,true,true] },
+  'n-mem':  { yMax:1.00, cols:['#FF7E62','#02BCB7','#0B64DD','#98A2B3','#F04E98'], base:[0.83,0.55,0.44,0.35,0.20], vol:[0.005,0.012,0.010,0.008,0.008], spiky:[false,false,false,false,false] },
+  'n-disk': { yMax:0.26, cols:['#FF7E62','#02BCB7','#0B64DD','#98A2B3','#F04E98'], base:[0.170,0.156,0.150,0.142,0.130], vol:[0.002,0.002,0.002,0.002,0.002], spiky:[false,false,false,false,false] },
+};
+
+const DATA = {};
+Object.entries(CFGS).forEach(([id, cfg]) => {
+  const r = rng(id.charCodeAt(0) * 37 + id.charCodeAt(2));
+  DATA[id] = cfg.base.map((b, si) => {
+    let v = b; const pts = [];
+    for (let i = 0; i < N; i++) {
+      const d = cfg.spiky[si] && r() < 0.2
+        ? (r() - 0.3) * cfg.vol[si] * 7
+        : (r() - 0.5) * cfg.vol[si] * 2;
+      v = Math.max(0.005, Math.min(cfg.yMax * 0.98, v + d));
+      pts.push(v);
+    }
+    return pts;
+  });
+});
+
+function drawChart(id) {
+  const cfg = CFGS[id];
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+  if (!W || !H) return;
+  if (canvas.width !== W * 2 || canvas.height !== H * 2) { canvas.width = W * 2; canvas.height = H * 2; canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; }
+  const ctx = canvas.getContext('2d'); ctx.setTransform(2, 0, 0, 2, 0, 0);
+  const P = { t: 2, r: 2, b: 13, l: 24 };
+  const cW = W - P.l - P.r, cH = H - P.t - P.b;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // grid + y labels
+  const steps = cfg.yMax <= 0.25 ? [0,.05,.10,.15,.20] : cfg.yMax <= 1.0 ? [0,.2,.4,.6,.8,1.0] : [0,.2,.4,.6,.8,1.0,1.2];
+  ctx.font = '6.5px IBM Plex Mono,monospace'; ctx.textAlign = 'right'; ctx.fillStyle = '#98A2B3';
+  steps.forEach(v => {
+    if (v > cfg.yMax * 1.01) return;
+    const y = P.t + cH * (1 - v / cfg.yMax);
+    ctx.strokeStyle = '#EEF1F6'; ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(P.l, y); ctx.lineTo(P.l + cW, y); ctx.stroke();
+    ctx.fillStyle = '#98A2B3';
+    ctx.fillText(Math.round(v * 100) + '%', P.l - 2, y + 2.5);
+  });
+
+  // x labels
+  const now = new Date();
+  ctx.textAlign = 'center'; ctx.font = '6.5px IBM Plex Mono,monospace'; ctx.fillStyle = '#98A2B3';
+  [0, 0.5, 1].forEach(t => {
+    const d = new Date(now - (1 - t) * 15 * 60000);
+    ctx.fillText(`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`, P.l + cW * t, H - 1);
+  });
+
+  // lines
+  DATA[id].forEach((pts, si) => {
+    ctx.beginPath(); ctx.strokeStyle = cfg.cols[si]; ctx.lineWidth = 1.1; ctx.lineJoin = 'round';
+    pts.forEach((v, i) => {
+      const x = P.l + cW * i / (N - 1);
+      const y = P.t + cH * (1 - Math.min(v, cfg.yMax) / cfg.yMax);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  });
+}
+
+let lastTick = 0;
+function frame(ts) {
+  if (ts - lastTick > 900) {
+    lastTick = ts;
+    Object.entries(CFGS).forEach(([id, cfg]) => {
+      const r = rng((ts * 31 + id.charCodeAt(0)) | 0);
+      DATA[id].forEach((pts, si) => {
+        const last = pts[pts.length - 1];
+        const d = cfg.spiky[si] && r() < 0.18
+          ? (r() - 0.3) * cfg.vol[si] * 6
+          : (r() - 0.5) * cfg.vol[si] * 2;
+        pts.push(Math.max(0.005, Math.min(cfg.yMax * 0.98, last + d)));
+        if (pts.length > N + 5) pts.shift();
+      });
+    });
+  }
+  Object.keys(CFGS).forEach(id => drawChart(id));
+  requestAnimationFrame(frame);
+}
+// Poll until flex layout has settled and canvas has real dimensions
+(function startWhenReady() {
+  const wrap = document.querySelector('.kb-chwrap');
+  if (wrap && wrap.clientWidth > 0 && wrap.clientHeight > 0) {
+    requestAnimationFrame(frame);
+  } else {
+    setTimeout(startWhenReady, 16);
+  }
+})();
+
+// Console
+const LINES = [
+  { t: '> Scanning cluster metrics...', c: 'cg', d: 600 },
+  { t: '', d: 350 },
+  { t: 'Root cause hypothesis', c: 'cb', d: 480 },
+  { t: '(confidence: high)', c: 'cy', d: 180 },
+  { t: '', d: 280 },
+  { t: 'checkout-service OOMKilling', d: 320 },
+  { t: 'under memory pressure from', d: 200 },
+  { t: 'upstream cart-service latency.', d: 200 },
+  { t: '', d: 260 },
+  { t: 'Evidence:', c: 'cy', d: 380 },
+  { t: '• exit code 137 (OOMKilled)', c: 'cm', d: 220 },
+  { t: '• memory at 98% of 512Mi', c: 'cm', d: 220 },
+  { t: '• cart-service errors: 14%', c: 'cm', d: 220 },
+  { t: '• p99 latency 7.6× elevated', c: 'cm', d: 220 },
+  { t: '• HPA scaled up under load', c: 'cm', d: 220 },
+  { t: '', d: 260 },
+  { t: 'Next steps:', c: 'cy', d: 380 },
+  { t: '1. Check cart-service logs', d: 220 },
+  { t: '2. Review CPU throttling', d: 220 },
+  { t: '3. Increase checkout memory', d: 220 },
+  { t: '', d: 300 },
+  { t: '> Analysis complete ✓', c: 'cg', d: 280 },
+];
+
+const body = document.getElementById('con-body');
+const cursor = document.getElementById('cursor');
+
+const FAST = navigator.webdriver;
+function runLines(lines, delay, cb) {
+  if (FAST) { lines.forEach(line => { const el = document.createElement('div'); el.className = 'cl' + (line.c ? ' ' + line.c : ''); el.textContent = line.t; body.insertBefore(el, cursor); }); return; }
+  lines.forEach(line => {
+    delay += line.d;
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'cl' + (line.c ? ' ' + line.c : '');
+      el.textContent = line.t;
+      body.insertBefore(el, cursor);
+    }, delay);
+  });
+  const total = lines.reduce((s, l) => s + l.d, delay) + 3500;
+  setTimeout(cb, total);
+}
+
+function restart() {
+  while (body.firstChild !== cursor) body.removeChild(body.firstChild);
+  runLines(LINES, 500, restart);
+}
+runLines(LINES, 500, restart);
+</script>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.count(document.getElementById('k93'), 93, {post: '%', delay: .3, dur: 1.1});
+  const sc = EW.iso(document.getElementById('kiso'), {ox: 125, oy: 34, s: .78});
+  sc.box({x: 0, y: 0, w: 120, d: 120, h: 12, c: 'white', delay: .3, drop: 60, order: -100});
+  let hot;
+  for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++){
+    const isHot = i === 2 && j === 1;
+    const b = sc.box({x: 8 + i * 38, y: 8 + j * 38, z: 12, w: 28, d: 28, h: [30, 22, 38, 26, 34, 44, 20, 30, 26][j * 3 + i], c: isHot ? 'pink' : (i + j) % 2 ? 'teal' : 'blue', delay: .5 + (i + j) * .07, drop: 50});
+    if (isHot) hot = b;
+  }
+  sc.label({at: [112, 46, 12 + 44], side: 'r', len: 12, title: 'checkout', sub: 'OOMKilled', delay: 1.3, size: 10});
+  hot.float = 3; hot.floatSpeed = 5;
+  sc.run();
+})();
+</script>
+</body>
+</html>

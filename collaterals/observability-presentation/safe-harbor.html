@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Elastic Observability: Safe Harbor</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:64px;letter-spacing:-2.4px;margin-top:120px}
+  .legal{margin-top:34px;max-width:640px;font:400 21px/1.6 var(--sans);color:var(--char)}
+  .rulebar{margin-top:40px;width:640px;display:flex;align-items:center;gap:14px}
+  .rulebar .rule{flex:1}
+  #sh{left:760px;top:60px;width:520px;height:600px}
+</style>
+</head>
+<body data-foot="Safe Harbor">
+<div class="z">
+  <div class="eyebrow in1" data-d="2">Forward-looking statements</div>
+  <h1 class="in2">Safe Harbor <span class="b">Statement</span></h1>
+  <p class="legal in3">This presentation includes forward-looking statements that are subject to risks and uncertainties. Actual results may differ materially as a result of various risk factors included in the reports on the Forms 10-K, 10-Q, and 8-K, and in other filings we make with the SEC from time to time. Elastic undertakes no obligation to update any of these forward-looking statements.</p>
+</div>
+<svg id="sh" class="iso" viewBox="0 0 520 600"></svg>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 780, y: 60, w: 500, h: 600, seed: 9, blobs: 5, thr: .5});
+  const sc = EW.iso(document.getElementById('sh'), {ox: 260, oy: 260, s: .9});
+  sc.rect({x: -40, y: -40, w: 260, d: 260, z: 0, delay: .1});
+  sc.box({x: 0, y: 0, w: 180, d: 180, h: 36, c: 'slate', stroke: false, delay: .15, drop: 80});
+  sc.box({x: 40, y: 40, w: 100, d: 100, h: 100, z: 36, c: 'blue', delay: .45, drop: 90});
+  sc.box({x: 28, y: 28, w: 124, d: 124, h: 124, z: 168, c: 'glass', wire: true, inner: true, stroke: '#343741', delay: .8, drop: 50, float: 4, floatSpeed: 1});
+  sc.run();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Elastic nightshift: Finds unknown issues</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .eyebrow{text-transform:none;letter-spacing:.02em}
+  .eyebrow::before{background:var(--pink)}
+  h1 .g{color:var(--grey-l)}
+  .field{position:absolute;left:72px;top:222px;width:740px;height:370px;z-index:2;border:1px solid var(--ink);background:#fff}
+  #fc{position:absolute;inset:0;width:740px;height:370px}
+  .cover{position:absolute;left:22px;top:26px;width:230px;height:318px;border:1.4px dashed var(--ink)}
+  .cover span{position:absolute;left:10px;top:-9px;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:#fff;padding:0 6px}
+  .mk{position:absolute;opacity:0;transform:scale(.4);transition:opacity .35s,transform .45s cubic-bezier(.3,1.6,.5,1)}
+  .mk.on{opacity:1;transform:none}
+  .mk i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;background:var(--pink);border:1px solid var(--ink)}
+  .mk em{position:absolute;left:18px;top:-9px;font:600 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;font-style:normal;white-space:nowrap;background:#fff;padding:2px 6px;border:1px solid var(--ink)}
+  .mk em::before{content:'';position:absolute;left:-12px;top:9px;width:12px;height:1px;background:var(--ink)}
+  .leg{position:absolute;left:72px;top:604px;font:500 11.5px var(--mono);letter-spacing:.05em;color:var(--grey);z-index:2}
+  .leg b{color:var(--pink)}
+  .leg span{color:var(--ink);font-weight:600}
+  .side{position:absolute;left:870px;right:72px;top:232px;z-index:2}
+  .pt{border-top:1px solid var(--ink);padding:14px 0 24px}
+  .pt .tag{color:var(--pink)}
+  .pt h3{font:600 18px var(--sans);letter-spacing:-.3px;margin:6px 0 6px}
+  .pt p{font-size:14px;line-height:1.5;color:var(--char)}
+  .ew-foot > span:last-child{text-transform:none;letter-spacing:.02em}
+  /* density */
+  .field,.leg{transition:translate .7s cubic-bezier(.2,.7,.2,1),scale .7s cubic-bezier(.2,.7,.2,1);transform-origin:0 0}
+  .side{transition:top .6s cubic-bezier(.2,.7,.2,1),left .6s cubic-bezier(.2,.7,.2,1)}
+  .side .dx{margin-top:12px}
+  html[data-density="1"] .field{translate:198px -40px;scale:1.1}
+  html[data-density="1"] .leg{translate:198px 0}
+  html[data-density="2"] .field,html[data-density="2"] .leg{translate:198px 0}
+  html[data-density="4"] .field,html[data-density="5"] .field{scale:.9}
+  html[data-density="4"] .leg,html[data-density="5"] .leg{translate:0 -37px}
+  html[data-density="4"] .side,html[data-density="5"] .side{left:800px;top:70px}
+  html[data-density="5"] .side{top:60px}
+  html[data-density="4"] .pt,html[data-density="5"] .pt{padding:11px 0 14px}
+  html[data-density="5"] .pt p{font-size:13px}
+</style>
+</head>
+<body data-foot="Elastic nightshift · 03 · Unknown issues">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">Elastic nightshift · 03</div>
+  <h1 class="in2" data-d="2">Finds unknown issues<br><span class="g">before they find you.</span></h1>
+</div>
+<div class="field in3" id="field">
+  <canvas id="fc" width="740" height="370"></canvas>
+  <div class="cover"><span>what your alerts cover</span></div>
+  <div class="mk" data-x="385" data-y="79"><i></i><em>token spend anomaly</em></div>
+  <div class="mk" data-x="444" data-y="178"><i></i><em>silent retry storm</em></div>
+  <div class="mk" data-x="363" data-y="272"><i></i><em>slow memory leak</em></div>
+  <div class="mk" data-x="572" data-y="122"><i></i><em>agent loop runaway</em></div>
+</div>
+<div class="leg in5"><b>■</b> surfaced by <span>Elastic nightshift</span> · no alert existed for any of these</div>
+<div class="side" data-d="3">
+  <div class="pt in3"><span class="tag">Proactive</span><h3>Doesn't wait for an alert</h3><p>AI introduces failure modes you can't anticipate and can't write alerts for.</p></div>
+  <div class="pt in4"><span class="tag">Zero setup</span><h3>Ready from day one</h3><p>No configuration required. It starts surfacing what needs attention immediately.</p></div>
+  <div class="pt in5"><span class="tag">Signal</span><h3>Cuts the noise, keeps the signal</h3><p>SREs stop drowning in alerts that don't matter and stop missing the ones that do.</p></div>
+  <div class="dx pink" data-d="4"><span class="dxk">Reading the picture</span><p>The dashed box is your alert coverage: the failure modes you already know. Every pink marker is a real issue no alert existed for. That outside region is where AI-era incidents live.</p></div>
+  <div class="dx pink" data-d="5"><span class="dxk">How it works</span><p><b style="white-space:nowrap">Elastic nightshift</b> doesn't wait for an alert to act. From day one it continuously surfaces what needs attention, including the unknown unknowns, with no configuration required.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const cv = document.getElementById('fc'), W = 740, H = 370; cv.width = W * 2; cv.height = H * 2; const c = cv.getContext('2d'); c.scale(2, 2);
+  const R = EW.rand(5), pts = [];
+  for (let y = 10; y < H; y += 12) for (let x = 10; x < W; x += 12) pts.push([x, y, R()]);
+  const known = [[80, 90], [170, 150], [110, 230], [200, 290], [150, 60]];
+  const mks = [...document.querySelectorAll('.mk')].map(m => { m.style.left = m.dataset.x + 'px'; m.style.top = m.dataset.y + 'px'; return {m, x: +m.dataset.x, y: +m.dataset.y}; });
+  EW.loop(t => {
+    c.clearRect(0, 0, W, H);
+    const sx = t < 1.7 ? 260 + (W - 260) * EW.ease((t - .3) / 1.3) : 260 + ((t - 1.7) * 90) % (W - 260);
+    for (const [x, y, q] of pts){
+      const d = sx - x, k = d >= 0 && d < 70 ? (1 - d / 70) : 0, inside = x > 22 && x < 252 && y > 26 && y < 344;
+      c.fillStyle = k > 0 && !inside ? `rgba(240,78,152,${.25 + .6 * k})` : inside ? '#C5CCD8' : '#DDE3EC';
+      c.fillRect(x - .9, y - .9, 1.8 + k * 1.2, 1.8 + k * 1.2);
+    }
+    c.fillStyle = 'rgba(240,78,152,.9)'; c.fillRect(sx, 0, 1.5, H);
+    known.forEach(([x, y]) => { c.fillStyle = '#1D1E24'; c.fillRect(x - 4, y - 4, 8, 8); });
+    mks.forEach(o => { if (t > .3 && sx >= o.x - 2 || t > 1.7) o.m.classList.add('on');
+      if (o.m.classList.contains('on')){ const p = ((t * .7 + o.x * .01) % 1); c.strokeStyle = `rgba(240,78,152,${.6 * (1 - p)})`; c.lineWidth = 1; c.strokeRect(o.x - 7 - p * 16, o.y - 7 - p * 16, 14 + p * 32, 14 + p * 32); } });
+  });
+})();
+</script>
+</body>
+</html>

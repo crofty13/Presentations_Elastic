@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Your SREs already speak PromQL.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:44px;letter-spacing:-1.4px}
+  .sub{font-size:16px;margin-top:8px}
+  .left{position:absolute;left:72px;top:200px;width:300px;z-index:2}
+  .left .stat{font-size:118px;letter-spacing:-5px;line-height:.9}
+  .left .d1{font-size:15px;line-height:1.4;color:var(--ink);margin-top:14px;font-weight:500}
+  .left .d2{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);margin-top:6px}
+  .waffle{margin-top:18px;display:grid;grid-template-columns:repeat(10,15px);gap:3px}
+  .waffle i{width:15px;height:15px;background:var(--slate-l);animation:pop .25s ease both}
+  .waffle i.on{background:var(--blue)}
+  @keyframes pop{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}
+  .wcap{margin-top:10px;font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey-l)}
+  .right{position:absolute;left:420px;right:72px;top:196px;z-index:2}
+  .win{background:#fff;border:1px solid var(--ink);box-shadow:8px 8px 0 var(--slate-l)}
+  .win-bar{height:28px;display:flex;align-items:center;gap:6px;padding:0 10px;border-bottom:1px solid var(--line);font:500 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey)}
+  .win-bar i{width:9px;height:9px;border:1px solid var(--ink);border-radius:50%}
+  .win-bar span{margin-left:10px}
+  .kb-toolbar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+  .kb-search-btn{display:flex;align-items:center;gap:5px;background:var(--blue);color:#fff;font:600 11px var(--sans);padding:5px 10px;border-radius:3px}
+  .kb-search-btn svg{width:11px;height:11px}
+  .kb-search-btn.running{background:var(--blue-d)}
+  .kb-datepicker{display:flex;align-items:center;gap:6px;font:500 11px var(--sans);color:var(--char);background:#fff;border:1px solid var(--line);padding:4px 8px;border-radius:3px}
+  .kb-datepicker svg{width:11px;height:11px}
+  .dp-quick{font:600 10px var(--mono);color:var(--blue);background:var(--blue-l);padding:1px 5px;border-radius:2px}
+  .kb-tb-right{margin-left:auto;display:flex;gap:4px}
+  .kb-tb-btn{width:22px;height:22px;border:1px solid var(--line);background:#fff;border-radius:3px;display:grid;place-items:center;color:var(--grey)}
+  .kb-tb-btn svg{width:11px;height:11px}
+  .kb-editor{padding:10px 12px;border-bottom:1px solid var(--line);min-height:38px}
+  .qe-line{display:flex;gap:12px;font:500 12.5px var(--mono);color:var(--ink)}
+  .qe-num{color:var(--grey-l)}
+  .kb-cursor{display:inline-block;width:7px;height:14px;background:var(--blue);vertical-align:-2px;margin-left:1px;animation:blink 1s steps(1) infinite}
+  .kb-cursor.off{display:none}
+  @keyframes blink{50%{opacity:0}}
+  .tok-kw{color:var(--blue);font-weight:700}.tok-ident{color:var(--ink)}.tok-op{color:var(--grey)}.tok-paren{color:var(--grey)}
+  .tok-fn{color:#C4185F;font-weight:600}.tok-metric{color:#017F7B}.tok-range{color:#C4462F}
+  .kb-meta{padding:6px 12px;font:400 10.5px var(--mono);color:var(--grey);border-bottom:1px solid var(--line);opacity:0;transition:opacity .3s}
+  .kb-meta.visible{opacity:1}
+  .meta-val{color:var(--ink);font-weight:600}.meta-sep{margin:0 8px;color:var(--line)}
+  .meta-warn{color:#B5771A}.meta-warn svg{display:none}
+  .kb-chart-ctrl{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid var(--line);color:var(--grey)}
+  .ctrl-btn{width:20px;height:20px;display:grid;place-items:center;border:1px solid var(--line);border-radius:3px}
+  .ctrl-btn svg{width:10px;height:10px}
+  .ctrl-sep{width:1px;height:16px;background:var(--line)}
+  .ctrl-dims{display:flex;align-items:center;gap:4px;font:500 10.5px var(--sans);color:var(--char);border:1px solid var(--line);padding:2px 8px;border-radius:3px}
+  .ctrl-dims svg{display:none}
+  .ctrl-right{margin-left:auto;display:flex;gap:4px}
+  .kb-charts-section{padding:8px 12px 12px}
+  .kb-metrics-lbl{font:600 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink);margin-bottom:6px;opacity:0;transition:opacity .3s}
+  .kb-metrics-lbl.visible{opacity:1}
+  .kb-charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .chart-card{border:1px solid var(--line);padding:6px 8px 2px;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s}
+  .chart-card.visible{opacity:1;transform:none}
+  .chart-title{font:500 9.5px var(--mono);color:var(--char);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chart-canvas-wrap{height:50px}
+  .chart-canvas-wrap canvas{display:block}
+  .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+  .feat{border-top:3px solid var(--blue);padding-top:10px}
+  .feat b{display:block;font-size:14.5px;font-weight:600;color:var(--ink)}
+  .feat span{display:block;font-size:12.5px;line-height:1.45;color:var(--char);margin-top:4px}
+  .left,.right,.left .stat,.waffle{transition:transform .6s cubic-bezier(.2,.7,.2,1),left .6s cubic-bezier(.2,.7,.2,1),top .6s cubic-bezier(.2,.7,.2,1),width .6s cubic-bezier(.2,.7,.2,1),font-size .6s cubic-bezier(.2,.7,.2,1)}
+  .left .dx{margin-top:14px}
+  .left .dx p{font-size:12.5px}
+  /* density */
+  html[data-density="1"] .left{left:340px;top:120px;width:600px;text-align:center}
+  html[data-density="1"] .left .stat{font-size:160px}
+  html[data-density="1"] .left .d1{font-size:20px}
+  html[data-density="1"] .waffle{grid-template-columns:repeat(10,20px);gap:4px;justify-content:center}
+  html[data-density="1"] .waffle i{width:20px;height:20px}
+  html[data-density="2"] .left{top:180px}
+  html[data-density="4"] .left .stat,html[data-density="5"] .left .stat{font-size:84px}
+  html[data-density="4"] .waffle,html[data-density="5"] .waffle{grid-template-columns:repeat(10,11px);gap:3px}
+  html[data-density="4"] .waffle i,html[data-density="5"] .waffle i{width:11px;height:11px}
+  html[data-density="5"] .left{top:188px;width:330px}
+  html[data-density="5"] .right{left:446px}
+  html[data-density="5"] .left .stat{font-size:68px}
+  html[data-density="5"] .waffle{grid-template-columns:repeat(10,9px);margin-top:10px}
+  html[data-density="5"] .waffle i{width:9px;height:9px}
+  html[data-density="5"] .left .dx{margin-top:10px}
+</style>
+</head>
+<body data-foot="PromQL · Zero Learning Curve">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">PromQL · <b>Zero Learning Curve</b></div>
+  <h1 class="in2" data-d="2">Your SREs already speak PromQL. <span class="b">Now Kibana does too.</span></h1>
+  <p class="sub in3" data-d="3">Same queries, same dashboards, same muscle memory. Running natively, up to 30× faster.</p>
+</div>
+<div class="left">
+  <div class="stat in3" id="pct">90%</div>
+  <div class="d1 in4">of queries in the top 100 Grafana dashboards</div>
+  <div class="d2 in4">natively executed in Kibana</div>
+  <div class="waffle" id="waffle"></div>
+  <div class="wcap in6" data-d="3">Each square: 1% of queries</div>
+  <div class="dx" data-d="4"><span class="dxk">Their language</span><p><b>80% of enterprise SREs</b> already speak PromQL. We didn't ask them to learn ours.</p></div>
+  <div class="dx" data-d="5"><span class="dxk">Nothing to rebuild</span><p>No plugins, no adapters, no translation layer. Everything they know and everything they've built keeps working, <b>up to 30× faster</b>.</p></div>
+</div>
+<div class="right" data-d="2">
+  <div class="win in3">
+    <div class="win-bar"><i></i><i></i><i></i><span>Kibana · Discover</span></div>
+    <div class="kb-toolbar">
+      <div class="kb-search-btn" id="search-btn"><svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3" stroke-linecap="round"/></svg> Search</div>
+      <div class="kb-datepicker"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="12" height="11" rx="1"/></svg>May 2, 21:00 → now <span class="dp-quick">-4d</span></div>
+      <div class="kb-tb-right"><div class="kb-tb-btn"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 6.5h9M6.5 2v9"/></svg></div><div class="kb-tb-btn"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6.5" cy="6.5" r="5"/></svg></div></div>
+    </div>
+    <div class="kb-editor"><div class="qe-line"><div class="qe-num">1</div><div class="qe-typed" id="qe-typed"><span class="kb-cursor" id="kb-cursor"></span></div></div></div>
+    <div class="kb-meta" id="kb-meta"><span class="meta-val" id="meta-time">38</span>ms<span class="meta-sep">|</span><span class="meta-val" id="meta-docs">0</span> documents processed<span class="meta-sep">|</span><span class="meta-warn">1 warning</span></div>
+    <div class="kb-chart-ctrl"><div class="ctrl-btn"><svg viewBox="0 0 13 13" fill="currentColor"><rect x="1" y="1" width="4.5" height="4.5" rx=".7"/><rect x="7.5" y="1" width="4.5" height="4.5" rx=".7"/><rect x="1" y="7.5" width="4.5" height="4.5" rx=".7"/><rect x="7.5" y="7.5" width="4.5" height="4.5" rx=".7"/></svg></div><div class="ctrl-sep"></div><div class="ctrl-dims">No dimensions selected</div></div>
+    <div class="kb-charts-section"><div class="kb-metrics-lbl" id="metrics-lbl">4 metrics</div><div class="kb-charts-grid" id="charts-grid"></div></div>
+  </div>
+  <div class="feats" data-d="3">
+    <div class="feat in5"><b>Native in Kibana</b><span>No plugins, no adapters. Runs wherever ES|QL is supported.</span></div>
+    <div class="feat in5" style="border-color:var(--teal-d)"><b>Rich Analytics</b><span>rate, irate, sum by, max_over_time: works out-of-the-box.</span></div>
+    <div class="feat in5" style="border-color:var(--pink)"><b>up to 30× Faster</b><span>Same queries as Prometheus with significantly better performance.</span></div>
+  </div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const w = document.getElementById('waffle');
+  for (let i = 0; i < 100; i++){ const c = document.createElement('i'); const r = Math.floor(i / 10), col = i % 10; if (i < 90) c.className = 'on'; c.style.animationDelay = (.45 + (r + col) * .045) + 's'; w.appendChild(c); }
+  EW.count(document.getElementById('pct'), 90, {post: '%', delay: .3, dur: 1.2});
+})();
+</script>
+<script>
+(function () {
+  'use strict';
+
+  window.parent.postMessage({ type: 'nav-lock' }, '*');
+
+  /* ── Series ── */
+  var SERIES = [
+    { name: 'cpu_rate{pod="api-gateway-7d8f"}',  color: '#0B64DD', base: 0.38, noise: 0.05, spikeP: 0.10, spikeA: 0.28 },
+    { name: 'cpu_rate{pod="auth-service-3b2a"}',  color: '#02BCB7', base: 0.12, noise: 0.02, spikeP: 0.04, spikeA: 0.08 },
+    { name: 'cpu_rate{pod="payment-svc-9c1e"}',   color: '#F04E98', base: 0.55, noise: 0.07, spikeP: 0.14, spikeA: 0.30 },
+    { name: 'cpu_rate{pod="ml-pipeline-4f7d"}',   color: '#FF7E62', base: 0.22, noise: 0.04, spikeP: 0.07, spikeA: 0.18 },
+  ];
+  var N = 50;
+  SERIES.forEach(function (s) {
+    s.data = [];
+    var v = s.base + (Math.random() - 0.5) * 0.1;
+    for (var i = 0; i < N; i++) {
+      v += (Math.random() - 0.5) * s.noise * 2;
+      if (Math.random() < s.spikeP) v += s.spikeA * Math.random();
+      v += (s.base - v) * 0.07;
+      v = Math.max(0.005, Math.min(0.99, v));
+      s.data.push(v);
+    }
+  });
+
+  /* ── Build chart cards ── */
+  var grid = document.getElementById('charts-grid');
+  var canvases = [];
+  SERIES.forEach(function (s, i) {
+    var card = document.createElement('div');
+    card.className = 'chart-card'; card.id = 'chart-' + i;
+    var title = document.createElement('div');
+    title.className = 'chart-title'; title.textContent = s.name;
+    var wrap = document.createElement('div');
+    wrap.className = 'chart-canvas-wrap';
+    var canvas = document.createElement('canvas');
+    wrap.appendChild(canvas);
+    card.appendChild(title); card.appendChild(wrap);
+    grid.appendChild(card);
+    canvases.push({ canvas: canvas, wrap: wrap, series: s });
+  });
+
+  /* ── Draw chart ── */
+  function drawChart(cv, wrap, s) {
+    var W = wrap.clientWidth, H = wrap.clientHeight;
+    if (!W || !H) return;
+    var R = 2; if (cv.width !== W * R || cv.height !== H * R) { cv.width = W * R; cv.height = H * R; cv.style.width = W + 'px'; cv.style.height = H + 'px'; }
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(R, 0, 0, R, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    var PAD = { top: 6, right: 8, bottom: 18, left: 36 };
+    var plotW = W - PAD.left - PAD.right;
+    var plotH = H - PAD.top - PAD.bottom;
+    var pts = s.data.slice(-N);
+    var maxV = Math.max.apply(null, pts);
+    var Y_MAX = Math.max(0.1, Math.ceil(maxV * 10) / 10 + 0.05);
+    function xPos(i) { return PAD.left + (i / (pts.length - 1)) * plotW; }
+    function yPos(v) { return PAD.top + plotH - (v / Y_MAX) * plotH; }
+
+    // Grid + Y labels
+    ctx.font = '8px IBM Plex Mono, monospace'; ctx.textAlign = 'right'; ctx.fillStyle = '#98A2B3';
+    for (var yi = 0; yi <= 3; yi++) {
+      var v = (yi / 3) * Y_MAX;
+      var y = yPos(v);
+      ctx.strokeStyle = '#EEF1F6'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(W - PAD.right, y); ctx.stroke();
+      ctx.fillText(v.toFixed(2), PAD.left - 3, y + 3);
+    }
+    // X labels
+    ctx.textAlign = 'center'; ctx.fillStyle = '#98A2B3'; ctx.font = '8px IBM Plex Mono, monospace';
+    var now = new Date();
+    [0, 0.5, 1].forEach(function (f) {
+      var t = new Date(now.getTime() - (1 - f) * 20 * 60000);
+      var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][t.getMonth()];
+      ctx.fillText(t.getDate() + ' ' + mo, PAD.left + f * plotW, H - 2);
+    });
+
+    // Area fill
+    var grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + plotH);
+    grad.addColorStop(0, s.color + '26'); grad.addColorStop(1, s.color + '00');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    pts.forEach(function (val, i) {
+      var x = xPos(i), y = yPos(val);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.lineTo(xPos(pts.length - 1), PAD.top + plotH);
+    ctx.lineTo(xPos(0), PAD.top + plotH);
+    ctx.closePath(); ctx.fill();
+
+    // Line
+    ctx.strokeStyle = s.color; ctx.lineWidth = 1.4; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    pts.forEach(function (val, i) {
+      var x = xPos(i), y = yPos(val);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  function renderAll() {
+    canvases.forEach(function (c) { drawChart(c.canvas, c.wrap, c.series); });
+  }
+
+  /* ── Query typing ── */
+  var PLAIN = 'PROMQL cpu_rate = (rate(container_cpu_usage_seconds_total[5m]))';
+  var HIGHLIGHTED =
+    '<span class="tok-kw">PROMQL</span> ' +
+    '<span class="tok-ident">cpu_rate</span>' +
+    '<span class="tok-op"> = </span>' +
+    '<span class="tok-paren">(</span>' +
+    '<span class="tok-fn">rate</span>' +
+    '<span class="tok-paren">(</span>' +
+    '<span class="tok-metric">container_cpu_usage_seconds_total</span>' +
+    '<span class="tok-range">[5m]</span>' +
+    '<span class="tok-paren">))</span>';
+
+  var typedEl   = document.getElementById('qe-typed');
+  var cursorEl  = document.getElementById('kb-cursor');
+  var metaEl    = document.getElementById('kb-meta');
+  var searchBtn = document.getElementById('search-btn');
+  var metricsLbl = document.getElementById('metrics-lbl');
+  var metaDocs  = document.getElementById('meta-docs');
+  var metaTime  = document.getElementById('meta-time');
+  var docCount  = 0;
+  var liveRunning = false;
+  var lastTick = 0;
+
+  var FAST = navigator.webdriver;
+  function phase1_type() {
+    if (FAST) { typedEl.textContent = PLAIN; typedEl.appendChild(cursorEl); return phase2_execute(); }
+    var i = 0;
+    var timer = setInterval(function () {
+      i++;
+      typedEl.textContent = PLAIN.slice(0, i);
+      typedEl.appendChild(cursorEl);
+      if (i >= PLAIN.length) {
+        clearInterval(timer);
+        setTimeout(phase2_execute, 450);
+      }
+    }, 38);
+  }
+
+  function phase2_execute() {
+    cursorEl.classList.add('off');
+    typedEl.innerHTML = HIGHLIGHTED;
+    searchBtn.classList.add('running');
+    searchBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2"><circle cx="8" cy="8" r="5" stroke-dasharray="22" stroke-dashoffset="0"><animateTransform attributeName="transform" type="rotate" from="0 8 8" to="360 8 8" dur="0.6s" repeatCount="indefinite"/></circle></svg> Running…';
+
+    setTimeout(function () {
+      searchBtn.classList.remove('running');
+      searchBtn.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3" stroke-linecap="round"/></svg> Search';
+      metaEl.classList.add('visible');
+      metricsLbl.classList.add('visible');
+      [0,1,2,3].forEach(function (i) {
+        setTimeout(function () {
+          document.getElementById('chart-' + i).classList.add('visible');
+          renderAll();
+          if (i === 3) {
+            phase3_live();
+            setTimeout(function () {
+              window.parent.postMessage({ type: 'nav-unlock' }, '*');
+            }, 400);
+          }
+        }, FAST ? 0 : i * 100);
+      });
+    }, FAST ? 0 : 650);
+  }
+
+  function phase3_live() {
+    liveRunning = true;
+    var TICK_MS = 750;
+    function loop(ts) {
+      if (!liveRunning) return;
+      if (ts - lastTick >= TICK_MS) {
+        SERIES.forEach(function (s) {
+          var last = s.data[s.data.length - 1] || s.base;
+          var delta = (Math.random() - 0.5) * s.noise * 2.5;
+          if (Math.random() < s.spikeP) delta += s.spikeA * Math.random();
+          delta += (s.base - last) * 0.08;
+          s.data.push(Math.max(0.005, Math.min(0.99, last + delta)));
+          if (s.data.length > N * 2) s.data.shift();
+        });
+        docCount += Math.floor(Math.random() * 18) + 4;
+        metaDocs.textContent = docCount > 999 ? (docCount/1000).toFixed(1) + 'K' : docCount;
+        metaTime.textContent = Math.floor(Math.random() * 28) + 26;
+        lastTick = ts;
+      }
+      renderAll();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  }
+
+  setTimeout(phase1_type, FAST ? 0 : 600);
+})();
+</script>
+</body>
+</html>

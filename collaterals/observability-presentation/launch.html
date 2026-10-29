@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>FY27: Metrics</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:176px;line-height:.86;letter-spacing:-9px;margin-top:34px;margin-left:-8px}
+  .lead{font:600 24px/1.3 var(--sans);letter-spacing:-.6px;margin-top:22px;max-width:560px}
+  .sub{font-size:17px;margin-top:8px;max-width:520px}
+  .kept{display:flex;gap:8px;align-items:center;margin-top:18px;flex-wrap:wrap}
+  .kept .tag{margin-right:4px}
+  .chip b{color:var(--teal-d);font-weight:700}
+  .stats{display:flex;margin-top:26px;border-top:1px solid var(--ink);width:560px}
+  .stats div{flex:1;padding:12px 18px 0 0}
+  .stats small{display:block;font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey)}
+  .stats b{display:block;font:500 54px/1 var(--sans);letter-spacing:-2.4px;color:var(--blue);margin:4px 0 6px}
+  .stats span{font:600 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink)}
+  .date{position:absolute;right:72px;top:56px;z-index:3;background:var(--blue);color:#fff;padding:14px 20px;font:600 30px/1 var(--sans);letter-spacing:-1px}
+  .date small{display:block;font:500 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;opacity:.75;margin-bottom:7px}
+  #grid{left:600px;top:60px;width:680px;height:640px;transform-origin:60% 50%;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+  h1{transition:margin-top .6s cubic-bezier(.2,.7,.2,1),font-size .6s cubic-bezier(.2,.7,.2,1)}
+  .dxs{margin-top:18px;width:540px;display:flex;flex-direction:column;gap:10px}
+  .dxs .dx p{font-size:12.5px}
+  /* density 1: the word and the field */
+  html[data-density="1"] h1{margin-top:200px}
+  html[data-density="1"] #grid{transform:translate(20px,0) scale(1.06)}
+  /* density 2: headline, lead, the three numbers */
+  html[data-density="2"] h1{margin-top:70px}
+  /* density 4-5: make room for context */
+  html[data-density="4"] h1{font-size:150px;margin-top:24px}
+  html[data-density="5"] h1{font-size:128px;margin-top:18px;letter-spacing:-7px}
+  html[data-density="5"] .lead{margin-top:14px;font-size:22px}
+  html[data-density="5"] .stats{margin-top:16px}
+  html[data-density="5"] .stats b{font-size:46px}
+</style>
+</head>
+<body data-foot="FY27 · Metrics launch">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">FY27 · <b>Biggest launch in years</b></div>
+  <h1 class="in2">Metrics<span class="b">.</span></h1>
+  <div class="lead in3" data-d="2">Engineers don't change tools. <span class="b">Elastic becomes the backend.</span></div>
+  <p class="sub in3" data-d="3">Faster, cheaper, unified. PromQL-native when you need the bridge.</p>
+  <div class="kept in4" data-d="3"><span class="tag">All kept:</span><span class="chip"><b>✓</b>Grafana dashboards</span><span class="chip"><b>✓</b>PromQL queries</span><span class="chip"><b>✓</b>Alerting rules</span></div>
+  <div class="stats in5" data-d="2">
+    <div><small>up to</small><b id="s1">30×</b><span>Faster queries</span></div>
+    <div><small>up to</small><b id="s2">4×</b><span>Lower TCO</span></div>
+    <div><small>&nbsp;</small><b>0</b><span>Dashboard rewrites</span></div>
+  </div>
+  <div class="dxs">
+    <div class="dx" data-d="4"><span class="dxk">Nothing to rebuild</span><p>Grafana dashboards, PromQL queries and alerting rules all keep working. <b>Elastic simply becomes the backend underneath.</b></p></div>
+    <div class="dx" data-d="5"><span class="dxk">The philosophy</span><p>Engineers don't change tools, so we meet them where they are: Prometheus-native ingestion, and PromQL when they need the bridge.</p></div>
+  </div>
+</div>
+<div class="date in4"><small>Launch</small>June 29, 2026</div>
+<svg id="grid" class="iso" viewBox="0 0 680 640"></svg>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 620, y: 150, w: 660, h: 540, seed: 21, blobs: 6, thr: .48});
+  EW.count(document.getElementById('s1'), 30, {post: '×', delay: .8, dur: 1});
+  EW.count(document.getElementById('s2'), 4, {post: '×', delay: .9, dur: .9});
+  const sc = EW.iso(document.getElementById('grid'), {ox: 380, oy: 262, s: .96});
+  const N = 7, W = 30, G = 8;
+  sc.rect({x: -18, y: -18, w: N * (W + G) + 28, d: N * (W + G) + 28, delay: .05});
+  sc.box({x: -10, y: -10, w: N * (W + G) + 12, d: N * (W + G) + 12, h: 14, c: 'white', delay: .1, drop: 80, order: -1000});
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++){
+    const dx = (i - 4.6) / 2.6, dy = (j - 1.4) / 2.6, v = Math.exp(-(dx * dx + dy * dy)) , h = 16 + v * 190 + ((i * 7 + j * 3) % 5) * 5;
+    const c = v > .72 ? 'blue' : v > .42 ? {top: '#FFFFFF', left: '#5A9BF0', right: '#2F6FC8'} : 'slate';
+    sc.box({x: i * (W + G), y: j * (W + G), w: W, d: W, h, z: 14, c, stroke: v > .42 ? '#1D1E24' : '#98A2B3', sw: v > .42 ? 1 : .6, delay: .35 + (i + j) * .07, drop: 120, float: 2.5, floatSpeed: 1.6, phase: -(i + j) * .45, shadow: false});
+  }
+  sc.run();
+})();
+</script>
+</body>
+</html>

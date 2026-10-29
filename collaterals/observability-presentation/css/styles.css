@@ -1,0 +1,213 @@
+/* ============================================
+   OBS-PRESO — Elastic Observability Presentation
+   ============================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:        #2363F4;
+  --blue-light:  #5B8AF9;
+  --blue-dim:    #D6E4FF;
+  --teal:        #00BFB3;
+  --teal-light:  #5DD9D3;
+  --teal-dim:    #CCFAF8;
+  --navy:        #0D1A3E;
+  --navy-mid:    #1E3A6E;
+  --text-primary:   #0D1A3E;
+  --text-secondary: #4A5E7A;
+  --text-muted:     #8899AE;
+  --border:      #E2E8F0;
+  --bg:          #FFFFFF;
+  --bg-soft:     #F7F9FC;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── Typography ── */
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 1rem;
+}
+
+.headline {
+  font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+.headline strong {
+  font-weight: 800;
+}
+
+.subhead {
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+.subhead strong { font-weight: 700; }
+
+.body-text {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ── Gradient text ── */
+.blue-text {
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.teal-text {
+  color: var(--teal);
+}
+
+/* ── Stat display ── */
+.stat-number {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--blue);
+}
+.stat-label {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 0.35rem;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card:hover {
+  box-shadow: 0 8px 32px rgba(35, 99, 244, 0.1);
+  transform: translateY(-2px);
+}
+
+/* ── Chips / tags ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--blue-dim);
+  color: var(--blue);
+  border: 1px solid rgba(35, 99, 244, 0.2);
+}
+.chip.teal {
+  background: var(--teal-dim);
+  color: #007A75;
+  border-color: rgba(0, 191, 179, 0.3);
+}
+
+/* ── Divider ── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0;
+}
+
+/* ── Full-bleed transition slide ── */
+.slide-full {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blue);
+  position: relative;
+  overflow: hidden;
+}
+.slide-full .headline {
+  color: white;
+  text-align: center;
+}
+.slide-full .headline strong {
+  color: white;
+}
+
+/* ── Page layout helpers ── */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5rem 6rem;
+  position: relative;
+}
+.page-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Reveal animation ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.45s; }
+
+/* ── Nav (minimal, for multi-page use) ── */
+.preso-nav {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 100;
+}
+.preso-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.preso-nav a:hover {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Migrate from Datadog or Grafana overnight.</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .left{position:absolute;left:72px;top:56px;width:500px;z-index:2}
+  h1{font-size:54px;line-height:1.02;letter-spacing:-2px;margin-top:16px}
+  .intro{font-size:16.5px;line-height:1.5;color:var(--grey);margin-top:18px;max-width:470px}
+  .steps{margin-top:24px;border-top:1px solid var(--ink)}
+  .step{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .step-num{font:600 12px var(--mono);color:var(--blue);padding-top:3px}
+  .step-title{font-size:16px;font-weight:600;color:var(--ink)}
+  .step-body{font-size:13.5px;line-height:1.45;color:var(--char);margin-top:3px}
+  #mig{left:620px;top:50px;width:608px;height:330px}
+  .card{position:absolute;left:640px;right:72px;top:392px;z-index:2;padding:16px 18px}
+  .card-head{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .sync{width:30px;height:30px;border:1px solid var(--ink);display:grid;place-items:center;color:var(--blue)}
+  .sync svg{width:16px;height:16px;animation:spin 2.4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .card-head-title{font-size:15px;font-weight:600}
+  .card-head-sub{font:500 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);margin-top:2px}
+  .item{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13.5px;color:var(--ink)}
+  .item svg{width:15px;height:15px;color:var(--char)}
+  .pill{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line);color:var(--grey);transition:all .25s}
+  .pill-migrated{background:var(--blue);border-color:var(--blue);color:#fff}
+  .pill-pop{transform:scale(1.15)}
+  .progress-wrap{display:flex;align-items:center;gap:14px;margin-top:12px}
+  .progress-track{flex:1;height:6px;background:var(--bg);position:relative}
+  .progress-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--blue);transition:width .6s cubic-bezier(.2,0,.2,1)}
+  .progress-label{font:600 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey-l);transition:color .3s}
+  .progress-label.show{color:var(--blue)}
+  #mig{transition:transform .7s cubic-bezier(.2,.7,.2,1);transform-origin:50% 50%}
+  h1,.intro{transition:font-size .6s cubic-bezier(.2,.7,.2,1),margin-top .6s cubic-bezier(.2,.7,.2,1)}
+  .dxs{margin-top:16px;display:flex;flex-direction:column;gap:12px}
+  .dxs .dx p{font-size:12.5px}
+  /* density */
+  html[data-density="1"] #mig{transform:translate(-290px,150px) scale(1.45)}
+  html[data-density="2"] #mig{transform:translate(-80px,150px) scale(1.12)}
+  html[data-density="4"] h1,html[data-density="5"] h1{font-size:44px}
+  html[data-density="4"] .intro,html[data-density="5"] .intro{font-size:15px;margin-top:12px}
+  html[data-density="4"] .steps,html[data-density="5"] .steps{margin-top:16px}
+  html[data-density="4"] .step,html[data-density="5"] .step{padding:9px 0}
+</style>
+</head>
+<body data-foot="Migration · Datadog and Grafana to Elastic">
+<div class="left">
+  <div class="eyebrow in1" data-d="3">Migration</div>
+  <h1 class="in2" data-d="2">Migrate from <span class="b">Datadog or Grafana</span> overnight.</h1>
+  <p class="intro in3" data-d="3">Automatically converts your dashboards and alerting rules from Datadog and Grafana into Elastic, dramatically reducing cost and complexity.</p>
+  <div class="steps" data-d="3">
+    <div class="step in4"><div class="step-num">01</div><div><div class="step-title">Connect your existing platform</div><div class="step-body">Point the tool at your Datadog org or Grafana instance using API credentials.</div></div></div>
+    <div class="step in5"><div class="step-num">02</div><div><div class="step-title">Automatic conversion</div><div class="step-body">Dashboards, panels, alert rules, and PromQL queries are translated to Elastic equivalents.</div></div></div>
+    <div class="step in6"><div class="step-num">03</div><div><div class="step-title">Go live in Kibana</div><div class="step-body">Your team is fully operational in Elastic with familiar workflows intact, same day.</div></div></div>
+  </div>
+  <div class="dxs">
+    <div class="dx" data-d="4"><span class="dxk">Overnight</span><p>Not a quarter-long services engagement. Migration risk stops being the reason to wait.</p></div>
+    <div class="dx" data-d="5"><span class="dxk">Nothing to relearn</span><p>Your team keeps its workflows, dashboards and alerts. <b>Only the backend changes.</b></p></div>
+  </div>
+</div>
+<svg id="mig" class="iso" viewBox="0 0 608 330"></svg>
+<div class="card in4" data-d="3">
+  <div class="card-head">
+    <div class="sync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8"/><path d="M18.5 2v3.8h-3.8M5.5 22v-3.8h3.8"/></svg></div>
+    <div><div class="card-head-title">Migration in progress</div><div class="card-head-sub">Datadog → Elastic Observability</div></div>
+  </div>
+  <div class="items">
+    <div class="item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="5.5" height="5.5"/><rect x="9" y="1.5" width="5.5" height="5.5"/><rect x="1.5" y="9" width="13" height="5.5"/></svg><span>Infrastructure Overview Dashboard</span><span class="pill pill-ready" id="pill-0">Ready</span></div>
+    <div class="item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.5 1.5h-11zM6.5 14h3"/></svg><span>CPU Alert: p95 &gt; 80%</span><span class="pill pill-ready" id="pill-1">Ready</span></div>
+    <div class="item"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M4 11V7a4 4 0 0 1 8 0v4l1.5 1.5h-11zM6.5 14h3"/></svg><span>Error Rate SLO Alert</span><span class="pill pill-ready" id="pill-2">Ready</span></div>
+    <div class="item" style="border-bottom:0"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1.5" y="1.5" width="5.5" height="5.5"/><rect x="9" y="1.5" width="5.5" height="5.5"/><rect x="1.5" y="9" width="13" height="5.5"/></svg><span>K8s Node Health Dashboard</span><span class="pill pill-ready" id="pill-3">Ready</span></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div><div class="progress-label" id="progress-label">Complete in &lt;1 day</div></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 600, y: 40, w: 680, h: 360, seed: 21, blobs: 5, thr: .55});
+  const sc = EW.iso(document.getElementById('mig'), {ox: 304, oy: 70, s: .95});
+  sc.box({x: 0, y: 150, w: 120, d: 120, h: 18, c: 'slate', delay: .15, drop: 90, order: -100});
+  sc.box({x: 150, y: 0, w: 120, d: 120, h: 18, c: 'blue', delay: .3, drop: 90, order: -100});
+  sc.rect({x: 140, y: -10, w: 140, d: 140, z: 0, delay: .3});
+  const kinds = ['blue', 'pink', 'pink', 'blue'], slots = [[10, 10], [64, 10], [10, 64], [64, 64]];
+  const tiles = slots.map(([x, y], i) => sc.box({x: x, y: 150 + y, z: 18, w: 46, d: 46, h: 12, c: 'white', delay: .5 + i * .07, drop: 60, order: i}));
+  sc.label({at: [120, 270, 0], side: 'r', len: 40, title: 'Datadog · Grafana', sub: 'Source', delay: .9});
+  sc.label({at: [270, 60, 9], side: 'r', len: 36, title: 'Elastic', sub: 'Observability', delay: 1.0});
+  const K = .95 * .8660254, DX = 300 * K;
+  const state = tiles.map(() => ({t: null}));
+  tiles.forEach((b, i) => { b.onFrame = (t) => { const s = state[i]; if (s.t === null) return; const k = EW.ease((t - s.t) / .9), dx = DX * k, dy = -Math.sin(Math.PI * k) * 90;
+    b.g.setAttribute('transform', `translate(${dx.toFixed(1)},${dy.toFixed(1)})`);
+    if (k > .55 && !s.col){ s.col = 1; const F = EW.FACES[kinds[i]], ps = b.g.querySelectorAll('polygon'); ps[0].setAttribute('fill', F.left); ps[1].setAttribute('fill', F.right); } }; });
+  const gpath = EW.el('path', {d: '', fill: 'none', stroke: '#1D1E24', 'stroke-width': 1, 'stroke-dasharray': '2 4'}, sc.top);
+  const [ax, ay] = sc.P(60, 210, 40), [bx, by] = sc.P(210, 60, 40); gpath.setAttribute('d', `M${ax},${ay} Q${(ax + bx) / 2},${ay - 110} ${bx},${by}`);
+  let T = 0; sc.run(); EW.loop(t => { T = t; });
+
+  const TOTAL = 4, FAST = navigator.webdriver;
+  const DELAYS = FAST ? [300, 500, 700, 900] : [1000, 2600, 4200, 5800], RESET_DELAY = 10000;
+  function migrate(idx){
+    state[idx].t = T; state[idx].col = 0;
+    const pill = document.getElementById('pill-' + idx);
+    pill.classList.add('pill-pop');
+    setTimeout(() => { pill.classList.remove('pill-pop', 'pill-ready'); pill.classList.add('pill-migrated'); pill.textContent = 'Migrated'; }, 120);
+    document.getElementById('progress-fill').style.width = Math.round(((idx + 1) / TOTAL) * 100) + '%';
+    if (idx === TOTAL - 1) setTimeout(() => document.getElementById('progress-label').classList.add('show'), 500);
+  }
+  function reset(){
+    for (let i = 0; i < TOTAL; i++){ const pill = document.getElementById('pill-' + i); pill.classList.remove('pill-migrated', 'pill-pop'); pill.classList.add('pill-ready'); pill.textContent = 'Ready';
+      state[i].t = null; tiles[i].g.setAttribute('transform', ''); const ps = tiles[i].g.querySelectorAll('polygon'); ps[0].setAttribute('fill', EW.FACES.white.left); ps[1].setAttribute('fill', EW.FACES.white.right); }
+    const pf = document.getElementById('progress-fill'); pf.style.transition = 'none'; pf.style.width = '0%';
+    document.getElementById('progress-label').classList.remove('show');
+    setTimeout(() => { pf.style.transition = 'width 0.6s cubic-bezier(0.2, 0, 0.2, 1)'; }, 50);
+    setTimeout(startLoop, 800);
+  }
+  function startLoop(){ DELAYS.forEach((d, i) => setTimeout(() => migrate(i), d)); if (!FAST) setTimeout(reset, RESET_DELAY); }
+  startLoop();
+})();
+</script>
+</body>
+</html>

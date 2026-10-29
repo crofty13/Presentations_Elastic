@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elastic Metrics — What Are Metrics?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      width: 100%; height: 100%; overflow: hidden;
+      background: #22242C;
+    }
+
+    body {
+      width: 1280px; height: 720px; overflow: hidden;
+      position: absolute;
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #22242C;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .accent-bar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: #00BFB3;
+      z-index: 20;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up-1  { opacity: 0; animation: fade-up 0.5s ease forwards 0.10s; }
+    .fade-up-2  { opacity: 0; animation: fade-up 0.5s ease forwards 0.22s; }
+    .fade-up-3  { opacity: 0; animation: fade-up 0.5s ease forwards 0.34s; }
+    .fade-up-4  { opacity: 0; animation: fade-up 0.5s ease forwards 0.46s; }
+    .fade-up-5  { opacity: 0; animation: fade-up 0.5s ease forwards 0.58s; }
+    .fade-up-6  { opacity: 0; animation: fade-up 0.5s ease forwards 0.70s; }
+    .fade-up-7  { opacity: 0; animation: fade-up 0.5s ease forwards 0.82s; }
+    .fade-up-8  { opacity: 0; animation: fade-up 0.5s ease forwards 0.94s; }
+    .fade-up-9  { opacity: 0; animation: fade-up 0.5s ease forwards 1.06s; }
+
+    /* ── Slide shell ── */
+    .slide {
+      position: relative; z-index: 10;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 52px 0;
+      min-height: 0;
+    }
+
+    /* ── Header ── */
+    .eyebrow {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #00BFB3;
+      margin-bottom: 7px;
+    }
+
+    .headline {
+      font-size: 2.1rem;
+      font-weight: 300;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: #ffffff;
+      margin-bottom: 5px;
+    }
+
+    .headline strong { font-weight: 700; color: #00BFB3; }
+
+    .sub {
+      font-size: 1.02rem;
+      color: rgba(255,255,255,0.90);
+      font-weight: 400;
+      line-height: 1.5;
+      border-left: 3px solid rgba(0,191,179,0.55);
+      padding-left: 14px;
+      margin-top: 8px;
+    }
+
+    .header-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      margin: 14px 0;
+    }
+
+    /* ── Metric rows ── */
+    .metric-rows {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .metric-row {
+      flex: 1;
+      display: flex;
+      align-items: stretch;
+      min-height: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.055);
+    }
+
+    .metric-row:last-child { border-bottom: none; }
+
+    /* ── Left info panel ── */
+    .metric-info {
+      width: 268px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 10px 24px 10px 0;
+      gap: 5px;
+    }
+
+    .metric-header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .type-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.56rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge-counter   { color: #00BFB3; border-color: rgba(0,191,179,0.45);  background: rgba(0,191,179,0.07);  }
+    .badge-gauge     { color: #3B82F6; border-color: rgba(59,130,246,0.45);  background: rgba(59,130,246,0.07);  }
+    .badge-histogram { color: #8B5CF6; border-color: rgba(139,92,246,0.45); background: rgba(139,92,246,0.07); }
+    .badge-summary   { color: #F59E0B; border-color: rgba(245,158,11,0.45); background: rgba(245,158,11,0.07); }
+
+    .metric-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .counter-color   { color: #00BFB3; }
+    .gauge-color     { color: #3B82F6; }
+    .histogram-color { color: #8B5CF6; }
+    .summary-color   { color: #F59E0B; }
+
+    .metric-desc {
+      font-size: 0.74rem;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.52);
+    }
+
+    /* ── Separator line between info and chart ── */
+    .metric-sep {
+      width: 1px;
+      background: rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+
+    /* ── Right canvas zone ── */
+    .metric-canvas-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .metric-canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* fade edge on left of chart zone */
+    .metric-canvas-wrap::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 40px; height: 100%;
+      background: linear-gradient(to right, #22242C, transparent);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* ── Key message chips ── */
+    .key-chips {
+      display: flex; gap: 10px; margin-bottom: 14px;
+    }
+    .key-chip {
+      flex: 1;
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(0,191,179,0.05);
+      border: 1px solid rgba(0,191,179,0.2);
+      border-radius: 8px;
+      padding: 10px 16px;
+    }
+    .chip-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.7rem; font-weight: 900; line-height: 1;
+      color: #00BFB3; flex-shrink: 0;
+      text-shadow: 0 0 20px rgba(0,191,179,0.4);
+    }
+    .chip-label {
+      font-size: 0.76rem; font-weight: 500; line-height: 1.4;
+      color: rgba(255,255,255,0.62);
+    }
+
+    /* ── Bottom strip ── */
+    .bottom-strip {
+      position: relative; z-index: 10;
+      text-align: center;
+      background: rgba(255,255,255,0.025);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 7px 52px;
+    }
+
+    .bottom-strip p {
+      font-size: 0.76rem;
+      font-weight: 300;
+      font-style: italic;
+      color: rgba(255,255,255,0.38);
+      letter-spacing: 0.01em;
+    }
+
+    .bottom-strip strong {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-style: normal;
+      color: #00BFB3;
+      font-size: 0.72rem;
+    }
+  
+    /* ── Standard footer ── */
+    .std-footer { position: fixed; left: 4.5vw; right: 4.5vw; bottom: 0; height: 56px; display: flex; align-items: center; gap: 1.1rem; border-top: 1px solid rgba(255,255,255,0.06); z-index: 30; }
+    .elastic-logo-svg { height: 26px; width: auto; display: block; }
+    .std-footer-div { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .std-footer-tag { font-size: 0.7rem; color: rgba(255,255,255,0.28); letter-spacing: 0.02em; font-family: 'Inter', -apple-system, sans-serif; }
+    body { padding-bottom: 56px; }
+  </style>
+</head>
+<body>
+
+  <div class="accent-bar"></div>
+
+  <div class="slide">
+
+    <div>
+      <div class="eyebrow fade-up-1">Foundations</div>
+      <h1 class="headline fade-up-2">Metrics are what <strong>wake engineers up</strong> at 3am.</h1>
+      <p class="sub fade-up-3">The highest-frequency signal in observability, and the primary source of alerts that drive incident response.</p>
+    </div>
+
+    <div class="header-divider fade-up-3"></div>
+
+    <div class="key-chips fade-up-4">
+      <div class="key-chip">
+        <span class="chip-num">#1</span>
+        <span class="chip-label">Most widely used signal type in observability — and the primary driver of incident alerts</span>
+      </div>
+      <div class="key-chip">
+        <span class="chip-num">20M+</span>
+        <span class="chip-label">PromQL deployments — the de facto query language. Elastic speaks it natively.</span>
+      </div>
+    </div>
+
+    <div class="metric-rows">
+
+      <div class="metric-row fade-up-5">
+        <div class="metric-info">
+          <div class="metric-header">
+            <span class="type-badge badge-counter">COUNTER</span>
+            <span class="metric-name counter-color">http_requests_total</span>
+          </div>
+          <p class="metric-desc">Monotonically increasing. Only ever goes up. Rate of change reveals throughput.</p>
+        </div>
+        <div class="metric-sep"></div>
+        <div class="metric-canvas-wrap"><canvas id="cvCounter"></canvas></div>
+      </div>
+
+      <div class="metric-row fade-up-6">
+        <div class="metric-info">
+          <div class="metric-header">
+            <span class="type-badge badge-gauge">GAUGE</span>
+            <span class="metric-name gauge-color">cpu_usage_percent</span>
+          </div>
+          <p class="metric-desc">Point-in-time snapshot. Can go up or down — memory, queue depth, active connections.</p>
+        </div>
+        <div class="metric-sep"></div>
+        <div class="metric-canvas-wrap"><canvas id="cvGauge"></canvas></div>
+      </div>
+
+      <div class="metric-row fade-up-7">
+        <div class="metric-info">
+          <div class="metric-header">
+            <span class="type-badge badge-histogram">HISTOGRAM</span>
+            <span class="metric-name histogram-color">request_duration_seconds</span>
+          </div>
+          <p class="metric-desc">Distribution across buckets. Reveals p50, p95, p99 latency from a single metric.</p>
+        </div>
+        <div class="metric-sep"></div>
+        <div class="metric-canvas-wrap"><canvas id="cvHistogram"></canvas></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="bottom-strip fade-up-9">
+    <p>Alerts fire on metrics thresholds. Dashboards visualize metrics trends. <strong>PromQL</strong> is the query language that makes it all work — 20M+ deployments speak it natively, and so does Elastic.</p>
+  </div>
+
+  <script>
+  (function scaleToFit() {
+    if (window !== window.top) return;
+    const W = 1280, H = 720;
+    function fit() {
+      const scale = Math.min(window.innerWidth / W, window.innerHeight / H);
+      document.body.style.transform = 'scale(' + scale + ')';
+      document.body.style.transformOrigin = '0 0';
+      document.body.style.left = Math.round((window.innerWidth  - W * scale) / 2) + 'px';
+      document.body.style.top  = Math.round((window.innerHeight - H * scale) / 2) + 'px';
+    }
+    fit();
+    window.addEventListener('resize', fit);
+  })();
+  </script>
+  <script src="/js/fuckslides.js"></script>
+  <script>
+  (function () {
+    const TEAL   = '#00BFB3';
+    const BLUE   = '#3B82F6';
+    const PURPLE = '#8B5CF6';
+    const AMBER  = '#F59E0B';
+    const GRID   = 'rgba(255,255,255,0.05)';
+
+    function setup(id) {
+      const canvas = document.getElementById(id);
+      const r = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.round(rect.width)  || 900;
+      const h = Math.round(rect.height) || 110;
+      canvas.width  = w * r;
+      canvas.height = h * r;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(r, r);
+      return { ctx, w, h };
+    }
+
+    function drawGrid(ctx, w, h) {
+      ctx.save();
+      ctx.strokeStyle = GRID;
+      ctx.lineWidth = 0.5;
+      for (let y = h * 0.25; y < h; y += h * 0.25) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // ── COUNTER: static staircase (final state) ──────────────────
+    (function () {
+      const { ctx, w, h } = setup('cvCounter');
+      const pad = { l: 40, r: 20, t: 14, b: 14 };
+      const iw = w - pad.l - pad.r;
+      const ih = h - pad.t - pad.b;
+      const steps = [0, 0.06, 0.06, 0.13, 0.20, 0.20, 0.29, 0.29, 0.39, 0.49, 0.49, 0.60, 0.71, 0.71, 0.84, 1.0];
+      const n = steps.length;
+
+      ctx.clearRect(0, 0, w, h);
+      drawGrid(ctx, w, h);
+
+      const grad = ctx.createLinearGradient(pad.l, 0, pad.l + iw, 0);
+      grad.addColorStop(0, 'rgba(0,191,179,0.0)');
+      grad.addColorStop(0.3, 'rgba(0,191,179,0.08)');
+      grad.addColorStop(1, 'rgba(0,191,179,0.18)');
+
+      ctx.beginPath();
+      for (let i = 0; i < n - 1; i++) {
+        const x0 = pad.l + (i / (n - 1)) * iw;
+        const x1 = pad.l + ((i + 1) / (n - 1)) * iw;
+        const y  = pad.t + ih - steps[i] * ih;
+        if (i === 0) ctx.moveTo(x0, y);
+        else ctx.lineTo(x0, y);
+        ctx.lineTo(x1, y);
+      }
+      const lastY = pad.t + ih - steps[n-1] * ih;
+      ctx.lineTo(pad.l + iw, lastY);
+      ctx.lineTo(pad.l + iw, pad.t + ih);
+      ctx.lineTo(pad.l, pad.t + ih);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.strokeStyle = TEAL; ctx.lineWidth = 2;
+      ctx.shadowColor = TEAL; ctx.shadowBlur = 8;
+      for (let i = 0; i < n - 1; i++) {
+        const x0 = pad.l + (i / (n - 1)) * iw;
+        const x1 = pad.l + ((i + 1) / (n - 1)) * iw;
+        const y  = pad.t + ih - steps[i] * ih;
+        if (i === 0) ctx.moveTo(x0, y);
+        else ctx.lineTo(x0, y);
+        ctx.lineTo(x1, y);
+      }
+      ctx.lineTo(pad.l + iw, lastY);
+      ctx.stroke(); ctx.shadowBlur = 0;
+
+      ctx.beginPath();
+      ctx.arc(pad.l + iw, lastY, 4, 0, Math.PI * 2);
+      ctx.fillStyle = TEAL; ctx.shadowColor = TEAL; ctx.shadowBlur = 12;
+      ctx.fill(); ctx.shadowBlur = 0;
+
+      ctx.font = '500 10px Inter, sans-serif';
+      ctx.fillStyle = 'rgba(0,191,179,0.7)';
+      ctx.fillText('↑ only increases', pad.l + 8, pad.t + 14);
+    })();
+
+    // ── GAUGE: static snapshot — wave above alert threshold ───────
+    (function () {
+      const { ctx, w, h } = setup('cvGauge');
+      const pad = { l: 40, r: 100, t: 14, b: 14 };
+      const iw = w - pad.l - pad.r;
+      const ih = h - pad.t - pad.b;
+      const pts = 100;
+      const THRESHOLD = 0.80;
+      const t = 4.5; // chosen so trailing value is ~0.82, above threshold (firing=true)
+
+      ctx.clearRect(0, 0, w, h);
+      drawGrid(ctx, w, h);
+
+      const ys = [];
+      for (let i = 0; i < pts; i++) {
+        const a = (i / pts) * Math.PI * 3.2 + t;
+        ys.push(0.5 + 0.36 * Math.sin(a) + 0.09 * Math.sin(a * 2.1 + 0.8));
+      }
+      const curV = ys[pts - 1];
+      const firing = curV >= THRESHOLD;
+
+      const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + ih);
+      if (firing) {
+        grad.addColorStop(0, 'rgba(239,68,68,0.18)');
+        grad.addColorStop(1, 'rgba(239,68,68,0.0)');
+      } else {
+        grad.addColorStop(0, 'rgba(59,130,246,0.15)');
+        grad.addColorStop(1, 'rgba(59,130,246,0.0)');
+      }
+
+      ctx.beginPath();
+      ys.forEach((v, i) => {
+        const px = pad.l + (i / (pts - 1)) * iw;
+        const py = pad.t + ih - v * ih;
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      });
+      ctx.lineTo(pad.l + iw, pad.t + ih);
+      ctx.lineTo(pad.l, pad.t + ih);
+      ctx.closePath();
+      ctx.fillStyle = grad; ctx.fill();
+
+      const ty = pad.t + ih - THRESHOLD * ih;
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(239,68,68,0.6)'; ctx.lineWidth = 1;
+      ctx.setLineDash([5, 4]);
+      ctx.moveTo(pad.l, ty); ctx.lineTo(pad.l + iw, ty);
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.font = '700 9px JetBrains Mono, monospace';
+      ctx.fillStyle = 'rgba(239,68,68,0.7)';
+      ctx.fillText('ALERT threshold', pad.l + iw + 6, ty + 3);
+
+      const lineColor = firing ? '#EF4444' : BLUE;
+      ctx.beginPath();
+      ctx.strokeStyle = lineColor; ctx.lineWidth = 2;
+      ctx.shadowColor = lineColor; ctx.shadowBlur = firing ? 10 : 6;
+      ys.forEach((v, i) => {
+        const px = pad.l + (i / (pts - 1)) * iw;
+        const py = pad.t + ih - v * ih;
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      });
+      ctx.stroke(); ctx.shadowBlur = 0;
+
+      const cx = pad.l + iw;
+      const cy = pad.t + ih - curV * ih;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+      ctx.fillStyle = lineColor; ctx.shadowColor = lineColor; ctx.shadowBlur = 12;
+      ctx.fill(); ctx.shadowBlur = 0;
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      ctx.fillStyle = lineColor;
+      ctx.fillText(Math.round(curV * 100) + '%', cx + 8, cy + 4);
+    })();
+
+    // ── HISTOGRAM: static — all bars at full height, percentiles visible ──
+    (function () {
+      const { ctx, w, h } = setup('cvHistogram');
+      const pad = { l: 40, r: 20, t: 14, b: 20 };
+      const iw = w - pad.l - pad.r;
+      const ih = h - pad.t - pad.b;
+
+      const buckets = [
+        { label: '1ms',   v: 0.04 },
+        { label: '5ms',   v: 0.14 },
+        { label: '10ms',  v: 0.38 },
+        { label: '25ms',  v: 0.68 },
+        { label: '50ms',  v: 0.52 },
+        { label: '100ms', v: 0.28 },
+        { label: '250ms', v: 0.11 },
+        { label: '500ms', v: 0.04 },
+        { label: '+Inf',  v: 0.01 },
+      ];
+      const P50 = 3, P95 = 5, P99 = 7;
+      const bw = iw / buckets.length, gap = 3;
+
+      ctx.clearRect(0, 0, w, h);
+      drawGrid(ctx, w, h);
+
+      buckets.forEach((b, i) => {
+        const x  = pad.l + i * bw + gap / 2;
+        const bh = b.v * ih;
+        const y  = pad.t + ih - bh;
+        const hi = i === P50 || i === P95 || i === P99;
+        ctx.fillStyle   = hi ? PURPLE : 'rgba(139,92,246,0.30)';
+        ctx.shadowColor = PURPLE; ctx.shadowBlur = hi ? 10 : 0;
+        ctx.fillRect(x, y, bw - gap, bh); ctx.shadowBlur = 0;
+        ctx.font = '9px JetBrains Mono, monospace';
+        ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.textAlign = 'center';
+        ctx.fillText(b.label, x + (bw - gap) / 2, pad.t + ih + 13);
+      });
+
+      [[P50, 'p50'], [P95, 'p95'], [P99, 'p99']].forEach(([bi, lbl]) => {
+        const x = pad.l + bi * bw + bw / 2;
+        const y = pad.t + ih - buckets[bi].v * ih - 6;
+        ctx.font = 'bold 9px JetBrains Mono, monospace';
+        ctx.fillStyle = PURPLE; ctx.textAlign = 'center';
+        ctx.fillText(lbl, x, y);
+      });
+      ctx.textAlign = 'left';
+    })();
+
+})();
+  </script>
+
+
+  <div class="std-footer">
+    <svg class="elastic-logo-svg" viewBox="0 0 687.5 235.6" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M236.6 123.5a46.54 46.54 0 0 0-30.8-43.9A67 67 0 0 0 140.2 0 66.72 66.72 0 0 0 86 27.7a35.5 35.5 0 0 0-57.2 28.1A36.77 36.77 0 0 0 31 68.2a46.75 46.75 0 0 0-.1 88 66.66 66.66 0 0 0 119.6 51.6 35 35 0 0 0 21.7 7.6 35.51 35.51 0 0 0 35.5-35.5 36.77 36.77 0 0 0-2.2-12.4 47.08 47.08 0 0 0 31.1-44" fill="#fff"/><path d="M93 101.5l51.8 23.6L197 79.3a54.71 54.71 0 0 0 1.1-11.5 58.35 58.35 0 0 0-106.5-33l-8.7 45.1L93 101.5z" fill="#fed10a"/><path d="M39.4 156.3a56.62 56.62 0 0 0-1.1 11.7 58.58 58.58 0 0 0 107 32.9l8.6-44.9-11.5-22-52-23.7z" fill="#24bbb1"/><path d="M39.1 66.7l35.5 8.4 7.8-40.3a28 28 0 0 0-43.3 31.9" fill="#ef5098"/><path d="M36 75.2a39.1 39.1 0 0 0-1.7 73.7l49.8-45L75 84.4z" fill="#17a8e0"/><path d="M154.3 200.9a28 28 0 0 0 43.2-31.9l-35.4-8.3z" fill="#93c83e"/><path d="M161.5 151.4l39 9.1a39.1 39.1 0 0 0 1.7-73.7l-51 44.7z" fill="#0779a1"/><path fill="#ffffff" d="M330.8 165.5l4.7-.5.3 9.6a240.62 240.62 0 0 1-31.8 2.6q-17.55 0-24.9-10.2c-4.9-6.8-7.3-17.4-7.3-31.7q0-42.9 34.1-42.9c11 0 19.2 3.1 24.6 9.2s8.1 15.8 8.1 28.9l-.7 9.3h-53.8c0 9 1.6 15.7 4.9 20s8.9 6.5 17 6.5a230 230 0 0 0 24.8-.8zm-4.4-35.3c0-10-1.6-17.1-4.8-21.2s-8.4-6.2-15.6-6.2-12.7 2.2-16.3 6.5-5.5 11.3-5.6 20.9h42.3zm29.2 45.5v-117h12.2v117h-12.2zm89.3-56.9v40.1c0 4.1 10.1 4.9 10.1 4.9l-.6 10.8c-8.6 0-15.7.7-20-3.4a71.68 71.68 0 0 1-29.3 6.1c-7.5 0-13.2-2.1-17.1-6.4s-5.9-10.3-5.9-18.3 2-13.8 6-17.5 10.3-6.1 18.9-6.9l25.6-2.4v-7c0-5.5-1.2-9.5-3.6-11.9s-5.7-3.6-9.8-3.6h-32.1V92.5h31.3c9.2 0 15.9 2.1 20.1 6.4s6.4 10.9 6.4 19.9zM394.7 152c0 10 4.1 15 12.4 15a65.27 65.27 0 0 0 21.8-3.7l3.7-1.3v-26.9l-24.1 2.3c-4.9.4-8.4 1.8-10.6 4.2s-3.2 5.9-3.2 10.4zm97.9-48.6c-11.8 0-17.8 4.1-17.8 12.4 0 3.8 1.4 6.5 4.1 8.1s8.9 3.2 18.6 4.9 16.5 4 20.5 7.1 6 8.7 6 17.1-2.7 14.5-8.1 18.4-13.2 5.9-23.6 5.9c-6.7 0-29.2-2.5-29.2-2.5l.7-10.6c12.9 1.2 22.3 2.2 28.6 2.2s11.1-1 14.4-3 5-5.4 5-10.1-1.4-7.9-4.2-9.6-9-3.3-18.6-4.8-16.4-3.7-20.4-6.7-6-8.4-6-16.3 2.8-13.8 8.4-17.6 12.6-5.7 20.9-5.7c6.6 0 29.6 1.7 29.6 1.7V105c-12.1-.7-22-1.6-28.9-1.6zm90.4 1.4h-25.9v39c0 9.3.7 15.5 2 18.4s4.6 4.4 9.7 4.4l14.5-1 .8 10.1a111.1 111.1 0 0 1-16.6 1.8c-8.5 0-14.3-2.1-17.6-6.2s-4.9-12-4.9-23.6v-42.9h-11.6V94.2H545v-25h12.1v24.9H583v10.7zm17-29.1V61.6h12.2v14.2zm0 100V94.2h12.2v81.5H600zm65.2-83.2c3.6 0 9.7.7 18.3 2l3.9.5-.5 9.9a187.31 187.31 0 0 0-19.2-1.5c-9.2 0-15.5 2.2-18.8 6.6s-5 12.6-5 24.5 1.5 20.2 4.6 24.9 9.5 7 19.3 7l19.2-1.5.5 10.1c-10.1 1.5-17.7 2.3-22.7 2.3-12.7 0-21.5-3.3-26.3-9.8s-7.3-17.5-7.3-33 2.6-26.4 7.8-32.6 14-9.4 26.2-9.4z"/></svg>
+    <div class="std-footer-div"></div>
+    <div class="std-footer-tag">The Search AI Company</div>
+  </div>
+</body>
+</html>

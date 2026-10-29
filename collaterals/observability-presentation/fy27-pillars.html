@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Observability: Three Pillars</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:58px;letter-spacing:-2.2px;margin-top:14px}
+  .road{margin-top:22px;max-width:520px;font:400 15px/1.5 var(--mono);color:var(--char)}
+  .road b{color:var(--ink);font-weight:600}
+  #pl{left:0;top:0;width:1280px;height:720px}
+  .cards{position:absolute;z-index:3;left:72px;right:72px;top:506px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--ink)}
+  .cd{padding:12px 22px 0 0;border-right:1px solid var(--line);margin-right:22px}
+  .cd:last-child{border-right:0;margin-right:0}
+  .cd .tag{display:flex;align-items:center;gap:8px}
+  .cd h2{font:600 22px/1.05 var(--sans);letter-spacing:-.6px;margin-top:7px;display:inline-block;margin-right:10px}
+  .cd .tl{font:500 13px var(--sans);color:var(--blue);display:inline-block}
+  .cd p{font-size:12.5px;line-height:1.45;color:var(--char);margin-top:6px;max-width:350px}
+  .cd .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+  .cd .chip{font-size:9.5px;padding:2px 6px}
+  #pl,.ew-dots{transition:transform .7s cubic-bezier(.2,.7,.2,1);transform-origin:825px 305px}
+  .cards{transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  .dxs{width:400px;margin-top:22px;display:flex;flex-direction:column;gap:14px}
+  html[data-density="1"] #pl,html[data-density="1"] .ew-dots{transform:translate(-185px,55px) scale(1.2)}
+  html[data-density="2"] .cards{top:586px}
+  html[data-density="2"] #pl,html[data-density="2"] .ew-dots{transform:translate(0,40px) scale(1.06)}
+  html[data-density="2"] h1{margin-top:60px}
+</style>
+</head>
+<body data-foot="Elastic Observability · Three pillars">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">Elastic Observability</div>
+  <h1 class="in2">Three pillars.<br><span class="b">One platform.</span></h1>
+  <p class="road in3" data-d="3"><b>Three pillars, one roadmap:</b> open pipeline in, unified signals across, autonomous action on top.</p>
+  <div class="dxs">
+    <div class="dx" data-d="4"><span class="dxk">How they build</span><p><b>Data in, experiences on top, intelligence above.</b> Each pillar builds on the one below it.</p></div>
+    <div class="dx pink" data-d="5"><span class="dxk">How this deck unfolds</span><p>The rest of the story follows the same order: Streams first, then Signals, then <span style="white-space:nowrap">Elastic nightshift</span>, the autonomous AI SRE that sits on top.</p></div>
+  </div>
+</div>
+<svg id="pl" class="iso" viewBox="0 0 1280 720"></svg>
+<div class="cards" data-d="2">
+  <div class="cd in4"><span class="tag"><i class="sw" style="background:var(--teal)"></i>01 · Pillar</span><h2>Streams</h2><div class="tl">The telemetry pipeline for all your data</div>
+    <p data-d="3">Open-standard ingestion at any scale. OTel, Prometheus, or any custom source: one pipeline that gets data in, routed, and stored efficiently.</p>
+    <div class="chips" data-d="3"><span class="chip">OpenTelemetry</span><span class="chip">Prometheus</span><span class="chip">Any Data</span><span class="chip">Open Standards</span></div></div>
+  <div class="cd in5"><span class="tag"><i class="sw" style="background:var(--blue)"></i>02 · Pillar</span><h2>Signals</h2><div class="tl">Every observability experience, unified</div>
+    <p data-d="3">Every way your team makes sense of systems: Logs, Metrics, Traces, Synthetics, and Profiles. Purpose-built per signal, on one platform.</p>
+    <div class="chips" data-d="3"><span class="chip">Logs</span><span class="chip">Metrics</span><span class="chip">Traces</span><span class="chip">Synthetics</span><span class="chip">Profiles</span></div></div>
+  <div class="cd in6"><span class="tag"><i class="sw" style="background:var(--pink)"></i>03 · Pillar</span><h2>Elastic nightshift</h2><div class="tl">Fix it before you wake up</div>
+    <p data-d="3">The autonomous AI SRE. Investigates, runs playbooks, and remediates around the clock, without waiting for a page.</p>
+    <div class="chips" data-d="3"><span class="chip">AI SRE</span><span class="chip">Auto-Remediation</span><span class="chip">RCA</span><span class="chip">Agentic</span></div></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 600, y: 30, w: 680, h: 460, seed: 21, blobs: 5, thr: .5});
+  const sc = EW.iso(document.getElementById('pl'), {ox: 842, oy: 286, s: .8});
+  sc.box({x: 0, y: 0, w: 300, d: 200, h: 28, c: 'slate', stroke: false, delay: .1, drop: 90});
+  // 01 Streams: a pipeline sliding in from the left edge
+  const pipe = sc.box({x: -90, y: 150, w: 200, d: 34, h: 34, z: 28, c: 'teal', delay: .35, drop: 0, dur: .9, snap: false, order: 5});
+  pipe.onFrame = (t, it) => { const k = EW.ease((t - .35) / .9); it.g.setAttribute('transform', `translate(${(-80 * (1 - k)).toFixed(1)},${(40 * (1 - k)).toFixed(1)})`); };
+  // 02 Signals: five bars across the platform
+  const bars = [0,1,2,3,4].map(i => sc.box({x: 130 + i * 32, y: 30, w: 24, d: 150, h: [96, 80, 66, 54, 44][i], z: 28, c: i === 0 ? 'blue' : 'slate', stroke: i === 0 ? '#1D1E24' : false, delay: .55 + i * .07, drop: 80, order: 3}));
+  // 03 nightshift on top
+  // Dashboard screen to the right of the stack, facing the viewer
+  const X = 330, SY0 = -44, SY1 = 124, SZ0 = 34, SZ1 = 164;
+  sc.box({x: X - 14, y: 30, w: 8, d: 20, h: SZ0, c: 'slate', stroke: false, delay: .75, drop: 60});
+  sc.box({x: X - 30, y: 14, w: 40, d: 52, h: 5, c: 'slate', stroke: false, delay: .7, drop: 60, order: -5});
+  const scr = sc.box({x: X - 8, y: SY0, w: 8, d: SY1 - SY0, h: SZ1 - SZ0, z: SZ0, c: {top: '#343741', left: '#343741', right: '#FFFFFF'}, delay: .8, drop: 70, order: 20});
+  const PX = X + 58, PY = -64, PZ = 80, PS = 56;
+  const pink = sc.box({x: PX, y: PY, w: PS, d: PS, h: PS, z: PZ, c: 'pink', delay: 1.0, drop: 70, float: 5, floatSpeed: 1.3, order: 40});
+  sc.label({at: [-90, 184, 45], side: 'l', len: 26, title: 'Open pipeline in', delay: 1.2});
+  sc.label({at: [300, 200, 0], side: 'r', len: 30, title: 'Unified signals across', delay: 1.35});
+  sc.label({at: [X, SY1 - 24, SZ0 - 16], side: 'r', len: 26, title: 'Dashboards', sub: 'Incidents', delay: 1.4});
+  sc.run();
+
+  const svg = document.getElementById('pl'), NS = 'http://www.w3.org/2000/svg';
+  const mk = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+  const pts = a => a.map(q => sc.P(...q).map(v => v.toFixed(1)).join(',')).join(' ');
+  const COL = {red: ['#FFD9D4', '#E0352B', '#8F1D16'], blue: ['#FFFFFF', '#0B64DD', '#0A4FB0'], flash: ['#FFFFFF', '#F58FC0', '#F04E98']};
+  const flow = mk('g', {}, sc.body); sc.body.appendChild(pink.g);
+  const tileLayer = mk('g', {}, sc.body); scr.g.after(tileLayer);
+  const laser = mk('g', {opacity: 0}, sc.body);
+  const beamGlow = mk('line', {stroke: '#F04E98', 'stroke-width': 7, 'stroke-opacity': .25, 'stroke-linecap': 'round'}, laser);
+  const beam = mk('line', {stroke: '#F04E98', 'stroke-width': 2, 'stroke-linecap': 'round'}, laser);
+  const ring = mk('ellipse', {fill: 'none', stroke: '#F04E98', 'stroke-width': 1.5, opacity: 0}, sc.body);
+  function drawCube(f, x, y, z, w, d, h, F){
+    f[0].setAttribute('points', pts([[x, y + d, z + h], [x + w, y + d, z + h], [x + w, y + d, z], [x, y + d, z]])); f[0].setAttribute('fill', F[1]);
+    f[1].setAttribute('points', pts([[x + w, y, z + h], [x + w, y + d, z + h], [x + w, y + d, z], [x + w, y, z]])); f[1].setAttribute('fill', F[2]);
+    f[2].setAttribute('points', pts([[x, y, z + h], [x + w, y, z + h], [x + w, y + d, z + h], [x, y + d, z + h]])); f[2].setAttribute('fill', F[0]);
+  }
+  // callout on a vertical leader, riding with the cube
+  const plG = mk('g', {opacity: 0}, sc.top), [lx, ly] = sc.P(PX, PY, PZ + PS);
+  mk('line', {x1: lx, y1: ly - 4, x2: lx, y2: ly - 58, stroke: '#1D1E24', 'stroke-width': 1}, plG);
+  const plT = mk('text', {x: lx + 40, y: ly - 64, 'text-anchor': 'end', 'font-size': 12, 'font-weight': 600, fill: '#1D1E24', 'letter-spacing': '.06em', stroke: '#fff', 'stroke-width': 5, 'paint-order': 'stroke'}, plG);
+  plT.textContent = 'AUTONOMOUS ACTION ON TOP';
+  const pl = {g: plG};
+  // hover: the cube comes alive (eyes, bounce, sparkles)
+  const eyes = mk('g', {opacity: 0}, pink.g), eyeEls = [.32, .66].map(f => { const [ex, ey] = sc.P(PX + PS * f, PY + PS, PZ + PS * .6); return mk('ellipse', {cx: ex, cy: ey, rx: 3.6, ry: 5.2, fill: '#1D1E24'}, eyes); });
+  const [smx, smy] = sc.P(PX + PS * .49, PY + PS, PZ + PS * .36);
+  mk('path', {d: `M${smx - 8},${smy - 3} Q${smx},${smy + 5} ${smx + 8},${smy + 2}`, fill: 'none', stroke: '#1D1E24', 'stroke-width': 2, 'stroke-linecap': 'round'}, eyes);
+  const sparks = mk('g', {}, pink.g); let spk = [];
+  let hover = false, hoverT = -9, hoverAmt = 0;
+  pink.g.style.cursor = 'pointer'; pink.g.style.pointerEvents = 'all';
+  pink.g.addEventListener('mouseenter', () => { hover = true; hoverT = performance.now() / 1000;
+    const [cx, cy] = sc.P(PX + PS / 2, PY + PS / 2, PZ + PS / 2);
+    for (let i = 0; i < 12; i++){ const a = i / 12 * 6.283 + Math.random() * .4, r = mk('rect', {width: 6, height: 6, fill: i % 3 ? '#F04E98' : '#FEC514'}, sparks);
+      spk.push({r, x: cx, y: cy, vx: Math.cos(a) * (70 + Math.random() * 60), vy: Math.sin(a) * (70 + Math.random() * 60) - 40, t: hoverT}); } });
+  pink.g.addEventListener('mouseleave', () => { hover = false; });
+  const face = (g) => [0, 1, 2].map(() => mk('polygon', {stroke: '#1D1E24', 'stroke-width': .8}, g));
+
+  // Data cubes: all blue, flowing through the pipe into a signal bar
+  const S = 17, R = EW.rand(9), cubes = [], lane = 186, pipeY = 167 - S / 2;
+  const bars2 = bars;
+  // Screen tiles: 4 x 3 grid of small cubes protruding from the display
+  const COLS = 4, ROWS = 3, TS = 24, GY = (SY1 - SY0 - COLS * TS) / (COLS + 1), GZ = (SZ1 - SZ0 - ROWS * TS) / (ROWS + 1);
+  const slots = [];
+  for (let r = ROWS - 1; r >= 0; r--) for (let c = 0; c < COLS; c++) slots.push({y: SY0 + GY + c * (TS + GY), z: SZ0 + GZ + r * (TS + GZ)});
+  const tiles = []; let nextSlot = 0, tileCount = 0;
+  function addTile(){
+    const sl = slots[nextSlot % slots.length]; nextSlot++;
+    const old = tiles.find(t => t.sl === sl); if (old) old.dying = 1;
+    const g = mk('g', {opacity: 0}, tileLayer), halo = mk('ellipse', {fill: '#E0352B', opacity: 0}, g);
+    tileCount++;
+    const red = tileCount > 2 && R() < .3 && !tiles.some(t => t.st === 'red');
+    tiles.push({g, halo, f: face(g), sl, st: red ? 'red' : 'blue', a: 0, pop: 0, flash: 0, born: performance.now() / 1000});
+  }
+  function spawn(){ const g = mk('g', {}, flow); cubes.push({g, f: face(g), x: -90, y: pipeY, z: 62, bar: Math.floor(R() * 5), leg: 0, a: 0}); }
+  const barFlash = bars2.map(() => 0);
+  let last = 0, spawnT = 0, target = null, fire = 0, pdy = 0;
+  pink.onFrame = (t, it) => {
+    const m = /translate\(0,([-\d.]+)\)/.exec(it.g.getAttribute('transform') || ''), fy = m ? +m[1] : 0;
+    const now = performance.now() / 1000, dtH = 1 / 60;
+    hoverAmt += ((hover ? 1 : 0) - hoverAmt) * .15;
+    const ph = (now - hoverT) * 7.5, hop = hover ? Math.abs(Math.sin(ph)) * 14 : 0, sq = hover ? 1 - .12 * Math.max(0, Math.cos(ph * 2)) * (1 - Math.abs(Math.sin(ph))) : 1;
+    const [ax, ay] = sc.P(0, 0, 0), [bx, by] = sc.P(0, pdy, 0), tx = bx - ax, ty = by - ay + fy - hop * hoverAmt;
+    const [cx, cy] = sc.P(PX + PS / 2, PY + PS / 2, PZ);
+    const sx = 1 + (1 / sq - 1) * .6, sy = sq;
+    it.g.setAttribute('transform', `translate(${tx.toFixed(1)},${ty.toFixed(1)}) translate(${cx},${cy}) scale(${sx.toFixed(3)},${sy.toFixed(3)}) translate(${-cx},${-cy})`);
+    it.fy = fy - hop * hoverAmt; pl.g.setAttribute('transform', `translate(${tx.toFixed(1)},${ty.toFixed(1)})`);
+    pl.g.setAttribute('opacity', Math.min(1, Math.max(0, (t - 1.5) * 3)));
+    const blink = (now % 2.6) < .12 ? .15 : 1; eyes.setAttribute('opacity', hoverAmt.toFixed(2)); eyeEls.forEach(e => e.setAttribute('ry', (5.2 * blink).toFixed(2)));
+    spk = spk.filter(p => { const a = now - p.t; if (a > .7){ p.r.remove(); return false; }
+      p.x += p.vx * dtH; p.y += p.vy * dtH; p.vy += 260 * dtH; p.r.setAttribute('x', p.x - 3); p.r.setAttribute('y', p.y - 3); p.r.setAttribute('opacity', (1 - a / .7).toFixed(2)); return true; });
+  };
+  EW.loop(t => {
+    const dt = Math.min(.05, t - last); last = t;
+    if (t > 1.1 && (spawnT -= dt) <= 0){ spawn(); spawnT = .5 + R() * .3; }
+    for (let i = cubes.length - 1; i >= 0; i--){ const q = cubes[i], v = 95 * dt; q.a = Math.min(1, q.a + dt * 4);
+      if (q.leg === 0){ q.x += v; if (q.x > 112) q.leg = 1; }
+      else if (q.leg === 1){ q.x += v * .6; q.z = Math.max(28, q.z - v * 2.4); q.y = Math.min(lane, q.y + v * 1.2); if (q.z <= 28 && q.y >= lane) q.leg = 2; }
+      else if (q.leg === 2){ const bx = 130 + q.bar * 32 + (24 - S) / 2; q.x = Math.min(bx, q.x + v); if (q.x >= bx) q.leg = 3; }
+      else { q.y -= v * .8; if (q.y < 182) q.a = Math.max(0, (q.y - 170) / 12); if (q.y <= 170){ barFlash[q.bar] = 1; addTile(); q.g.remove(); cubes.splice(i, 1); continue; } }
+      drawCube(q.f, q.x, q.y, q.z, S, S, S, COL.blue); q.g.setAttribute('opacity', q.a.toFixed(2)); }
+    const now = performance.now() / 1000;
+    for (let i = tiles.length - 1; i >= 0; i--){ const tl = tiles[i];
+      if (tl.dying){ tl.a -= dt * 3; if (tl.a <= 0){ tl.g.remove(); tiles.splice(i, 1); continue; } } else { tl.a = Math.min(1, tl.a + dt * 5); tl.pop = Math.min(1, tl.pop + dt * 4); }
+      tl.flash = Math.max(0, tl.flash - dt * 2.5);
+      const w = 4 + 8 * EW.back(tl.pop), F = tl.flash > 0 ? COL.flash : COL[tl.st];
+      drawCube(tl.f, X, tl.sl.y, tl.sl.z, w, TS, TS, F);
+      const [hx, hy] = sc.P(X + 6, tl.sl.y + TS / 2, tl.sl.z + TS / 2), pu = tl.st === 'red' ? .2 + .15 * Math.sin(now * 8) : 0;
+      tl.halo.setAttribute('cx', hx); tl.halo.setAttribute('cy', hy); tl.halo.setAttribute('rx', 22); tl.halo.setAttribute('ry', 22); tl.halo.setAttribute('opacity', pu.toFixed(2));
+      tl.g.setAttribute('opacity', Math.max(0, tl.a).toFixed(2)); }
+    if (!target || target.st !== 'red' || target.dying) target = tiles.find(tl => tl.st === 'red' && !tl.dying) || null;
+    const hyT = target ? Math.max(-16, Math.min(16, (target.sl.y - 40) * .2)) : 0;
+    pdy += (hyT - pdy) * (1 - Math.pow(.02, dt));
+    let on = 0;
+    if (target && now - target.born > .7 && Math.abs(hyT - pdy) < 4){
+      fire += dt; on = 1;
+      const [x1, y1] = sc.P(PX, PY + PS + pdy, PZ + PS * .35), [x2, y2] = sc.P(X + 12, target.sl.y + TS / 2, target.sl.z + TS / 2), fy = pink.fy || 0;
+      [beam, beamGlow].forEach(l => { l.setAttribute('x1', x1); l.setAttribute('y1', y1 + fy); l.setAttribute('x2', x2); l.setAttribute('y2', y2); });
+      if (fire > .55){ target.st = 'blue'; target.flash = 1; ring.setAttribute('cx', x2); ring.setAttribute('cy', y2); ring.dataset.t = t; fire = 0; target = null; }
+    } else fire = 0;
+    laser.setAttribute('opacity', on ? (.75 + .25 * Math.sin(t * 60)).toFixed(2) : 0);
+    const rt = t - (+ring.dataset.t || -9); ring.setAttribute('rx', 8 + rt * 50); ring.setAttribute('ry', 8 + rt * 50); ring.setAttribute('opacity', Math.max(0, 1 - rt * 3));
+    bars2.forEach((b, i) => { barFlash[i] = Math.max(0, barFlash[i] - dt * 2.5); const top = b.g.children[2]; if (top) top.setAttribute('fill', barFlash[i] > .01 ? `rgb(${Math.round(255 - 38 * barFlash[i])},${Math.round(255 - 23 * barFlash[i])},255)` : (i === 0 ? '#FFFFFF' : '#F5F7FA')); });
+  });
+})();
+</script>
+</body>
+</html>

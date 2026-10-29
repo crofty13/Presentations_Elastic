@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>AI Economics</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .left{position:absolute;left:72px;top:56px;width:390px;z-index:2}
+  h1{font-size:46px;letter-spacing:-1.4px}
+  .sub{font-size:16.5px;max-width:380px}
+  .call{position:absolute;left:72px;top:470px;width:390px;z-index:2;border-left:3px solid var(--pink);padding:4px 0 4px 18px}
+  .call b{display:block;font:600 19px/1.3 var(--sans);letter-spacing:-.3px;color:var(--ink);margin-bottom:8px}
+  .call p{font-size:14px;line-height:1.5;color:var(--char)}
+  #stack{left:470px;top:150px;width:420px;height:470px}
+  .row{position:absolute;left:890px;width:318px;z-index:2}
+  .row .hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;border-bottom:1px solid var(--ink);padding-bottom:6px;margin-bottom:8px}
+  .row .hd .tag{font-size:12px}
+  .row .vol{font:500 24px var(--sans);letter-spacing:-.8px;color:var(--blue)}
+  .row.se .vol{color:var(--pink)}
+  .row p{font-size:12.5px;line-height:1.45;color:var(--char)}
+  .row p + p{color:var(--grey);margin-top:4px}
+  .row p .ac{color:var(--blue);font-weight:600}
+  .conn{position:absolute;left:890px;width:318px;z-index:2;font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);display:flex;align-items:center;gap:8px}
+  .conn::after{content:'';flex:1;border-top:1px dashed var(--slate)}
+  /* density */
+  #stack,.row,.conn,.ew-dots{transition:translate .7s cubic-bezier(.2,.7,.2,1)}
+  .call{transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  .left .dx{margin-top:16px}
+  html[data-density="1"] #stack,html[data-density="1"] .row,html[data-density="1"] .conn,html[data-density="1"] .ew-dots{translate:-199px -20px}
+  html[data-density="5"] .call{top:520px}
+</style>
+</head>
+<body data-foot="AI Economics">
+<div class="left">
+  <div class="eyebrow in1" data-d="3">AI Economics</div>
+  <h1 class="in2" data-d="2">Token efficiency is <span class="b">a core differentiator.</span></h1>
+  <p class="sub in3" data-d="3">You can't pass petabytes of raw logs to an LLM. The platform that compresses signal without losing meaning wins: on quality and cost.</p>
+  <div class="dx pink" data-d="4"><span class="dxk">What reaches the model</span><p>Kilobytes, not gigabytes. Raw telemetry stays in low-cost storage and is queried on demand with ES|QL.</p></div>
+  <div class="dx pink" data-d="5"><span class="dxk">How the layers are built</span><p>The KI extractor distills raw telemetry into knowledge indicators, and investigation correlates those into significant events.</p></div>
+</div>
+<div class="call in6" data-d="3">
+  <b>The hierarchy IS the token strategy.</b>
+  <p data-d="3">Each layer compresses meaning while discarding noise. Agents reason over Significant Events and KIs, not raw logs. This is what makes Elastic's AI economically viable at enterprise scale.</p>
+</div>
+
+<svg id="stack" class="iso" viewBox="0 0 420 470"></svg>
+
+<div class="row se in5" id="r3"><div class="hd"><span class="tag">Significant Events</span><span class="vol">Kilobytes</span></div>
+  <p data-d="3">Correlated situations with RCA, blast radius, severity: what actually matters</p>
+  <p data-d="3">Precise context for action. This is what gets passed to the LLM and the human.</p></div>
+<div class="conn in5" id="c2" data-d="1">↑ Investigation correlates</div>
+<div class="row in4" id="r2"><div class="hd"><span class="tag">Knowledge Indicators</span><span class="vol">Megabytes</span></div>
+  <p data-d="3">Entities, dependencies, state, context: structured system understanding</p>
+  <p data-d="3">The right context, structured. Agents reason over this layer for investigation.</p></div>
+<div class="conn in4" id="c1">↑ KI Extractor distills signal</div>
+<div class="row in3" id="r1"><div class="hd"><span class="tag">Raw Telemetry</span><span class="vol" style="color:var(--char)">Petabytes</span></div>
+  <p data-d="3"><span class="ac">Logs</span>, metrics, traces. Logs are the primary GTM signal</p>
+  <p data-d="3">Never passed to LLM directly. Stored at low cost, queried on demand via ES|QL.</p></div>
+
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 440, y: 180, w: 480, h: 520, seed: 9, blobs: 6, thr: .5});
+  const SX = 470, SY = 150, ox = 190, oy = 250;
+  const sc = EW.iso(document.getElementById('stack'), {ox, oy, s: 1});
+  const L = [
+    {x: 0,  y: 0,  w: 220, d: 220, h: 34, z: 0,   c: 'slate', stroke: '#1D1E24', delay: .1,  row: 'r1'},
+    {x: 50, y: 50, w: 120, d: 120, h: 28, z: 150, c: 'blue',  delay: .45, row: 'r2'},
+    {x: 85, y: 85, w: 50,  d: 50,  h: 50, z: 290, c: 'pink',  delay: .8,  row: 'r3', float: 4}
+  ];
+  // dashed funnel: footprint of the next layer projected onto the one below
+  sc.rect({x: 50, y: 50, w: 120, d: 120, z: 34, layer: 'top', delay: .6, sw: 1.1});
+  sc.rect({x: 85, y: 85, w: 50, d: 50, z: 178, layer: 'top', delay: .95, sw: 1.1});
+  L.forEach((b, i) => sc.box(Object.assign({drop: 80, order: i * 1000}, b)));
+  // leader lines from each layer's right edge to its row
+  const rows = [];
+  L.forEach((b, i) => {
+    const [ax, ay] = sc.P(b.x + b.w, b.y, b.z + b.h / 2);
+    const len = (890 - 14 - SX) - ax;
+    sc.label({at: [ax, ay], side: 'r', len, title: '', sub: '', delay: b.delay + .35});
+    const r = document.getElementById(b.row); r.style.top = (SY + ay - 22) + 'px'; rows.push(SY + ay);
+  });
+  document.getElementById('c1').style.top = (rows[1] + 107) + 'px';
+  document.getElementById('c2').style.top = (rows[2] + 107) + 'px';
+
+  // rising particles: many from the raw slab, fewer survive to each layer
+  const R = EW.rand(5), N = 70, parts = [];
+  for (let i = 0; i < N; i++) parts.push({x: 20 + R() * 180, y: 20 + R() * 180, p: R(), lvl: R() < .28 ? (R() < .35 ? 2 : 1) : 0, sp: .35 + R() * .3});
+  const dots = parts.map(() => EW.el('rect', {width: 3.4, height: 3.4, fill: '#0B64DD', opacity: 0}, sc.top));
+  const tgt = [[110, 110, 120], [110, 110, 228]];
+  EW.loop(t => {
+    parts.forEach((q, i) => {
+      const d = dots[i]; if (t < 1.1){ d.setAttribute('opacity', 0); return; }
+      const k = ((t - 1.1) * q.sp + q.p) % 1;
+      const top = q.lvl === 2 ? 1 : .5;         // how far this particle survives
+      const u = k * (q.lvl ? 1 : .42);          // most particles die in the raw layer
+      let x, y, z;
+      if (u < .5){ const e = u / .5; x = q.x + (110 - q.x) * e * .55; y = q.y + (110 - q.y) * e * .55; z = 34 + e * 116; }
+      else { const e = (u - .5) / .5; x = 110 + (q.x - 110) * .45 * (1 - e) * .5; y = 110 + (q.y - 110) * .45 * (1 - e) * .5; z = 178 + e * 112; }
+      if (u > top) { d.setAttribute('opacity', 0); return; }
+      const [px, py] = sc.P(x, y, z);
+      const fade = q.lvl ? Math.sin(Math.min(1, u / top) * Math.PI) : Math.sin(k * Math.PI);
+      d.setAttribute('x', px - 1.7); d.setAttribute('y', py - 1.7);
+      d.setAttribute('fill', z > 180 ? '#F04E98' : '#0B64DD');
+      d.setAttribute('opacity', (.25 + .6 * fade).toFixed(2));
+    });
+  });
+  sc.run();
+})();
+</script>
+</body>
+</html>

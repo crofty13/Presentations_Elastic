@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Elastic Metrics — Why Columnar Takes Less Space</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      width: 100%; height: 100%; overflow: hidden;
+      background: #22242C;
+    }
+
+    body {
+      width: 1280px; height: 720px; overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #22242C; color: #fff;
+    position: absolute;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px; pointer-events: none; z-index: 0;
+    }
+
+    .header {
+      position: relative; z-index: 2;
+      padding: 18px 56px 0;
+      opacity: 0; animation: fade-up 0.5s ease forwards 0.1s;
+    }
+    .eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #00BFB3; margin-bottom: 4px; }
+    .headline { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; }
+    .headline em { font-style: normal; color: #00BFB3; }
+    .headline .dim { font-weight: 300; color: rgba(255,255,255,0.45); font-size: 0.75em; }
+
+    .main {
+      position: relative; z-index: 1;
+      display: flex; height: 610px;
+      padding: 12px 24px 0; gap: 16px;
+    }
+
+    /* Left panel — row storage */
+    .panel-left {
+      flex: 0 0 430px;
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 10px;
+      opacity: 0; animation: fade-up 0.5s ease forwards 0.3s;
+    }
+    /* Right panel — columnar storage */
+    .panel-right {
+      flex: 0 0 430px;
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 10px;
+      opacity: 0; animation: fade-up 0.5s ease forwards 0.4s;
+    }
+    /* Center insight panel */
+    .panel-mid {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px;
+      opacity: 0; animation: fade-up 0.5s ease forwards 0.5s;
+    }
+
+    .panel-badge {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 10px;
+    }
+    .panel-badge.before { color: #F59E0B; border: 1px solid rgba(245,158,11,0.4); background: rgba(245,158,11,0.1); }
+    .panel-badge.after  { color: #00BFB3; border: 1px solid rgba(0,191,179,0.4); background: rgba(0,191,179,0.1); }
+
+    .panel-title { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 10px; }
+
+    /* Size meter */
+    .size-meter {
+      width: 100%; background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+      padding: 8px 16px; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .size-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.38); }
+    .size-value { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 900; }
+    .size-value.amber { color: #F59E0B; }
+    .size-value.teal  { color: #00BFB3; }
+
+    canvas { display: block; }
+
+    .panel-caption {
+      font-size: 0.78rem; color: rgba(255,255,255,0.55); text-align: center;
+      max-width: 390px; line-height: 1.5; margin-top: 8px;
+    }
+    .panel-caption strong { color: rgba(255,255,255,0.9); }
+    code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+
+    /* Center insight cards */
+    .insight-card {
+      width: 190px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09); border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .insight-card.highlight { border-color: rgba(0,191,179,0.35); background: rgba(0,191,179,0.07); }
+    .insight-num { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 900; color: #00BFB3; line-height: 1; }
+    .insight-lbl { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-top: 2px; }
+    .divider { width: 1px; height: 18px; background: linear-gradient(180deg, transparent, rgba(255,255,255,0.12), transparent); }
+    .why-box {
+      width: 190px; background: rgba(0,191,179,0.06); border: 1px solid rgba(0,191,179,0.25);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .why-title { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #00BFB3; margin-bottom: 6px; }
+    .why-line { font-size: 0.72rem; color: rgba(255,255,255,0.65); line-height: 1.45; margin-bottom: 4px; display: flex; gap: 6px; }
+    .why-dot { flex-shrink: 0; width: 4px; height: 4px; border-radius: 50%; background: #00BFB3; margin-top: 0.55em; }
+
+    @keyframes fade-up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Storage Efficiency · Why Columnar Compresses Better</div>
+  <div class="headline">
+    Same data. <em>6.6× less space.</em>
+    <span class="dim">Because similar values next to each other compress dramatically better.</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- LEFT: Row storage -->
+  <div class="panel-left">
+    <div class="panel-badge before">Row-based · 25 bytes / point</div>
+    <div class="panel-title">8 measurements — all fields mixed together</div>
+    <div class="size-meter">
+      <span class="size-label">Total size</span>
+      <span class="size-value amber" id="rowSize">200 bytes</span>
+    </div>
+    <canvas id="rowCanvas" width="410" height="360"></canvas>
+    <div class="panel-caption"><strong>Mixed types, no pattern.</strong> Each row has a hostname string next to a float next to an integer — delta encoding finds nothing to compress.</div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="panel-mid">
+    <div class="insight-card highlight">
+      <div class="insight-num">6.6×</div>
+      <div class="insight-lbl">less storage</div>
+    </div>
+    <div class="divider"></div>
+    <div class="why-box">
+      <div class="why-title">Why it compresses</div>
+      <div class="why-line"><div class="why-dot"></div>Similar values are adjacent → delta encoding works</div>
+      <div class="why-line"><div class="why-dot"></div>One type per column → type-optimised codec</div>
+      <div class="why-line"><div class="why-dot"></div>512-block encoding → repeated patterns collapse</div>
+      <div class="why-line"><div class="why-dot"></div>No stored _id or seq no → less metadata overhead</div>
+    </div>
+    <div class="divider"></div>
+    <div class="insight-card">
+      <div class="insight-num" style="font-size:1.25rem;color:rgba(255,255,255,0.9)">25 → 3.75</div>
+      <div class="insight-lbl">bytes per point</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Columnar storage -->
+  <div class="panel-right">
+    <div class="panel-badge after">Columnar · 3.75 bytes / point</div>
+    <div class="panel-title">Same data — grouped by field, delta-encoded</div>
+    <div class="size-meter">
+      <span class="size-label">Total size</span>
+      <span class="size-value teal" id="colSize">30 bytes</span>
+    </div>
+    <canvas id="colCanvas" width="410" height="360"></canvas>
+    <div class="panel-caption"><strong>Delta-encoded, type-optimised.</strong> <code>cpu_usage</code> values 42.3→42.7→41.9 differ by fractions — deltas fit in 1–2 bytes, then compress further with Gorilla/XOR.</div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────
+const MEASUREMENTS = [
+  { ts: '14:00:01', host: 'web-01', svc: 'api',    cpu: 42.3, mem: 71.2 },
+  { ts: '14:00:16', host: 'web-01', svc: 'api',    cpu: 42.7, mem: 71.5 },
+  { ts: '14:00:31', host: 'web-01', svc: 'api',    cpu: 41.9, mem: 70.8 },
+  { ts: '14:00:46', host: 'web-01', svc: 'api',    cpu: 43.1, mem: 72.1 },
+  { ts: '14:01:01', host: 'web-01', svc: 'api',    cpu: 42.5, mem: 71.3 },
+  { ts: '14:01:16', host: 'web-01', svc: 'api',    cpu: 41.8, mem: 70.6 },
+  { ts: '14:01:31', host: 'web-01', svc: 'api',    cpu: 43.3, mem: 72.4 },
+  { ts: '14:01:46', host: 'web-01', svc: 'api',    cpu: 42.1, mem: 71.0 },
+];
+
+// Deltas for cpu_usage
+const CPU_DELTAS = [null, +0.4, -0.8, +1.2, -0.6, -0.7, +1.5, -1.2];
+
+// Field colors
+const FCOL = [
+  { label: 'timestamp', color: '#64748B', bytes: 8 },
+  { label: 'host',      color: '#F59E0B', bytes: 6 },
+  { label: 'service',   color: '#3B82F6', bytes: 4 },
+  { label: 'cpu_usage', color: '#00BFB3', bytes: 5 },
+  { label: 'memory',    color: '#8B5CF6', bytes: 4 },
+  // overhead (metadata, _id, seq)
+  { label: 'overhead',  color: '#6B7280', bytes: 3 },  // placeholder for remaining to 25
+];
+// Adjust so bytes sum to ~25 (approx per field proportions)
+// ts:8, host:6, svc:4, cpu:5, mem:4, overhead ~(25-8-6-4-5-4)=(-2 so let's adjust)
+// Actually let's use: ts=7, host=5, svc=4, cpu=4, mem=3, overhead=2 = 25 total? No.
+// Let's make it visual, not exact byte math. Proportional to 25.
+// ts=8, host=5, svc=4, cpu=4, mem=3 = 24, call overhead=1 = 25
+const FIELDS_ROW = [
+  { label: 'timestamp', color: '#475569', bytes: 8 },
+  { label: 'host',      color: '#D97706', bytes: 5 },
+  { label: 'service',   color: '#2563EB', bytes: 4 },
+  { label: 'cpu_usage', color: '#00BFB3', bytes: 4 },
+  { label: 'memory',    color: '#7C3AED', bytes: 3 },
+  { label: 'meta/_id',  color: '#4B5563', bytes: 1 },
+];
+// total = 25 ✓
+
+const NROWS = 8;
+const CYCLE = 6000; // ms per animation cycle
+
+// ─────────────────────────────────────────
+// LEFT CANVAS — Row storage
+// ─────────────────────────────────────────
+(function() {
+  const cv = document.getElementById('rowCanvas');
+  const ctx = cv.getContext('2d');
+
+  const ROW_H    = 36;
+  const ROW_GAP  = 6;
+  const ROW_W    = 380;
+  const BYTES_PX = ROW_W / 25; // pixels per byte
+  const START_X  = 14;
+  const START_Y  = 16;
+
+  // Animate: rows appear one by one, highlight CPU field in each
+  let startTime = null;
+  const ROW_APPEAR_INTERVAL = CYCLE / NROWS; // how long before next row appears
+
+  function draw(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = (ts - startTime) % CYCLE;
+    const rowsVisible = Math.min(Math.floor(elapsed / ROW_APPEAR_INTERVAL) + 1, NROWS);
+    const partialProg = (elapsed % ROW_APPEAR_INTERVAL) / ROW_APPEAR_INTERVAL;
+
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    for (let r = 0; r < rowsVisible; r++) {
+      const y = START_Y + r * (ROW_H + ROW_GAP);
+      const isPartial = r === rowsVisible - 1 && rowsVisible < NROWS;
+      const rowAlpha  = isPartial ? partialProg : 1;
+
+      ctx.globalAlpha = rowAlpha * 0.95;
+
+      let x = START_X;
+      for (const f of FIELDS_ROW) {
+        const fw = f.bytes * BYTES_PX;
+
+        // Field block
+        ctx.beginPath();
+        ctx.roundRect(x, y, fw - 1, ROW_H, 3);
+        ctx.fillStyle = f.color + (f.label === 'cpu_usage' ? '' : '55');
+        ctx.fill();
+
+        // Field label (only if wide enough)
+        if (fw > 28) {
+          ctx.fillStyle = f.label === 'cpu_usage' ? '#fff' : 'rgba(255,255,255,0.55)';
+          ctx.font = `${f.label === 'cpu_usage' ? '700' : '500'} 9px JetBrains Mono`;
+          ctx.textAlign = 'center';
+          ctx.fillText(f.label.length > 9 ? f.label.slice(0,8) : f.label, x + fw/2 - 0.5, y + ROW_H/2 - 6);
+          // value
+          const val = f.label === 'cpu_usage' ? MEASUREMENTS[r].cpu.toFixed(1)
+                    : f.label === 'timestamp'  ? MEASUREMENTS[r].ts
+                    : f.label === 'host'        ? MEASUREMENTS[r].host
+                    : f.label === 'service'     ? MEASUREMENTS[r].svc
+                    : f.label === 'memory'      ? MEASUREMENTS[r].mem.toFixed(1)
+                    : '…';
+          ctx.fillStyle = f.label === 'cpu_usage' ? '#5EEAD4' : 'rgba(255,255,255,0.35)';
+          ctx.font = `700 9px JetBrains Mono`;
+          ctx.fillText(val, x + fw/2 - 0.5, y + ROW_H/2 + 6);
+        }
+
+        x += fw;
+      }
+
+      // Row border
+      ctx.beginPath();
+      ctx.roundRect(START_X, y, ROW_W, ROW_H, 3);
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+
+      // Row label
+      ctx.globalAlpha = rowAlpha * 0.35;
+      ctx.fillStyle = '#fff';
+      ctx.font = '400 9px JetBrains Mono';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${r * 15}s`, START_X - 4, y + ROW_H/2 + 4);
+    }
+    ctx.globalAlpha = 1;
+
+    // Byte legend at bottom
+    ctx.font = '400 9px JetBrains Mono';
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.textAlign = 'left';
+    ctx.fillText('← 25 bytes per measurement →', START_X, START_Y + NROWS*(ROW_H+ROW_GAP) + 14);
+
+    // Size counter
+    const totalBytes = Math.min(rowsVisible, NROWS) * 25;
+    document.getElementById('rowSize').textContent = totalBytes + ' bytes';
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+
+
+// ─────────────────────────────────────────
+// RIGHT CANVAS — Columnar with delta
+// ─────────────────────────────────────────
+(function() {
+  const cv = document.getElementById('colCanvas');
+  const ctx = cv.getContext('2d');
+
+  // Show 5 columns. cpu_usage is highlighted with delta values.
+  const NCOLS_SHOW = 5;
+  const COL_W  = 68;
+  const COL_GAP = 8;
+  const CELL_H = 30;
+  const CELL_GAP = 4;
+  const START_X = 10;
+  const START_Y = 16;
+
+  const COLUMNS = [
+    { label: 'timestamp', color: '#475569', values: MEASUREMENTS.map(m => m.ts.slice(3)),    compressed: true  },
+    { label: 'host',      color: '#D97706', values: MEASUREMENTS.map(() => 'web-01'),        compressed: true  },
+    { label: 'cpu_usage', color: '#00BFB3', values: MEASUREMENTS.map(m => m.cpu.toFixed(1)), compressed: false },
+    { label: 'memory',    color: '#7C3AED', values: MEASUREMENTS.map(m => m.mem.toFixed(1)), compressed: false },
+    { label: 'service',   color: '#2563EB', values: MEASUREMENTS.map(() => 'api'),            compressed: true  },
+  ];
+
+  // Compression animation: for cpu column, bytes shrink from "full" to "delta"
+  // Cycle phases:
+  //   0→30%: show raw values in all columns (no compression)
+  //   30→70%: animate compression — delta values appear in cpu column, column shrinks
+  //   70→100%: hold compressed state
+  let startTime = null;
+
+  function draw(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = (ts - startTime) % CYCLE;
+    const prog = elapsed / CYCLE; // 0→1
+
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    const compressPhase = prog > 0.30; // after 30% we start compression
+    const compressProg  = compressPhase ? Math.min((prog - 0.30) / 0.40, 1) : 0; // 0→1 during compression
+
+    for (let c = 0; c < COLUMNS.length; c++) {
+      const col = COLUMNS[c];
+      const isCpu = col.label === 'cpu_usage';
+      const cx = START_X + c * (COL_W + COL_GAP);
+
+      // Column header
+      ctx.font = `${isCpu ? '700' : '500'} 10px JetBrains Mono`;
+      ctx.fillStyle = isCpu ? '#00BFB3' : 'rgba(255,255,255,0.45)';
+      ctx.textAlign = 'center';
+      ctx.fillText(col.label.length > 9 ? col.label.slice(0,9) : col.label, cx + COL_W/2, START_Y + 2);
+
+      for (let r = 0; r < NROWS; r++) {
+        const cy = START_Y + 20 + r * (CELL_H + CELL_GAP);
+
+        // For cpu column: compress cell height as compressProg increases
+        const cellH = isCpu ? Math.max(CELL_H * (1 - compressProg * 0.55), CELL_H * 0.45) : CELL_H;
+        const cellAlpha = isCpu ? 1 : (0.35 + compressProg * 0.1);
+
+        ctx.globalAlpha = cellAlpha;
+
+        // Cell background
+        ctx.beginPath();
+        ctx.roundRect(cx, cy, COL_W, cellH, 3);
+        ctx.fillStyle = isCpu ? col.color + (compressPhase ? 'BB' : '88') : col.color + '33';
+        ctx.fill();
+        ctx.strokeStyle = isCpu ? col.color + '66' : 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = isCpu ? 1 : 0.5;
+        ctx.stroke();
+
+        // Value text
+        const rawVal = col.values[r];
+        const delta  = CPU_DELTAS[r];
+
+        if (isCpu && compressProg > 0.5) {
+          // Show delta notation
+          const deltaAlpha = (compressProg - 0.5) / 0.5;
+          if (r === 0) {
+            ctx.fillStyle = '#fff';
+            ctx.font = '700 10px JetBrains Mono';
+            ctx.textAlign = 'center';
+            ctx.fillText(rawVal, cx + COL_W/2, cy + cellH/2 + 4);
+          } else {
+            // Crossfade from raw to delta
+            ctx.globalAlpha = cellAlpha * (1 - deltaAlpha);
+            ctx.fillStyle = '#fff'; ctx.font = '700 10px JetBrains Mono'; ctx.textAlign = 'center';
+            ctx.fillText(rawVal, cx + COL_W/2, cy + cellH/2 + 4);
+
+            ctx.globalAlpha = cellAlpha * deltaAlpha;
+            const dStr = (delta > 0 ? '+' : '') + delta.toFixed(1);
+            ctx.fillStyle = '#5EEAD4'; ctx.font = '700 10px JetBrains Mono';
+            ctx.fillText(dStr, cx + COL_W/2, cy + cellH/2 + 4);
+          }
+        } else if (cellH > 14) {
+          ctx.fillStyle = isCpu ? '#fff' : 'rgba(255,255,255,0.5)';
+          ctx.font = `${isCpu ? '700' : '400'} 9px JetBrains Mono`;
+          ctx.textAlign = 'center';
+          ctx.fillText(rawVal, cx + COL_W/2, cy + cellH/2 + 4);
+        }
+
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    // Compression annotation on cpu column
+    if (compressProg > 0.4) {
+      const cpuColX = START_X + 2 * (COL_W + COL_GAP);
+      const annAlpha = Math.min((compressProg - 0.4) / 0.3, 1);
+      ctx.globalAlpha = annAlpha;
+
+      // Bracket showing compressed height
+      const topY  = START_Y + 20;
+      const compH = NROWS * ((CELL_H * (1 - compressProg * 0.55)) + CELL_GAP);
+      const fullH = NROWS * (CELL_H + CELL_GAP);
+
+      // "saved" bracket
+      ctx.strokeStyle = '#00BFB3';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cpuColX + COL_W + 6, topY + compH);
+      ctx.lineTo(cpuColX + COL_W + 12, topY + compH);
+      ctx.lineTo(cpuColX + COL_W + 12, topY + fullH);
+      ctx.lineTo(cpuColX + COL_W + 6, topY + fullH);
+      ctx.stroke();
+
+      ctx.fillStyle = '#00BFB3';
+      ctx.font = '600 9px Inter';
+      ctx.textAlign = 'left';
+      ctx.fillText('saved', cpuColX + COL_W + 15, topY + (compH + fullH)/2 + 4);
+
+      ctx.globalAlpha = 1;
+    }
+
+    // Delta legend
+    if (compressProg > 0.6) {
+      const legAlpha = Math.min((compressProg - 0.6) / 0.25, 1);
+      ctx.globalAlpha = legAlpha;
+      ctx.font = '500 9px JetBrains Mono';
+      ctx.fillStyle = 'rgba(94,234,212,0.8)';
+      ctx.textAlign = 'left';
+      ctx.fillText('Δ delta values fit in 1–2 bytes vs 4-byte floats', START_X, START_Y + NROWS*(CELL_H+CELL_GAP) + 32);
+      ctx.globalAlpha = 1;
+    }
+
+    // Size counter
+    const totalBytes = Math.round(NROWS * (3.75 + (25 - 3.75) * (1 - compressProg)));
+    document.getElementById('colSize').textContent = totalBytes + ' bytes';
+
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+  <script>
+  (function scaleToFit() {
+    if (window !== window.top) return;
+    const W = 1280, H = 720;
+    function fit() {
+      var scale = Math.min(window.innerWidth / W, window.innerHeight / H);
+      document.body.style.transform = 'scale(' + scale + ')';
+      document.body.style.transformOrigin = '0 0';
+      document.body.style.left = Math.round((window.innerWidth  - W * scale) / 2) + 'px';
+      document.body.style.top  = Math.round((window.innerHeight - H * scale) / 2) + 'px';
+    }
+    fit();
+    window.addEventListener('resize', fit);
+  })();
+  </script>
+  <script src="/js/fuckslides.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Elastic nightshift: Plugs into your stack</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:46px;letter-spacing:-1.4px}
+  h1 .g{color:var(--grey-l);font-weight:500}
+  .eyebrow::before{background:var(--pink)}
+  #sc{left:0;top:0;width:1280px;height:720px}
+  #ov{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:4;pointer-events:none;overflow:visible}
+  .envlbl{position:absolute;left:72px;top:212px;z-index:2;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey)}
+  .al{position:absolute;left:72px;top:318px;width:192px;z-index:3}
+  .al .h{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-bottom:10px}
+  .al .h span{display:block;font-weight:400;color:var(--char);text-transform:none;letter-spacing:.02em;margin-top:2px}
+  .src{position:relative;height:48px;margin-bottom:12px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;gap:10px;padding:0 12px;font:600 11.5px var(--mono);letter-spacing:.04em;color:var(--ink);transition:border-color .2s,box-shadow .2s}
+  .src i{flex:none;width:10px;height:10px;background:var(--slate);transition:background .2s}
+  .src em{position:absolute;right:10px;font:600 9.5px var(--mono);font-style:normal;letter-spacing:.08em;color:#E0352B;opacity:0;transition:opacity .2s}
+  .src.fire{border-color:#E0352B;box-shadow:4px 4px 0 #E0352B}
+  .src.fire i{background:#E0352B}
+  .src.fire em{opacity:1}
+  .feed{position:absolute;left:668px;top:398px;width:262px;z-index:3}
+  .feed .h{font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey);margin-bottom:8px}
+  .card{margin-bottom:6px;border:1px solid var(--ink);background:#fff;padding:7px 11px 8px;animation:cin .35s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes cin{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+  .card .st{font:600 10.5px var(--mono);letter-spacing:.04em;color:var(--pink);display:flex;align-items:center;gap:7px}
+  .card .st i{width:7px;height:7px;border-radius:50%;background:var(--pink);animation:bl 1s ease-in-out infinite}
+  .card.ok .st{color:var(--teal-d)}
+  .card.ok .st i{background:var(--teal-d);animation:none}
+  .card .ln{font:500 10.5px/1.45 var(--mono);color:var(--ink);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .ln span{color:var(--grey)}
+  @keyframes bl{50%{opacity:.25}}
+  .fcap{font-size:12px;line-height:1.4;color:var(--char);margin-top:4px;padding-top:6px;border-top:1px solid var(--line)}
+  .pts{position:absolute;left:975px;right:72px;top:228px;z-index:2}
+  .pt{padding:14px 0 16px;border-top:1px solid var(--ink)}
+  .pt .n{font:500 11px var(--mono);color:var(--pink);letter-spacing:.06em}
+  .pt b{display:block;font:600 18px/1.25 var(--sans);letter-spacing:-.3px;margin:6px 0 6px}
+  .pt p{font-size:13px;line-height:1.5;color:var(--char)}
+  /* density */
+  .al,#sc,#ov,.feed{transition:translate .7s cubic-bezier(.2,.7,.2,1)}
+  .pts{transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  .pts .dx{margin-top:12px}
+  html[data-density="1"] .al,html[data-density="1"] #sc,html[data-density="1"] #ov{translate:250px -40px}
+  html[data-density="2"] .al,html[data-density="2"] #sc,html[data-density="2"] #ov{translate:250px 0}
+  .al,#sc,#ov,.feed{transform-origin:0 0;transition:translate .7s cubic-bezier(.2,.7,.2,1),scale .7s cubic-bezier(.2,.7,.2,1)}
+  .pts{transition:top .6s cubic-bezier(.2,.7,.2,1),left .6s cubic-bezier(.2,.7,.2,1)}
+  html[data-density="4"] .al,html[data-density="5"] .al{scale:.9;translate:0 -12px}
+  html[data-density="4"] #sc,html[data-density="5"] #sc,html[data-density="4"] #ov,html[data-density="5"] #ov{scale:.9;translate:7px 20px}
+  html[data-density="4"] .feed,html[data-density="5"] .feed{scale:.9;translate:-60px -20px}
+  html[data-density="4"] .pts,html[data-density="5"] .pts{left:890px}
+  html[data-density="4"] .pts{top:110px}
+  html[data-density="5"] .pts{top:56px}
+  html[data-density="4"] .pt,html[data-density="5"] .pt{padding:11px 0 13px}
+</style>
+</head>
+<body data-foot="AI SRE · 05 · Plug and play">
+<div class="z">
+  <div class="eyebrow in1" data-d="3"><span style="text-transform:none">Elastic nightshift</span> · 05</div>
+  <h1 class="in2" data-d="2">Plugs into the stack you have.<br><span class="g">Deploy, connect, investigate.</span></h1>
+</div>
+<div class="envlbl in3" data-d="3">Your existing environment</div>
+<div class="al in3">
+  <div class="h">Your alerting<span>Any provider, any webhook</span></div>
+  <div class="src" id="s0"><i></i>PagerDuty<em>● ALERT</em></div>
+  <div class="src" id="s1"><i></i>Alertmanager<em>● ALERT</em></div>
+  <div class="src" id="s2"><i></i>Opsgenie<em>● ALERT</em></div>
+  <div class="src" id="s3"><i></i>Any webhook<em>● ALERT</em></div>
+</div>
+<svg id="sc" class="iso" viewBox="0 0 1280 720"></svg>
+<div class="feed in4" data-d="3">
+  <div class="h">Investigations</div>
+  <div id="cards"></div>
+  <div class="fcap">Connected in minutes. First investigation the same day.</div>
+</div>
+<div class="pts" data-d="3">
+  <div class="pt in4"><span class="n">01</span><b>Your alerts trigger it</b><p>Any alerting provider starts an investigation. No new pipeline to build.</p></div>
+  <div class="pt in5"><span class="n">02</span><b>Your data stays put</b><p>Telemetry and knowledge are queried where they already live. Elasticsearch is not a prerequisite.</p></div>
+  <div class="pt in6"><span class="n">03</span><b>Value on day one</b><p>No rip and replace, no migration project first. Adopt the platform later, on your terms.</p></div>
+  <div class="dx pink" data-d="4"><span class="dxk">How adoption works</span><p>Deploy, connect your alert sources, and investigations start the same day. The alerts you already have become the triggers.</p></div>
+  <div class="dx pink" data-d="5"><span class="dxk">Where it leads</span><p>Runbooks and incident history come from GitHub, Confluence, Slack and Jira. Elasticsearch is where you can consolidate later, for the deepest context.</p></div>
+</div>
+<svg id="ov" viewBox="0 0 1280 720"></svg>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const skip = navigator.webdriver ? 8.2 : 0;
+  EW.dots({x: 250, y: 200, w: 700, h: 470, seed: 12, blobs: 6, thr: .52});
+  const svg = document.getElementById('sc'), ov = document.getElementById('ov'), NS = 'http://www.w3.org/2000/svg';
+  const mk = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+  const sc = EW.iso(svg, {ox: 540, oy: 436, s: 1}), P = sc.P;
+
+  // background: telemetry and knowledge, queried where they live
+  const bg = [], bgLbl = [];
+  const stack = (x, y) => [0, 1].map(k => sc.box({x, y, w: 64, d: 64, h: 20, z: k * 28, c: 'slate', stroke: '#1D1E24', delay: .3 + k * .08, drop: 50, op: .5}));
+  bg.push({boxes: stack(-250, -80), top: P(-218, -48, 48)});
+  bg.push({boxes: stack(-90, -260), top: P(-58, -228, 48)});
+  bgLbl.push(sc.label({at: [-250, -16, 34], side: 'l', len: 20, title: 'Your knowledge', sub: ['GitHub · Confluence', 'Slack · Jira'], raw: true, delay: 1.1, size: 11}));
+  bgLbl.push(sc.label({at: [-26, -260, 34], side: 'r', len: 20, title: 'Your telemetry', sub: ['Prometheus · CloudWatch', 'OTel', '+ Elasticsearch optional'], raw: true, delay: 1.15, size: 11}));
+
+  // Elastic nightshift
+  const C = 88;
+  sc.rect({x: 0, y: 0, w: C, d: C, z: 0, delay: .35});
+  const pink = sc.box({x: 0, y: 0, w: C, d: C, h: C, z: 34, c: 'pink', delay: .5, drop: 90, float: 4, floatSpeed: 1.2, order: 5000});
+  sc.label({at: [C, 0, 34 + C], side: 'r', len: 22, title: 'Elastic nightshift', sub: 'AI SRE', raw: true, delay: 1.2});
+  sc.run();
+
+  bgLbl.forEach(l => l.g.setAttribute('data-d', '3'));
+  bg.forEach(b => b.boxes.forEach(x => { x.g.setAttribute('data-d', '3'); if (x.sh) x.sh.setAttribute('data-d', '3'); }));
+  const cubeTop = P(C / 2, C / 2, 34 + C), cubeIn = P(C / 2, C, 34 + C / 2), [ccx, ccy] = P(C / 2, C / 2, 34 + C / 2);
+  const links = bg.map(b => { const d = `M${cubeTop[0]},${cubeTop[1]} Q${(cubeTop[0] + b.top[0]) / 2},${Math.min(cubeTop[1], b.top[1]) - 40} ${b.top[0]},${b.top[1]}`;
+    const p = mk('path', {d, fill: 'none', stroke: '#98A2B3', 'stroke-width': 1, 'stroke-dasharray': '2 4'}, ov); p.setAttribute('data-d', '3'); return {p, L: p.getTotalLength(), pk: [0, 1].map(() => { const r = mk('rect', {width: 6, height: 6, opacity: 0}, ov); r.setAttribute('data-d', '3'); return r; })}; });
+
+  const srcs = [0, 1, 2, 3].map(i => document.getElementById('s' + i));
+  const paths = srcs.map((e, i) => { const y = 318 + 34 + i * 60 + 24, a = [264, y], b = [cubeIn[0] - 6, cubeIn[1]];
+    const d = `M${a[0]},${a[1]} C${a[0] + 120},${a[1]} ${b[0] - 130},${b[1]} ${b[0]},${b[1]}`;
+    const p = mk('path', {d, fill: 'none', stroke: '#D3DAE6', 'stroke-width': 1.2}, ov); return {p, L: p.getTotalLength()}; });
+  const tok = mk('g', {opacity: 0}, ov), S = 9;
+  mk('ellipse', {cx: 0, cy: 0, rx: 20, ry: 20, fill: '#E0352B', opacity: .18}, tok);
+  mk('polygon', {points: `0,${-S} ${S * .866},${-S / 2} 0,0 ${-S * .866},${-S / 2}`, fill: '#FFD9D4', stroke: '#1D1E24', 'stroke-width': .8}, tok);
+  mk('polygon', {points: `${-S * .866},${-S / 2} 0,0 0,${S} ${-S * .866},${S / 2}`, fill: '#E0352B', stroke: '#1D1E24', 'stroke-width': .8}, tok);
+  mk('polygon', {points: `0,0 ${S * .866},${-S / 2} ${S * .866},${S / 2} 0,${S}`, fill: '#8F1D16', stroke: '#1D1E24', 'stroke-width': .8}, tok);
+  const ring = mk('ellipse', {fill: 'none', stroke: '#F04E98', 'stroke-width': 1.8, opacity: 0}, ov);
+
+  // deterministic schedule: alert k fires at T(k), arrives FLY later, investigation takes INV
+  const T = k => .9 + k * 2.3, SRC = [0, 2, 1, 3, 0, 3, 2, 1], FLY = .6, INV = 1.8;
+  const INC = ['checkout-api · high error rate', 'payment-svc · p99 latency', 'cart-svc · pod restarts', 'search-api · 5xx spike'];
+  const NAME = ['PagerDuty', 'Alertmanager', 'Opsgenie', 'Webhook'];
+  const cardsEl = document.getElementById('cards'); let key = '';
+  pink.onFrame = (t, it) => {
+    const tt = t + skip, n = Math.floor((tt - .9 - FLY) / 2.3), a = n >= 0 ? tt - (T(n) + FLY) : 9;
+    const m = /translate\(0,([-\d.]+)\)/.exec(it.g.getAttribute('transform') || ''), fy = m ? +m[1] : 0;
+    const hop = a < 1 ? -12 * Math.exp(-a * 5) * Math.abs(Math.sin(a * 11)) : 0, s2 = a < 1 ? 1 + .09 * Math.exp(-a * 5) * Math.cos(a * 16) : 1;
+    it.g.setAttribute('transform', `translate(0,${(fy + hop).toFixed(2)}) translate(${ccx},${ccy}) scale(${s2.toFixed(3)}) translate(${-ccx},${-ccy})`);
+  };
+  EW.loop(t0 => {
+    const t = t0 + skip;
+    const f = Math.floor((t - .9) / 2.3), fa = f >= 0 ? t - T(f) : -1, si = f >= 0 ? SRC[f % 8] : -1;
+    const hot = i => i === si && fa >= 0 && fa < FLY + .25;
+    srcs.forEach((e, i) => e.classList.toggle('fire', hot(i)));
+    if (fa >= 0 && fa < FLY){ const u = EW.ease(fa / FLY), q = paths[si].p.getPointAtLength(u * paths[si].L);
+      tok.setAttribute('transform', `translate(${q.x.toFixed(1)},${q.y.toFixed(1)})`); tok.setAttribute('opacity', 1); }
+    else tok.setAttribute('opacity', 0);
+    paths.forEach((p, i) => p.p.setAttribute('stroke', hot(i) ? '#E0352B' : '#D3DAE6'));
+    const n = Math.floor((t - .9 - FLY) / 2.3), a = n >= 0 ? t - (T(n) + FLY) : -1;
+    ring.setAttribute('cx', ccx); ring.setAttribute('cy', ccy); ring.setAttribute('rx', 50 + Math.max(0, a) * 110); ring.setAttribute('ry', 30 + Math.max(0, a) * 66);
+    ring.setAttribute('opacity', a >= 0 && a < .6 ? (1 - a / .6).toFixed(2) : 0);
+    const inv = a >= 0 && a < INV;
+    bg.forEach(b => b.boxes.forEach(x => { x.op = inv ? .95 : .5; }));
+    links.forEach(l => { l.p.setAttribute('stroke', inv ? '#F04E98' : '#98A2B3');
+      l.pk.forEach((r, j) => { const k = (a - .15 - j * .25) / .7; if (!inv || k < 0 || k > 2){ r.setAttribute('opacity', 0); return; }
+        const u = k < 1 ? k : 2 - k, q = l.p.getPointAtLength(u * l.L); r.setAttribute('x', q.x - 3); r.setAttribute('y', q.y - 3);
+        r.setAttribute('fill', k < 1 ? '#F04E98' : '#0B64DD'); r.setAttribute('opacity', 1); }); });
+    const ks = []; for (let k = Math.max(0, n - 2); k <= n; k++) ks.push(k);
+    ks.reverse();
+    const nk = ks.map(k => k + (t - (T(k) + FLY) > INV ? 'd' : 'i')).join(',');
+    if (nk !== key){ key = nk;
+      cardsEl.innerHTML = ks.map(k => { const done = t - (T(k) + FLY) > INV;
+        return `<div class="card${done ? ' ok' : ''}" style="${k === n && !done ? '' : 'animation:none'}"><div class="st"><i></i>${done ? '✓ root cause ready' : '▶ investigating'}</div><div class="ln">${NAME[SRC[k % 8]]} INC-${4412 + k}<br><span>${INC[k % 4]}</span></div></div>`; }).join(''); }
+  });
+})();
+</script>
+</body>
+</html>

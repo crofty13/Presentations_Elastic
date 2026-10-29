@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EDOT: Universal OTel Collection</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .top{display:flex;justify-content:space-between;align-items:flex-start}
+  h1{font-size:44px;letter-spacing:-1.6px}
+  .pills{display:flex;gap:8px;margin-top:4px}
+  .ctx{position:absolute;z-index:3;left:72px;top:176px;width:262px}
+  .ctx p{font-size:14px;line-height:1.5;color:var(--char)}
+  .ctx p b{color:var(--ink);font-weight:600}
+  .tc{border-top:1px solid var(--line);padding:10px 0;display:grid;grid-template-columns:12px 1fr;gap:10px}
+  .tc:first-of-type{margin-top:16px}
+  .tc i{width:9px;height:9px;margin-top:4px}
+  .tc b{display:block;font:600 13px/1.3 var(--sans)}
+  .tc span{display:block;font-size:12px;line-height:1.4;color:var(--grey);margin-top:2px}
+  .one{margin-top:18px;border-top:1px solid var(--ink);padding-top:12px;display:flex;gap:14px;align-items:center}
+  .one .stat{font-size:62px}
+  .one div{font-size:12.5px;line-height:1.4;color:var(--char)}
+  .one div b{display:block;color:var(--ink);font-size:13.5px}
+  .zone{position:absolute;z-index:1;border:1px dashed var(--ink)}
+  .zl{position:absolute;z-index:3;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:#fff;padding:0 6px}
+  .zh{position:absolute;z-index:3;top:180px;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey)}
+  .n{position:absolute;z-index:3;background:#fff;border:1px solid var(--ink);padding:9px 11px}
+  .n .tag{display:block;font-size:10.5px}
+  .n b{display:block;font:600 13px/1.25 var(--sans)}
+  .n span{display:block;font:400 9.5px/1.35 var(--mono);color:var(--grey);margin-top:3px;letter-spacing:.02em}
+  .n .ch{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+  .n .chip{font-size:9px;padding:2px 5px}
+  .n.src{border-color:var(--line);background:var(--bg)}
+  .n.hl{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue-l)}
+  .or{position:absolute;z-index:3;font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey)}
+  .ottl{position:absolute;z-index:3;font:600 10px var(--mono);letter-spacing:.06em;color:#fff;background:var(--ink);padding:3px 7px}
+  #wires{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:2;pointer-events:none}
+  #eo{left:900px;top:446px;width:320px;height:190px}
+</style>
+</head>
+<body data-foot="EDOT · Universal OTel collection">
+<div class="z top">
+  <div><div class="eyebrow in1">Elastic Observability · OpenTelemetry</div><h1 class="in2">Collect <span class="b">everything, from everywhere.</span></h1></div>
+  <div class="pills in2"><span class="chip on">#1 OTel Contributor</span><span class="chip on">Managed Ingest</span></div>
+</div>
+<div class="ctx">
+  <p class="in3">Cloud, on-prem, or mixed: <b>EDOT meets your data wherever it lives</b> and gives you the flexibility to collect, process, or forward it at any scale.</p>
+  <div class="tc in4"><i style="background:var(--blue)"></i><div><b>Cloud Forwarder &amp; Managed Integrations</b><span>EDOT as a {function}: no infra, triggers on cloud events</span></div></div>
+  <div class="tc in4"><i style="background:var(--teal-d)"></i><div><b>EDOT Collector + Gateway</b><span>Edge collection with OTTL pipeline processing on-prem</span></div></div>
+  <div class="tc in4"><i style="background:var(--pink)"></i><div><b>Managed Ingest</b><span>Send direct: Elastic scales the ingest layer for you</span></div></div>
+  <div class="one in5"><span class="stat">#1</span><div><b>Top OTel contributor</b>We build the standard we support</div></div>
+</div>
+
+<div class="zh" style="left:362px">Sources</div>
+<div class="zh" style="left:522px">Collection &amp; Processing · Customer Environment</div>
+<div class="zh" style="left:908px">Elastic Platform</div>
+<div class="zone in2" style="left:352px;top:200px;width:516px;height:372px"></div>
+<div class="zl in2" style="left:366px;top:565px">Customer Environment</div>
+<div class="zone in2" style="left:892px;top:200px;width:316px;height:458px;border-color:var(--blue)"></div>
+<div class="zl in2" style="left:906px;top:651px;color:var(--blue)">Elastic Cloud</div>
+
+<div class="n src in3" style="left:364px;top:214px;width:140px;height:92px"><span class="tag">Cloud</span><div class="ch"><span class="chip">aws</span><span class="chip">Azure</span><span class="chip">GCP</span></div></div>
+<div class="n src in3" style="left:364px;top:322px;width:140px;height:112px"><span class="tag">On-Premise</span><div class="ch"><span class="chip">Kubernetes</span><span class="chip">Linux</span><span class="chip">Windows</span><span class="chip">Enterprise Apps</span></div></div>
+<div class="n src in3" style="left:364px;top:450px;width:140px;height:106px"><span class="tag">Any OTel</span><div class="ch"><span class="chip">SDKs</span><span class="chip">Libraries</span><span class="chip">Agents</span><span class="chip">3rd-party</span></div></div>
+
+<div class="n in4" style="left:522px;top:214px;width:158px;min-height:76px"><b>EDOT Cloud Forwarder</b><span>EDOT Collector as a {function} · serverless trigger</span></div>
+<div class="or in4" style="left:686px;top:250px">or</div>
+<div class="n in4" style="left:706px;top:214px;width:152px;min-height:76px"><b>Managed Integrations</b><span>no agent installed · API-based collection</span></div>
+<div class="n in4" style="left:522px;top:340px;width:158px;min-height:76px"><b>EDOT Collector</b><span>on-host · sidecar · DaemonSet</span></div>
+<div class="n in4" style="left:706px;top:340px;width:152px;min-height:76px"><b>EDOT Gateway</b><span>RECV → PROC → EXPORT · multi-route</span></div>
+<div class="ottl in4" style="left:748px;top:326px">OTTL</div>
+<div class="n in4" style="left:522px;top:462px;width:158px;min-height:76px"><b>Direct OTLP</b><span>any OTel SDK or agent · native protocol</span></div>
+<div class="or in4" style="left:694px;top:482px">no collector needed</div>
+
+<div class="n hl in5" style="left:908px;top:250px;width:284px;height:112px"><span class="tag" style="color:var(--blue)">OTLP Endpoint</span><b style="margin-top:4px">Single entry for all OTel signals</b><div class="ch"><span class="chip">Logs</span><span class="chip">Metrics</span><span class="chip">Traces</span><span class="chip">Profiles</span></div></div>
+<div class="n in5" style="left:908px;top:386px;width:284px;height:66px"><span class="tag">Managed Ingest</span><span style="font:400 12px/1.4 var(--sans);color:var(--char)">Elastic scales the pipeline for you: no infra to manage</span></div>
+<div class="tag in6" style="position:absolute;z-index:3;left:974px;top:628px">Elastic Observability</div>
+<svg id="eo" class="iso" viewBox="0 0 320 190"></svg>
+<svg id="wires" viewBox="0 0 1280 720"></svg>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const W = document.getElementById('wires');
+  const paths = [
+    'M504,260 H522', 'M504,378 H522', 'M504,503 H522',
+    'M680,378 H706',
+    'M858,260 C880,260 884,290 908,290', 'M858,378 C880,378 884,320 908,320', 'M680,504 C800,504 860,504 872,420 C880,360 890,340 908,340',
+    'M1050,362 V386', 'M1050,452 V476'
+  ].map((d, i) => { const p = EW.el('path', {d, fill: 'none', stroke: '#1D1E24', 'stroke-width': 1}, W); const L = p.getTotalLength(); p.setAttribute('stroke-dasharray', L); p.setAttribute('stroke-dashoffset', L); return {p, L, i}; });
+  const pk = [];
+  paths.forEach(o => { for (let k = 0; k < (o.L > 60 ? 3 : 1); k++) pk.push({o, u: k / 3, r: EW.el('rect', {width: 6, height: 6, fill: o.i >= 7 ? '#F04E98' : o.i >= 4 ? '#0B64DD' : '#02BCB7', opacity: 0}, W)}); });
+  EW.loop(t => {
+    paths.forEach(o => o.p.setAttribute('stroke-dashoffset', o.L * (1 - EW.ease((t - .6 - o.i * .06) / .6))));
+    const on = EW.ease((t - 1.4) / .4);
+    pk.forEach(k => { const u = (k.u + t * 45 / k.o.L) % 1, q = k.o.p.getPointAtLength(u * k.o.L); k.r.setAttribute('x', q.x - 3); k.r.setAttribute('y', q.y - 3); k.r.setAttribute('opacity', on); });
+  });
+  const sc = EW.iso(document.getElementById('eo'), {ox: 112, oy: 70, s: .6});
+  sc.box({x: 0, y: 0, w: 160, d: 160, h: 26, c: 'blue', delay: .9, drop: 90});
+  sc.box({x: 40, y: 40, w: 80, d: 80, h: 80, z: 26, c: 'pink', delay: 1.1, drop: 70});
+  sc.run();
+})();
+</script>
+</body>
+</html>

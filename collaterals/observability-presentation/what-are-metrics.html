@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>What Are Metrics?</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:50px}
+  .sub{font-size:17px}
+  .kpis{position:absolute;right:72px;top:62px;display:flex;flex-direction:column;gap:10px;width:360px;z-index:2}
+  .kpi{display:grid;grid-template-columns:136px 1fr;gap:12px;align-items:center;border-top:1px solid var(--ink);padding-top:8px}
+  .kpi b{font:500 44px/1 var(--sans);letter-spacing:-2px;color:var(--blue)}
+  .kpi span{font-size:12px;line-height:1.4;color:var(--char)}
+  .types{position:absolute;left:72px;right:72px;top:272px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;z-index:2}
+  .ty{background:#fff;border:1px solid var(--line)}
+  .ty .hd{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .ty .hd .k{font:600 10.5px var(--mono);letter-spacing:.08em;color:#fff;background:var(--c);padding:3px 8px}
+  .ty .hd code{font:600 12.5px var(--mono);color:var(--ink)}
+  .ty canvas{display:block;width:100%;height:190px;background:linear-gradient(var(--bg),#fff)}
+  .ty p{padding:12px 16px 14px;font-size:13px;line-height:1.45;color:var(--grey);border-top:1px solid var(--line)}
+  .ty p b{color:var(--ink);font-weight:600}
+  .bottom{position:absolute;left:72px;right:72px;top:594px;border-top:1px solid var(--ink);padding-top:12px;font-size:15px;color:var(--char);z-index:2}
+  .bottom code{font:600 14px var(--mono);color:#fff;background:var(--blue);padding:2px 7px}
+  .types,.bottom{transition:top .6s cubic-bezier(.2,.7,.2,1)}
+  h1{transition:font-size .6s cubic-bezier(.2,.7,.2,1),margin-top .6s cubic-bezier(.2,.7,.2,1)}
+  .dxrow{position:absolute;left:72px;right:72px;top:592px;display:grid;grid-template-columns:1fr 1fr;gap:24px;z-index:2}
+  /* density 1: the line itself */
+  html[data-density="1"] h1{font-size:76px;letter-spacing:-2.6px;margin-top:190px}
+  /* density 2: headline and the three primitives */
+  html[data-density="2"] .types{top:250px}
+  html[data-density="2"] .ty canvas{height:240px}
+  /* density 4-5: shorter charts, room for context */
+  html[data-density="4"] .ty canvas,html[data-density="5"] .ty canvas{height:128px}
+  html[data-density="4"] .bottom,html[data-density="5"] .bottom{top:536px;font-size:14px}
+</style>
+</head>
+<body data-foot="Foundations · Metrics">
+<div class="z" style="max-width:760px">
+  <div class="eyebrow in1" data-d="3"><b>Foundations</b></div>
+  <h1 class="in2">Metrics are what <span class="b">wake engineers up</span> at 3am.</h1>
+  <p class="sub in3" data-d="3">The highest-frequency signal in observability, and the primary source of alerts that drive incident response.</p>
+</div>
+<div class="kpis" data-d="3">
+  <div class="kpi in3"><b>#1</b><span>Most widely used signal type in observability, and the primary driver of incident alerts</span></div>
+  <div class="kpi in4"><b>20M+</b><span>PromQL deployments: the de facto query language. Elastic speaks it natively.</span></div>
+</div>
+<div class="types" data-d="2">
+  <div class="ty in3" style="--c:var(--blue)"><div class="hd"><span class="k">COUNTER</span><code>http_requests_total</code></div><canvas id="c0"></canvas><p><b>Monotonically increasing.</b> Only ever goes up. Rate of change reveals throughput.</p></div>
+  <div class="ty in4" style="--c:var(--pink)"><div class="hd"><span class="k">GAUGE</span><code>cpu_usage_percent</code></div><canvas id="c1"></canvas><p><b>Point-in-time snapshot.</b> Can go up or down: memory, queue depth, active connections.</p></div>
+  <div class="ty in5" style="--c:var(--teal-d)"><div class="hd"><span class="k">HISTOGRAM</span><code>request_duration_seconds</code></div><canvas id="c2"></canvas><p><b>Distribution across buckets.</b> Reveals p50, p95, p99 latency from a single metric.</p></div>
+</div>
+<div class="bottom in6" data-d="3">Alerts fire on metrics thresholds. Dashboards visualize metrics trends. <code>PromQL</code> is the query language that makes it all work. 20M+ deployments speak it natively, and so does Elastic.</div>
+<div class="dxrow">
+  <div class="dx" data-d="4"><span class="dxk">Three simple types</span><p>Counters only go up, gauges snapshot a point in time, histograms give you p50, p95 and p99 from one metric. <b>Every alert and every dashboard runs on these three.</b></p></div>
+  <div class="dx" data-d="5"><span class="dxk">Hold onto that</span><p>These primitives have not changed since Prometheus. What changes next is the volume: AI multiplies how many series each of them produces.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const mk = i => { const e = document.getElementById('c' + i), w = e.clientWidth, h = e.clientHeight; e.width = w * 2; e.height = h * 2; const c = e.getContext('2d'); c.scale(2, 2); return {c, w, h}; };
+  let cv = [0, 1, 2].map(mk);
+  const resize = () => { cv = [0, 1, 2].map(mk); };
+  addEventListener('fslides:density', () => { setTimeout(resize, 0); setTimeout(resize, 650); });
+  const mono = s => `600 ${s}px "IBM Plex Mono", monospace`;
+  function grid({c, w, h}){ c.strokeStyle = '#DDE3EC'; c.lineWidth = 1; for (let i = 1; i < 4; i++){ const y = Math.round(h * i / 4) + .5; c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke(); } }
+  EW.loop(t => {
+    const k = EW.ease((t - .5) / 1.2);
+    { const {c, w, h} = cv[0]; c.clearRect(0, 0, w, h); grid(cv[0]);
+      c.beginPath(); let v = 0; const N = 40; for (let i = 0; i <= N * k; i++){ v += 1 + ((i * 37) % 7) / 3; const x = 16 + (w - 32) * i / N, y = h - 20 - v * (h - 44) / 118; i ? (c.lineTo(x, c._py), c.lineTo(x, y)) : c.moveTo(x, y); c._py = y; }
+      c.strokeStyle = '#0B64DD'; c.lineWidth = 2; c.stroke();
+      c.font = mono(10); c.fillStyle = '#0B64DD'; c.fillText('↑ ONLY INCREASES', 16, 22); }
+    { const {c, w, h} = cv[1]; c.clearRect(0, 0, w, h); grid(cv[1]); const th = h * .36;
+      c.setLineDash([4, 4]); c.strokeStyle = '#FF7E62'; c.beginPath(); c.moveTo(0, th); c.lineTo(w, th); c.stroke(); c.setLineDash([]);
+      c.font = mono(10); c.fillStyle = '#FF7E62'; c.textAlign = 'right'; c.fillText('ALERT THRESHOLD', w - 12, th - 7); c.textAlign = 'left';
+      c.beginPath(); const N = 120; let peak = null;
+      for (let i = 0; i <= N * k; i++){ const u = i / N, x = 12 + (w - 24) * u, y = h * .6 - Math.sin(u * 9 + t * .6) * h * .26 - Math.sin(u * 23 + t) * h * .05; i ? c.lineTo(x, y) : c.moveTo(x, y); if (y < th && !peak) peak = [x, y]; }
+      c.strokeStyle = '#F04E98'; c.lineWidth = 2; c.stroke();
+      if (peak){ c.fillStyle = '#FF7E62'; c.beginPath(); c.arc(peak[0], peak[1], 5, 0, 7); c.fill(); c.strokeStyle = 'rgba(255,126,98,.35)'; c.lineWidth = 1; c.beginPath(); c.arc(peak[0], peak[1], 9 + (t * 8) % 8, 0, 7); c.stroke(); } }
+    { const {c, w, h} = cv[2]; c.clearRect(0, 0, w, h); grid(cv[2]);
+      const b = [6, 18, 44, 70, 52, 30, 16, 8, 4, 2], bw = (w - 40) / b.length, mk = {3: 'p50', 6: 'p95', 8: 'p99'};
+      b.forEach((v, i) => { const kk = EW.ease((t - .5 - i * .06) / .6), bh = v / 70 * (h - 50) * kk, x = 20 + i * bw;
+        c.fillStyle = i === 3 ? '#02BCB7' : i >= 6 ? '#48EFCF' : '#DDE3EC'; c.fillRect(x + 3, h - 18 - bh, bw - 6, bh);
+        c.strokeStyle = '#1D1E24'; c.lineWidth = 1; if (i === 3 || i >= 6) c.strokeRect(x + 3.5, h - 18 - bh + .5, bw - 7, bh);
+        if (mk[i] && kk > .9){ c.font = mono(10); c.fillStyle = '#1D1E24'; c.textAlign = 'center'; c.fillText(mk[i].toUpperCase(), x + bw / 2, h - 24 - bh); c.textAlign = 'left'; } });
+      c.fillStyle = '#1D1E24'; c.fillRect(16, h - 18, w - 32, 1); }
+  });
+})();
+</script>
+</body>
+</html>

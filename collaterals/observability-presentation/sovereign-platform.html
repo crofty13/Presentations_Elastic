@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Search AI, Your Way</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:38px;letter-spacing:-1.3px;max-width:1140px;white-space:nowrap}
+  #sc{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:1;overflow:visible}
+  #sc text{font-family:var(--mono)}
+  .env{position:absolute;z-index:1;left:72px;top:164px;width:788px;height:440px;border:1px dashed var(--ink);opacity:0;transition:opacity .6s}
+  .env.on{opacity:1}
+  .env span{position:absolute;left:14px;top:-8px;background:#fff;padding:0 8px;font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
+  .win{position:absolute;z-index:3;top:184px;width:236px;border:1px solid var(--ink);background:#fff;box-shadow:6px 6px 0 var(--c);opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
+  .win.on{opacity:1;transform:none}
+  .win .bar{height:24px;border-bottom:1px solid var(--ink);display:flex;align-items:center;gap:4px;padding:0 9px;font:600 9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--char);white-space:nowrap}
+  .win .bar i{width:7px;height:7px;border:1px solid var(--ink);border-radius:50%;flex:none}
+  .win .bar span{margin-left:6px}
+  .win .bar em{margin-left:auto;font-style:normal;color:var(--c)}
+  .win .bar em.risk{color:#E0352B}
+  .win canvas{display:block;width:234px;height:112px}
+  .pns{position:absolute;z-index:3;left:896px;right:72px;top:176px;display:flex;flex-direction:column;gap:22px}
+  .pn{border-left:2px solid var(--c);padding:2px 0 2px 14px;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+  .pn.on{opacity:1;transform:none}
+  .pn .k{display:block;font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--c);margin-bottom:5px}
+  .pn h3{font:600 19px/1.2 var(--sans);letter-spacing:-.5px;color:var(--ink);margin-bottom:5px}
+  .pn p{font-size:14px;line-height:1.45;color:var(--char)}
+  .pn b{color:var(--ink);font-weight:600}
+  .punch{position:absolute;z-index:3;left:72px;right:72px;top:626px;border-top:1px solid var(--ink);padding-top:12px;font-size:19px;color:var(--char);opacity:0;transition:opacity .6s}
+  .punch b{color:var(--ink);font-weight:600}
+  .dxs{position:absolute;z-index:3;left:896px;right:72px;top:492px}
+  .env,#sc,.win{transition:translate .6s cubic-bezier(.2,.7,.2,1),opacity .5s,transform .5s}
+  html[data-density="1"] .env,html[data-density="1"] #sc,html[data-density="1"] .win{translate:210px 10px}
+  html[data-density="4"] .pns,html[data-density="5"] .pns{gap:12px}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">Elastic · Search AI platform</div>
+  <h1 class="in2">Bring AI to your data. <span class="b">Run every workload where it lives.</span></h1>
+</div>
+<div class="env" id="env"><span>Your environment · any cloud, on-prem or air-gapped</span></div>
+<svg id="sc" viewBox="0 0 1280 720"></svg>
+<div class="win" id="w0" style="left:92px;--c:var(--pink)"><div class="bar"><i></i><i></i><i></i><span>AI agent</span><em>&#9679; Reading</em></div><canvas id="c0"></canvas></div>
+<div class="win" id="w1" style="left:348px;--c:var(--blue)"><div class="bar"><i></i><i></i><i></i><span>Dashboards</span><em id="s1">&#9679; Building</em></div><canvas id="c1"></canvas></div>
+<div class="win" id="w2" style="left:604px;--c:var(--orange)"><div class="bar"><i></i><i></i><i></i><span>Security</span><em id="s2">&#9679; Scanning</em></div><canvas id="c2"></canvas></div>
+<div class="pns" data-d="2">
+  <div class="pn" id="n0" style="--c:var(--ink)"><span class="k">Sovereignty</span><h3>Complete data and service sovereignty</h3><p data-d="3">Keep your most crucial data secure, in an environment you control.</p></div>
+  <div class="pn" id="n1" style="--c:var(--pink)"><span class="k">Agentic AI</span><h3>Agentic AI, your way</h3><p data-d="3">Run any model, <b>including local ones</b>.</p></div>
+  <div class="pn" id="n2" style="--c:var(--blue)"><span class="k">Cost</span><h3>Predictable cost structure</h3><p data-d="3">Plan the year's spend up front, with no mid-year surprises.</p></div>
+</div>
+<div class="punch" data-d="2" id="punch">AI, dashboards and security, all next to your data. <b>Nothing has to leave.</b></div>
+<div class="dxs">
+  <div class="dx" data-d="4"><span class="dxk">One platform, any deployment</span><p>Elastic Cloud, your own cloud account, on-premises or air-gapped: the same platform runs all of it.</p><p data-d="5">Use a hosted model, or <b>a local one that never leaves your network</b>.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const svg = document.getElementById('sc'), $ = id => document.getElementById(id);
+  const sc = EW.iso(svg, {ox: 466, oy: 390, s: .62}), P = sc.P;
+
+  // Sources: two data centers and two cloud accounts around the platform.
+  const rack = (x, y, d0) => [0, 1, 2].forEach(j => sc.box({x, y, w: 56, d: 56, h: 14, z: j * 19, c: 'slate', delay: d0 + j * .08, drop: 70, order: j * 2}));
+  const cloud = (x, y, d0) => {
+    sc.box({x, y, w: 64, d: 64, h: 14, c: 'blue', delay: d0, drop: 70});
+    sc.box({x: x + 10, y: y + 10, w: 20, d: 20, h: 18, z: 14, c: 'white', delay: d0 + .15, drop: 50, order: 3});
+    sc.box({x: x + 36, y: y + 34, w: 20, d: 20, h: 26, z: 14, c: 'white', delay: d0 + .2, drop: 50, order: 3});
+  };
+  rack(-88, 232, .6); cloud(28, 298, .7); cloud(298, 28, .8); rack(232, -88, .9);
+  sc.label({at: [-88, 288, 30], side: 'l', len: 22, title: 'Data center 1', size: 10.5, delay: 1.1});
+  sc.label({at: [28, 362, 7], side: 'l', len: 30, title: 'Cloud A', size: 10.5, delay: 1.15});
+  sc.label({at: [362, 60, 7], side: 'r', len: 30, title: 'Cloud B', size: 10.5, delay: 1.2});
+  sc.label({at: [288, -60, 30], side: 'r', len: 22, title: 'Data center 2', size: 10.5, delay: 1.25});
+
+  // The Search AI platform, as on the cover: Elasticsearch slab, signal bars, the Streams cube.
+  sc.box({x: 0, y: 0, w: 240, d: 240, h: 46, c: 'blue', delay: .3, drop: 110, order: -1000});
+  [64, 54, 44, 34, 24].forEach((h, i) => sc.box({x: 20 + i * 31, y: 135, w: 23, d: 90, h, z: 46, c: 'slate', stroke: false, delay: .55 + i * .06, drop: 80, order: 1}));
+  sc.box({x: 170, y: 24, w: 52, d: 52, h: 44, z: 46, c: 'teal', delay: .85, drop: 80});
+  sc.order();
+
+  const fx = EW.el('g', {}, svg);
+  const lbl = (x, y, txt, wgt, col) => { const e = EW.el('text', {x, y, 'text-anchor': 'middle', 'font-size': wgt > 500 ? 11 : 10.5, 'font-weight': wgt, fill: col, 'letter-spacing': '.08em', stroke: '#fff', 'stroke-width': 5, 'paint-order': 'stroke', opacity: 0}, fx); e.textContent = txt; return e; };
+  const pb = P(240, 240, 0), pl1 = lbl(pb[0], pb[1] + 26, 'Search AI platform', 600, '#1D1E24'), pl2 = lbl(pb[0], pb[1] + 41, 'ELASTICSEARCH · ONE DATA LAYER', 400, '#343741');
+  pl1.textContent = 'SEARCH AI PLATFORM';
+
+  // Connectors from the platform up into each window.
+  const bez = (a, c, b, u) => [0, 1].map(k => (1 - u) * (1 - u) * a[k] + 2 * (1 - u) * u * c[k] + u * u * b[k]);
+  const mid = (a, b, lift) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - lift];
+  const UP = [P(20, 190, 50), P(40, 40, 50), P(190, 20, 50)], WX = [210, 466, 722], WY = 322;
+  const conns = WX.map((x, i) => { const up = UP[i], b = [x, WY], c = mid(up, b, 0); const pth = EW.el('path', {d: `M${up}Q${c} ${b}`, fill: 'none', stroke: 'rgba(29,30,36,.55)', 'stroke-width': 1, 'stroke-dasharray': '3 4', opacity: 0}, fx); return {a: up, c, b, pth}; });
+
+  // Tiny cubes are data: raw is multicolored, processed is blue.
+  const cube = (c, q) => {
+    const F = EW.FACES[c], g = EW.el('g', {opacity: 0}, fx), a = .866 * q, h = .5 * q, st = {stroke: '#1D1E24', 'stroke-width': .6, 'stroke-linejoin': 'round'};
+    EW.el('polygon', Object.assign({points: `${-a},${-h} 0,0 0,${q} ${-a},${h}`, fill: F.left}, st), g);
+    EW.el('polygon', Object.assign({points: `0,0 ${a},${-h} ${a},${h} 0,${q}`, fill: F.right}, st), g);
+    EW.el('polygon', Object.assign({points: `0,${-q} ${a},${-h} 0,0 ${-a},${-h}`, fill: F.top}, st), g);
+    return g;
+  };
+  const RAW = ['teal', 'yellow', 'orange', 'blue'];
+  const flow = (a, b, c, start, T, N, cols) => ({a, b, c, start, T, N, items: Array.from({length: N}, (_, i) => cube(cols[(i + start * 10 | 0) % cols.length], 4.5))});
+  const raw = (a, b, lift, start) => flow(a, b, mid(a, b, lift), start, 1.6, 4, RAW);
+  const FL = [
+    raw(P(-60, 260, 62), P(30, 200, 50), 36, 1.3),
+    raw(P(60, 330, 46), P(90, 220, 50), 30, 1.4),
+    raw(P(330, 60, 46), P(220, 90, 50), 30, 1.5),
+    raw(P(260, -60, 62), P(200, 30, 50), 36, 1.6),
+    ...conns.map((k, i) => flow(k.a, k.b, k.c, 2.6 + i * .3, 1.3, 4, ['blue']))
+  ];
+
+  // Window 0: the AI reads a never-ending stream (abstract rows, a pink scan band).
+  const setup = id => { const cv = $(id), c = cv.getContext('2d'); cv.width = 468; cv.height = 224; c.scale(2, 2); return c; };
+  const W = 234, H = 112, c0 = setup('c0'), c1 = setup('c1'), c2 = setup('c2');
+  const fade = (c, y0, y1) => { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, Math.min(y0, y1), W, Math.abs(y1 - y0)); };
+  const rowSegs = r => { const R = EW.rand(r * 97 + 31); R(); R(); const segs = [], ind = R() < .3 ? 18 : 9, len = 90 + R() * 110, hot = R() < .16; let x = ind;
+    while (x < ind + len && x < W - 14){ const w = 7 + R() * 34; segs.push([x, Math.min(w, W - 10 - x), hot && R() < .35 ? 'o' : R() < .25 ? 'b' : 'g']); x += w + 5; } return segs; };
+  const drawFeed = s => {
+    const c = c0, BAND = H * .56; c.clearRect(0, 0, W, H);
+    c.fillStyle = 'rgba(240,78,152,.07)'; c.fillRect(0, BAND - 10, W, 20);
+    const r0 = Math.floor(s / 12);
+    for (let r = r0; r < r0 + H / 12 + 2; r++){ const y = r * 12 - s + 5, inB = Math.abs(y + 2 - BAND) < 9;
+      for (const [x, w, k] of rowSegs(r)){ c.fillStyle = k === 'o' ? '#FF7E62' : inB ? '#F04E98' : k === 'b' ? '#BFD5F5' : '#D3DAE6'; c.fillRect(x, y, w, 4.5); } }
+    c.fillStyle = '#F04E98'; c.fillRect(0, BAND, W, 1); fade(c, 0, 18); fade(c, H, H - 18);
+  };
+
+  // Window 1: four dashboard panels build one after another, then stay live.
+  const PW = (W - 22) / 2, PH = (H - 22) / 2, PAN = [[8, 8], [14 + PW, 8], [8, 14 + PH], [14 + PW, 14 + PH]];
+  const R1 = EW.rand(41); R1(); const BARS = Array.from({length: 7}, () => .25 + R1() * .75);
+  const wave = (i, t, ph) => .5 + .22 * Math.sin(i * .7 + t * .9 + ph) + .14 * Math.sin(i * 1.9 + ph * 2);
+  const drawDash = (t, T0) => {
+    const c = c1; c.clearRect(0, 0, W, H);
+    PAN.forEach(([x, y], i) => {
+      const k = EW.ease((t - T0 - i * .45) / .7); if (k <= 0) return;
+      c.strokeStyle = `rgba(211,218,230,${k})`; c.lineWidth = 1; c.strokeRect(x + .5, y + .5, PW, PH);
+      c.fillStyle = '#B5BFCE'; c.fillRect(x + 5, y + 5, 22 * k, 3);
+      const ix = x + 6, iy = y + 12, iw = PW - 12, ih = PH - 17, live = Math.max(0, t - T0 - 3);
+      if (i === 0 || i === 3){
+        const col = i === 0 ? '#0B64DD' : '#02BCB7', n = 24, m = Math.max(2, Math.round(n * k));
+        c.beginPath(); for (let j = 0; j < m; j++){ const px = ix + iw * j / (n - 1), py = iy + ih * (1 - wave(j, live, i * 2.3)); j ? c.lineTo(px, py) : c.moveTo(px, py); }
+        c.lineTo(ix + iw * (m - 1) / (n - 1), iy + ih); c.lineTo(ix, iy + ih); c.closePath();
+        c.fillStyle = i === 0 ? 'rgba(11,100,221,.12)' : 'rgba(72,239,207,.18)'; c.fill();
+        c.beginPath(); for (let j = 0; j < m; j++){ const px = ix + iw * j / (n - 1), py = iy + ih * (1 - wave(j, live, i * 2.3)); j ? c.lineTo(px, py) : c.moveTo(px, py); }
+        c.strokeStyle = col; c.lineWidth = 1.3; c.stroke();
+      } else if (i === 1){
+        const bw = iw / BARS.length;
+        BARS.forEach((v, j) => { const hh = ih * v * EW.ease((k - j * .08) / .5) * (1 + .06 * Math.sin(live * 1.3 + j)); c.fillStyle = j === 4 ? '#48EFCF' : '#0B64DD'; c.fillRect(ix + j * bw + 1.5, iy + ih - hh, bw - 3, hh); });
+      } else {
+        const cx = ix + ih / 2 + 4, cy = iy + ih / 2, r = ih / 2, seg = [[.45, '#0B64DD'], [.25, '#48EFCF'], [.18, '#FEC514'], [.12, '#DDE3EC']];
+        let a0 = -Math.PI / 2; c.lineWidth = 5;
+        seg.forEach(([f, col]) => { const a1 = a0 + Math.PI * 2 * f * k; c.strokeStyle = col; c.beginPath(); c.arc(cx, cy, r - 2.5, a0, a1); c.stroke(); a0 = a1; });
+        [0, 1, 2].forEach(j => { c.fillStyle = j ? '#D3DAE6' : '#B5BFCE'; c.fillRect(cx + r + 8, cy - 9 + j * 8, (34 - j * 8) * k, 3); });
+      }
+    });
+  };
+
+  // Window 2: a scan sweeps the inventory; each row is cleared or flagged, and risks stay highlighted.
+  const RISK = new Set([1, 4, 6]), NR = 8, RH = 12.5;
+  const drawScan = (t, T0) => {
+    const c = c2; c.clearRect(0, 0, W, H);
+    const sy = 6 + (H - 8) * Math.min(1, Math.max(0, (t - T0) / 3));
+    for (let r = 0; r < NR; r++){
+      const y = 6 + r * RH, done = sy > y + RH * .6, R = EW.rand(r * 53 + 7); R(); R();
+      if (done && RISK.has(r)){ c.fillStyle = 'rgba(224,53,43,.08)'; c.fillRect(2, y - 2, W - 4, RH - 1); c.fillStyle = '#E0352B'; c.fillRect(2, y - 2, 2, RH - 1); }
+      c.fillStyle = '#B5BFCE'; c.fillRect(10, y + 1, 6, 6);
+      let x = 22; for (let j = 0; j < 3; j++){ const w = 18 + R() * 46; c.fillStyle = done && RISK.has(r) && j === 0 ? '#E0352B' : '#D3DAE6'; c.fillRect(x, y + 2, w, 4); x += w + 6; }
+      if (done){
+        if (RISK.has(r)){ c.fillStyle = '#E0352B'; c.fillRect(W - 18, y, 8, 8); }
+        else { c.strokeStyle = '#02BCB7'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(W - 19, y + 4); c.lineTo(W - 16, y + 7); c.lineTo(W - 10, y + 1); c.stroke(); }
+      }
+    }
+    if (t - T0 < 3){ c.fillStyle = 'rgba(255,126,98,.12)'; c.fillRect(0, sy - 8, W, 8); c.fillStyle = '#FF7E62'; c.fillRect(0, sy, W, 1); }
+  };
+
+  const skip = navigator.webdriver ? 30 : 0, ease = EW.ease, TW = [2.4, 2.7, 3.0];
+  EW.loop(t0 => {
+    const t = t0 + skip;
+    sc.frame(t);
+    $('env').classList.toggle('on', t > .15);
+    [pl1, pl2].forEach(e => e.setAttribute('opacity', ease((t - 1.0) / .5)));
+    conns.forEach((k, i) => k.pth.setAttribute('opacity', ease((t - 2.2 - i * .3) / .4)));
+    TW.forEach((T, i) => $('w' + i).classList.toggle('on', t > T));
+    drawFeed(Math.max(0, t - TW[0]) * 30);
+    drawDash(t, TW[1] + .2);
+    drawScan(t, TW[2] + .3);
+    $('s1').textContent = t > TW[1] + .2 + 2.1 ? '● Live' : '● Building';
+    const scanned = t > TW[2] + 3.3; $('s2').textContent = scanned ? '● 3 risks found' : '● Scanning'; $('s2').classList.toggle('risk', scanned);
+    FL.forEach(f => f.items.forEach((g, i) => {
+      const ph = (t - f.start) / f.T - i / f.N;
+      if (ph < 0){ g.setAttribute('opacity', 0); return; }
+      const u = ph % 1, [x, y] = bez(f.a, f.c, f.b, u), o = Math.max(0, Math.min(1, u / .1, (1 - u) / .12));
+      g.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`); g.setAttribute('opacity', o.toFixed(2));
+    }));
+    $('n0').classList.toggle('on', t > 1.2);
+    $('n1').classList.toggle('on', t > TW[0]);
+    $('n2').classList.toggle('on', t > 4.2);
+    $('punch').style.opacity = t > 6.6 ? 1 : 0;
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Metrics × AI · B</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:44px;letter-spacing:-1.5px}
+  .sub{font-size:15.5px;max-width:880px;margin-top:10px}
+  #fx{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:1;overflow:visible}
+  .tagl{position:absolute;z-index:3;font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey)}
+  .nd{position:absolute;z-index:3;left:72px;top:448px;width:320px;font:500 13px/1.45 var(--mono);color:var(--ink)}
+  .nd::before{content:'';display:block;width:28px;height:2px;background:var(--blue);margin-bottom:10px}
+  .br{position:absolute;z-index:3;left:800px;width:408px}
+  .br .tag{display:flex;align-items:center;gap:8px}
+  .br h2{font:600 26px/1.05 var(--sans);letter-spacing:-.7px;margin-top:6px}
+  .br p{font-size:13px;line-height:1.45;color:var(--char);margin-top:5px}
+  .need{margin-top:9px;padding-left:12px;border-left:2px solid var(--blue)}
+  .need .tag{color:var(--blue)}
+  .need p{margin-top:3px;color:var(--ink)}
+  .ev{position:absolute;z-index:3;left:72px;right:72px;top:568px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .evc{display:grid;grid-template-columns:86px 1fr;gap:12px;align-items:center;border-top:1px solid var(--ink);padding-top:10px}
+  .evc canvas{width:86px;height:42px}
+  .evc .k{font:600 9.5px var(--mono);letter-spacing:.08em;color:var(--blue)}
+  .evc .m{font:600 11.5px var(--mono);color:var(--ink);margin-top:2px}
+  .evc p{font-size:11.5px;line-height:1.4;color:var(--char);margin-top:3px}
+  .foot2{position:absolute;z-index:3;left:72px;right:72px;top:628px;display:grid;grid-template-columns:1fr 1fr;gap:16px;font:500 10.5px/1.5 var(--mono);color:var(--grey)}
+  .foot2 b{color:var(--ink);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-right:6px}
+  .foot2 .ag b{color:var(--blue)}
+  #fx,.br,.tagl,.nd,.ev,h1{transition:transform .7s cubic-bezier(.2,.7,.2,1),top .7s cubic-bezier(.2,.7,.2,1),font-size .6s}
+  .br1{top:188px}.br2{top:370px}
+  .dxa{position:absolute;z-index:3;left:72px;top:470px;width:330px}
+  .dxb{position:absolute;z-index:3;left:800px;top:504px;width:408px}
+  /* density 1: the torrent and its two outcomes */
+  html[data-density="1"] #fx{transform:translateY(40px)}
+  html[data-density="1"] .tagl{top:362px!important}
+  html[data-density="1"] .br1{top:250px}html[data-density="1"] .br2{top:432px}
+  html[data-density="1"] .br h2{font-size:34px}
+  /* density 2 */
+  html[data-density="2"] #fx{transform:translateY(20px)}
+  html[data-density="2"] .tagl{top:342px!important}
+  html[data-density="2"] .br1{top:230px}html[data-density="2"] .br2{top:410px}
+  /* density 4-5: lift the scene, make room */
+  html[data-density="4"] h1,html[data-density="5"] h1{font-size:38px}
+  html[data-density="4"] .sub,html[data-density="5"] .sub{font-size:14px;max-width:none;margin-top:6px}
+  html[data-density="4"] #fx,html[data-density="5"] #fx{transform:translateY(-30px)}
+  html[data-density="4"] .tagl,html[data-density="5"] .tagl{top:292px!important}
+  html[data-density="4"] .nd,html[data-density="5"] .nd{top:414px}
+  html[data-density="4"] .br1,html[data-density="5"] .br1{top:158px}
+  html[data-density="4"] .br2,html[data-density="5"] .br2{top:340px}
+  html[data-density="4"] .ev,html[data-density="5"] .ev{top:586px}
+  html[data-density="5"] .ev{top:600px}
+</style>
+</head>
+<body data-foot="Metrics × AI">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">Metrics × AI</div>
+  <h1 class="in2" data-d="2">AI is causing an <span class="b">explosion in metrics.</span></h1>
+  <p class="sub in3" data-d="3">Every AI session fans out across LLM calls, GPU cycles, RAG queries, and tool invocations, each generating its own stream of metric series.</p>
+</div>
+<svg id="fx" viewBox="0 0 1280 720"></svg>
+<div class="tagl in3" style="left:72px;top:322px">Series in</div>
+<div class="nd in4" data-d="3">AI metrics volume is non-deterministic by design.</div>
+<div class="br br1 in4">
+  <span class="tag" data-d="2"><i class="sw" style="background:var(--orange)"></i>If you store it all</span>
+  <h2>Costs spiral.</h2>
+  <p data-d="3">Cardinality compounds. Storing it all at standard rates breaks your observability budget.</p>
+  <div class="need" data-d="3"><span class="tag">What's needed</span><p>A storage engine purpose-built for high-cardinality metrics, at a cost that scales with the business, not against it.</p></div>
+</div>
+<div class="br br2 in5">
+  <span class="tag" data-d="2"><i class="sw" style="background:var(--ink)"></i>If you drop data</span>
+  <h2>You go blind.</h2>
+  <p data-d="3">Drop a series and you break the investigation thread. Missing data makes RCA impossible.</p>
+  <div class="need" data-d="3"><span class="tag">What's needed</span><p>Full-fidelity retention across every agent session, so investigation context is always there when an incident hits.</p></div>
+</div>
+<div class="dx dxa" data-d="4"><span class="dxk">Why the count explodes</span><p>Each AI session adds new dimensions: agent ID, model version, tool name, retry count. As adoption scales, the series count explodes, and <b>most metric stores charge per series</b>.</p></div>
+<div class="dx dxb" data-d="5"><span class="dxk">Why dropping data hurts</span><p>Investigations follow the full chain of agent calls, tool invocations and model responses. <b>Missing data is not a gap, it is a blind spot.</b></p></div>
+<div class="ev in5" data-d="3">
+  <div class="evc"><canvas id="s0" width="86" height="42"></canvas><div><div class="k">COUNTER</div><div class="m">agent_tool_calls_total</div><p>Grows with every tool call. Total is unpredictable until the session ends.</p></div></div>
+  <div class="evc"><canvas id="s1" width="86" height="42"></canvas><div><div class="k">GAUGE</div><div class="m">active_agent_loops</div><p>Live loop depth. Agents recurse, retry, and branch unpredictably.</p></div></div>
+  <div class="evc"><canvas id="s2" width="86" height="42"></canvas><div><div class="k">HISTOGRAM</div><div class="m">tool_response_duration_seconds</div><p>One distribution per tool type. Series count multiplies.</p></div></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const skip = navigator.webdriver ? 20 : 0;
+  const svg = document.getElementById('fx'), NS = 'http://www.w3.org/2000/svg';
+  const mk = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); (p || svg).appendChild(e); return e; };
+  const pp = a => a.map(q => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ');
+  const box = (x, yb, w, h) => ({
+    top: [[x, yb - h], [x + .866 * w, yb - h - .5 * w], [x, yb - h - w], [x - .866 * w, yb - h - .5 * w]],
+    left: [[x - .866 * w, yb - h - .5 * w], [x, yb - h], [x, yb], [x - .866 * w, yb - .5 * w]],
+    right: [[x, yb - h], [x + .866 * w, yb - h - .5 * w], [x + .866 * w, yb - .5 * w], [x, yb]]
+  });
+  const S = [440, 372], SX = 660, SYB = 352, SW = 62, VX = 660, VY = 470, VW = 78;
+  const H0 = 22, HMAX = 128;
+
+  // floor shadow + stack (store it all)
+  const blurF = mk('filter', {id: 'bb', x: '-50%', y: '-50%', width: '200%', height: '200%'}, mk('defs', {}));
+  mk('feGaussianBlur', {stdDeviation: 8}, blurF);
+  const stackG = mk('g', {opacity: 0});
+  const shadow = mk('polygon', {fill: 'rgba(40,55,90,.18)', filter: 'url(#bb)'}, stackG);
+  const sl = mk('polygon', {fill: '#FF7E62', stroke: '#1D1E24', 'stroke-width': 1, 'stroke-linejoin': 'round'}, stackG);
+  const sr = mk('polygon', {fill: '#343741', stroke: '#1D1E24', 'stroke-width': 1, 'stroke-linejoin': 'round'}, stackG);
+  const layers = mk('g', {}, stackG);
+  const st = mk('polygon', {fill: '#FFFFFF', stroke: '#1D1E24', 'stroke-width': 1, 'stroke-linejoin': 'round'}, stackG);
+  const billL = mk('line', {stroke: '#1D1E24', 'stroke-width': 1}, stackG);
+  const billT = mk('text', {'font-family': 'IBM Plex Mono, monospace', 'font-size': 10.5, 'font-weight': 600, fill: '#1D1E24', 'letter-spacing': '.08em'}, stackG);
+  billT.textContent = 'BILL';
+  const billA = mk('text', {'font-family': 'IBM Plex Mono, monospace', 'font-size': 10.5, 'font-weight': 600, fill: '#FF7E62'}, stackG);
+  billA.textContent = '▲';
+
+  // void (drop it)
+  const voidG = mk('g', {opacity: 0});
+  const vb = box(VX, VY + .5 * VW * 0 + 20, VW, 0);
+  const vt = [[VX, VY + 39], [VX + .866 * VW, VY - 0], [VX, VY - 39], [VX - .866 * VW, VY]];
+  mk('polygon', {points: pp(vt), fill: '#F5F7FA', stroke: '#1D1E24', 'stroke-width': 1.3, 'stroke-dasharray': '2 4'}, voidG);
+  const vi = vt.map(([x, y]) => [VX + (x - VX) * .62, VY + (y - VY) * .62 + 10]);
+  mk('polygon', {points: pp(vi), fill: '#EBEEF3', stroke: '#98A2B3', 'stroke-width': 1, 'stroke-dasharray': '2 3'}, voidG);
+  [[0, 3], [1, 2]].forEach(() => {});
+  vt.forEach(([x, y], i) => { const [ix, iy] = vi[i]; mk('line', {x1: x, y1: y, x2: ix, y2: iy, stroke: '#98A2B3', 'stroke-width': 1, 'stroke-dasharray': '2 3'}, voidG); });
+  const inc = mk('g', {}, voidG);
+  const incR = mk('circle', {cx: VX, cy: VY + 10, r: 9, fill: 'none', stroke: '#E0352B', 'stroke-width': 1.2, 'stroke-dasharray': '2 2'}, inc);
+  const incD = mk('circle', {cx: VX, cy: VY + 10, r: 3.2, fill: '#E0352B'}, inc);
+  const incL = mk('line', {x1: VX - 12, y1: VY + 10, x2: VX - 96, y2: VY + 10, stroke: '#98A2B3', 'stroke-width': 1}, voidG);
+  const incT = mk('text', {x: VX - 102, y: VY + 13.5, 'text-anchor': 'end', 'font-family': 'IBM Plex Mono, monospace', 'font-size': 10, 'font-weight': 600, fill: '#98A2B3', 'letter-spacing': '.08em'}, voidG);
+  incT.textContent = 'INCIDENT · UNSEEN';
+
+  // branch guides
+  const guides = mk('g', {opacity: 0});
+  const upEnd = () => [SX, SYB - curH - .5 * SW];
+  const C1 = [540, 298], C2 = [548, 452], dn = [VX, VY + 4];
+  const gUp = mk('path', {fill: 'none', stroke: '#1D1E24', 'stroke-width': 1, 'stroke-dasharray': '1 5'}, guides);
+  mk('path', {d: `M${S}Q${C2} ${dn}`, fill: 'none', stroke: '#1D1E24', 'stroke-width': 1, 'stroke-dasharray': '1 5'}, guides);
+  mk('path', {d: `M60,${S[1]}L${S}`, fill: 'none', stroke: '#1D1E24', 'stroke-width': 1, 'stroke-dasharray': '1 5'}, guides);
+  const splitDot = mk('circle', {cx: S[0], cy: S[1], r: 4.5, fill: '#fff', stroke: '#1D1E24', 'stroke-width': 1.5}, guides);
+  // leaders to text blocks
+  const lead = mk('g', {opacity: 0});
+  mk('line', {x1: SX + .866 * SW + 16, y1: 232, x2: 788, y2: 232, stroke: '#1D1E24', 'stroke-width': 1}, lead);
+  mk('line', {x1: VX + .866 * VW + 14, y1: 414, x2: 788, y2: 414, stroke: '#1D1E24', 'stroke-width': 1}, lead);
+  mk('path', {d: `M${VX + .866 * VW + 14},414 L${VX + .866 * VW + 14},${VY - 4}`, fill: 'none', stroke: '#1D1E24', 'stroke-width': 1}, lead);
+
+  const parts = mk('g', {});
+  const R = EW.rand(41), COLS = [['#FFFFFF', '#0B64DD', '#0A4FB0'], ['#FFFFFF', '#48EFCF', '#02BCB7'], ['#FFFFFF', '#DDE3EC', '#B5BFCE'], ['#FFFFFF', '#F04E98', '#343741']];
+  const ps = Array.from({length: 78}, () => {
+    const g = mk('g', {}, parts), f = [0, 1, 2].map(() => mk('polygon', {stroke: '#1D1E24', 'stroke-width': .6}, g));
+    return {g, f, u: R(), v: .16 + R() * .1, off: (R() - .5) * 90, a: 6 + R() * 4, br: R() < .56 ? 0 : 1, c: COLS[Math.floor(R() * COLS.length)]};
+  });
+  const qb = (a, c, b, t) => [(1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0], (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]];
+  let curH = H0, last = 0;
+  function drawCube(p, x, y, a, op){
+    const b = box(x, y, a, a);
+    p.f[0].setAttribute('points', pp(b.left)); p.f[0].setAttribute('fill', p.c[1]);
+    p.f[1].setAttribute('points', pp(b.right)); p.f[1].setAttribute('fill', p.c[2]);
+    p.f[2].setAttribute('points', pp(b.top)); p.f[2].setAttribute('fill', p.c[0]);
+    p.g.setAttribute('opacity', op.toFixed(2));
+  }
+  function drawStack(){
+    const b = box(SX, SYB, SW, curH);
+    sl.setAttribute('points', pp(b.left)); sr.setAttribute('points', pp(b.right)); st.setAttribute('points', pp(b.top));
+    shadow.setAttribute('points', pp([[SX, SYB + 16], [SX + .866 * SW + 18, SYB - .5 * SW + 10], [SX + 10, SYB - SW + 4], [SX - .866 * SW, SYB - .5 * SW + 10]]));
+    while (layers.firstChild) layers.firstChild.remove();
+    for (let y = SYB - 14; y > SYB - curH + 4; y -= 14){
+      mk('polyline', {points: pp([[SX - .866 * SW, y - .5 * SW], [SX, y], [SX + .866 * SW, y - .5 * SW]]), fill: 'none', stroke: 'rgba(29,30,36,.35)', 'stroke-width': .8}, layers);
+    }
+    const [ex, ey] = upEnd();
+    gUp.setAttribute('d', `M${S}Q${C1} ${ex},${ey}`);
+    const ly = SYB - curH - .5 * SW;
+    billL.setAttribute('x1', SX - .866 * SW - 8); billL.setAttribute('y1', ly); billL.setAttribute('x2', SX - .866 * SW - 30); billL.setAttribute('y2', ly);
+    billT.setAttribute('x', SX - .866 * SW - 72); billT.setAttribute('y', ly + 4);
+    billA.setAttribute('x', SX - .866 * SW - 86); billA.setAttribute('y', ly + 4);
+  }
+
+  // evidence sparklines
+  const sp = [0, 1, 2].map(i => { const cv = document.getElementById('s' + i); cv.width = 172; cv.height = 84; const c = cv.getContext('2d'); c.scale(2, 2); return c; });
+  function spark(t){
+    const W = 86, H = 42;
+    sp.forEach(c => c.clearRect(0, 0, W, H));
+    let c = sp[0], y = H - 4; c.beginPath(); c.moveTo(0, y);
+    for (let x = 0; x <= W; x += 6){ y -= (Math.sin(x * 1.7 + t) > .2 ? 4 : 1.2); c.lineTo(x, Math.max(4, y)); c.lineTo(x + 6, Math.max(4, y)); }
+    c.strokeStyle = '#0B64DD'; c.lineWidth = 1.5; c.stroke();
+    c = sp[1]; c.beginPath();
+    for (let x = 0; x <= W; x += 2){ const v = H / 2 + Math.sin(x * .14 + t * 1.6) * 9 + Math.sin(x * .41 - t * 2.3) * 5; x ? c.lineTo(x, v) : c.moveTo(x, v); }
+    c.strokeStyle = '#0B64DD'; c.lineWidth = 1.5; c.stroke();
+    c = sp[2];
+    [.25, .5, .95, .7, .4, .22, .12, .3, .08].forEach((v, i) => { const hh = (H - 6) * Math.min(1, v * (.8 + .25 * Math.sin(t * 1.3 + i))); c.fillStyle = i === 2 ? '#0B64DD' : '#B5BFCE'; c.fillRect(2 + i * 9.4, H - hh, 7, hh); });
+    c.fillStyle = '#1D1E24'; c.fillRect(0, H - 1, W, 1);
+  }
+
+  EW.loop(t0 => {
+    const t = t0 + skip, dt = Math.min(.05, t - last); last = t;
+    const k = EW.ease((t - .25) / .7);
+    stackG.setAttribute('opacity', k); voidG.setAttribute('opacity', k); guides.setAttribute('opacity', k); lead.setAttribute('opacity', EW.ease((t - 1) / .5));
+    stackG.setAttribute('transform', `translate(0,${(30 * (1 - EW.back((t - .25) / .7))).toFixed(1)})`);
+    const flowOn = Math.min(1, Math.max(0, (t - .5) * 2.5));
+    for (const p of ps){
+      p.u += p.v * dt;
+      if (p.u >= 1){ p.u -= 1; p.br = R() < .56 ? 0 : 1; p.off = (R() - .5) * 90; if (p.br === 0 && t > .8) curH = Math.min(HMAX, curH + (HMAX - curH) * .018 + .35); }
+      let x, y, a = p.a, op = flowOn;
+      if (p.u < .5){ const q = p.u / .5; x = 60 + (S[0] - 60) * q; y = S[1] + p.off * Math.pow(1 - q, 1.4); op *= Math.min(1, q * 8); }
+      else { const q = (p.u - .5) / .5;
+        if (p.br === 0){ [x, y] = qb(S, C1, upEnd(), q); }
+        else { [x, y] = qb(S, C2, dn, q); a *= 1 - .75 * q; op *= q < .7 ? 1 : Math.max(0, 1 - (q - .7) / .3); } }
+      drawCube(p, x, y + a * .5, a, op);
+    }
+    drawStack();
+    const pulse = .5 + .5 * Math.sin(t * 2.6);
+    inc.setAttribute('opacity', (.35 + .25 * pulse).toFixed(2)); incR.setAttribute('r', (8 + 3 * pulse).toFixed(1));
+    splitDot.setAttribute('r', (4.5 + 1.2 * pulse).toFixed(1));
+    spark(t);
+  });
+})();
+</script>
+</body>
+</html>

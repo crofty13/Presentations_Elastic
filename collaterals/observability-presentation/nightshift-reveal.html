@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Elastic nightshift: The Magic Moment</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .rel{display:flex;align-items:flex-start}
+  .rel .m{position:relative;padding-top:16px;padding-right:30px}
+  .rel .m::before{content:'';position:absolute;left:0;top:3px;width:9px;height:9px;border-radius:50%;background:#fff;border:1.5px solid var(--acc);z-index:1}
+  .rel .m::after{content:'';position:absolute;left:11px;right:0;top:8px;height:1px;background:var(--grey-l)}
+  .rel .m:last-child::after{display:none}
+  .rel .m.ga::before{background:var(--acc)}
+  .rel .m b{display:block;font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
+  .rel .m span{display:block;font:500 10.5px var(--mono);letter-spacing:.04em;color:var(--grey);margin-top:3px;white-space:nowrap}
+  .relw{position:absolute;z-index:5;left:72px;top:64px;--acc:var(--pink)}
+  .demo{margin-top:26px;text-decoration:none;color:var(--pink);border-color:var(--pink);pointer-events:auto;cursor:pointer;position:relative;z-index:6}
+  .demo:hover{background:var(--pink);color:#fff}
+  body{background:var(--bg)}
+  .left{position:absolute;left:72px;top:150px;width:470px;z-index:2}
+  .brand{display:flex;align-items:center;gap:10px;font:600 14px var(--mono);color:var(--ink)}
+  .brand svg{width:26px;height:26px}
+  h1{font-size:92px;line-height:.93;letter-spacing:-3.8px;margin-top:22px}
+  h1 .b{color:var(--pink)}
+  .story{font-size:20px;line-height:1.55;color:var(--char);margin-top:28px}
+  .story strong{font-weight:600;color:var(--ink)}
+  .hl{position:relative;display:inline-block;padding:0 .28em;color:#fff;font-weight:600}
+  .hl::before{content:'';position:absolute;inset:0;background:var(--ink);z-index:-1;transform-origin:left;animation:hlw .6s cubic-bezier(.6,0,.2,1) 1.1s both}
+  @keyframes hlw{from{transform:scaleX(0)}to{transform:none}}
+  .hl span{position:relative;animation:ew-in .3s ease 1.45s both}
+  .zero{margin-top:30px;padding-top:16px;border-top:1px solid var(--ink)}
+  .zero b{display:block;font:600 22px var(--sans);letter-spacing:-.5px}
+  .zero small{display:block;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);margin-top:6px}
+
+  /* light product window */
+  .win{position:absolute;left:640px;top:128px;width:568px;z-index:3;background:#fff;border:1px solid var(--ink);box-shadow:14px 14px 0 var(--slate-l),14px 14px 0 1px var(--slate)}
+  .bar{height:34px;display:flex;align-items:center;gap:7px;padding:0 12px;border-bottom:1px solid var(--line);background:var(--bg)}
+  .bar i{width:9px;height:9px;border-radius:50%;border:1px solid var(--grey-l)}
+  .bar .ch{margin-left:10px;font:600 13px var(--sans)}
+  .bar .st{color:var(--grey-l)}
+  .bar .mem{margin-left:auto;display:flex;align-items:center;gap:6px;font:500 11px var(--mono);color:var(--grey)}
+  .bar .mem span{width:14px;height:14px;border:1px solid #fff;margin-left:-6px}
+  .th{padding:14px 20px 20px}
+  .day{display:flex;align-items:center;gap:10px;font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey)}
+  .day::before,.day::after{content:'';flex:1;border-top:1px solid var(--line)}
+  .msg{display:grid;grid-template-columns:38px 1fr;gap:12px;margin-top:14px}
+  .av{width:38px;height:38px;background:var(--ink);display:grid;place-items:center}
+  .av svg{width:24px;height:24px}
+  .mh{display:flex;align-items:center;gap:8px;font-size:14px}
+  .mh b{font-weight:700}
+  .app{font:600 9px var(--mono);letter-spacing:.06em;background:var(--slate-l);color:var(--char);padding:2px 5px}
+  .tm{font-size:12px;color:var(--grey)}
+  .typing{display:flex;gap:4px;margin-top:8px;animation:tgo .2s linear .75s forwards}
+  .typing i{width:6px;height:6px;border-radius:50%;background:var(--grey-l);animation:tp .6s ease-in-out infinite}
+  .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+  @keyframes tp{50%{transform:translateY(-3px);background:var(--pink)}}
+  @keyframes tgo{to{opacity:0;height:0;margin:0}}
+  .mt{font-size:15px;line-height:1.5;margin-top:4px;animation:ew-in .4s ease .8s both}
+  .mt b{color:var(--pink)}
+  .att{margin-top:10px;border-left:3px solid var(--pink);background:var(--bg);padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+  .att .row{font-size:13.5px;line-height:1.45;color:var(--char)}
+  .att .row b{color:var(--ink);font-weight:600}
+  .att .row .mono{font-size:12.5px;background:#fff;border:1px solid var(--line);padding:0 4px;color:var(--ink)}
+  .r1{animation:ew-in .35s ease .95s both}.r2{animation:ew-in .35s ease 1.08s both}.r3{animation:ew-in .35s ease 1.21s both}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:12px;border:1px solid var(--ink);animation:ew-in .4s ease 1.35s both}
+  .stats > div{padding:10px 12px;border-right:1px solid var(--line)}
+  .stats > div:last-child{border:0}
+  .stats .n{white-space:nowrap;font:500 24px var(--sans);letter-spacing:-1px;color:var(--blue);line-height:1}
+  .stats .n.ok{color:var(--teal-d)}
+  .stats .l{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);margin-top:5px}
+  .reacts{display:flex;gap:6px;margin-top:10px}
+  .reacts span{font-size:12.5px;border:1px solid var(--line);background:#fff;padding:2px 8px;border-radius:12px;opacity:0;transform:scale(.6);animation:pop .3s cubic-bezier(.34,1.56,.64,1) forwards}
+  .reacts span:nth-child(1){animation-delay:1.55s}.reacts span:nth-child(2){animation-delay:1.65s}.reacts span:nth-child(3){animation-delay:1.75s}
+  @keyframes pop{to{opacity:1;transform:none}}
+  /* density */
+  .win{transition:translate .7s cubic-bezier(.2,.7,.2,1),scale .7s cubic-bezier(.2,.7,.2,1)}
+  h1,.left{transition:font-size .6s cubic-bezier(.2,.7,.2,1),top .6s cubic-bezier(.2,.7,.2,1)}
+  .left .dx{margin-top:16px}
+  html[data-density="1"] .win{translate:-284px 46px;scale:1.1}
+  html[data-density="2"] .left{top:190px}
+  html[data-density="4"] .left{top:136px}
+  html[data-density="4"] h1{font-size:72px;letter-spacing:-2.8px}
+  html[data-density="5"] .left{top:132px}
+  html[data-density="5"] h1{font-size:60px;letter-spacing:-2.2px;margin-top:14px}
+  html[data-density="5"] .story{font-size:17px;margin-top:16px}
+  html[data-density="5"] .zero{margin-top:16px;padding-top:10px}
+  html[data-density="5"] .zero b{font-size:19px}
+  html[data-density="4"] .demo,html[data-density="5"] .demo{margin-top:16px}
+</style>
+</head>
+<body data-foot="AI SRE · The magic moment">
+<div class="relw rel in3" data-d="2"><div class="m"><b>Private Tech Preview</b><span>Oct 2026</span></div><div class="m"><b>Public Tech Preview</b><span>End of Nov 2026</span></div><div class="m ga"><b>GA</b><span>Jan 2027</span></div></div>
+<div class="left">
+  <div class="brand in1" data-d="3"><svg viewBox="30 215 220 220"><path d="m101.9 306.9 45.2 20.6 45.6-40c.7-3.3 1-6.5 1-10 0-28.1-22.9-51-51-51-16.8 0-32.5 8.3-42 22.2l-7.6 39.3z" fill="#F04E98"/><path d="m55.1 354.7c-.7 3.3-1 6.7-1 10.2 0 28.2 23 51.1 51.1 51.1 16.9 0 32.7-8.4 42.2-22.3l7.5-39.2-10-19.2-45.4-20.7z" fill="#F04E98"/><path d="m54.9 276.5 31 7.3 6.8-35.2c-4.2-3.2-9.4-5-14.8-5-13.4 0-24.4 10.9-24.4 24.4-.1 3 .4 5.9 1.4 8.5" fill="#F04E98"/><path d="m52.2 283.9c-13.8 4.5-23.5 17.8-23.5 32.4 0 14.2 8.8 26.9 22 31.9l43.4-39.2-7.9-17z" fill="#F04E98"/><path d="m155.4 393.6c4.3 3.2 9.4 5.1 14.7 5.1 13.4 0 24.4-10.9 24.4-24.4 0-3-.5-5.8-1.5-8.5l-30.9-7.2z" fill="#F04E98"/><path d="m161.7 350.4 34 7.9c13.9-4.5 23.5-17.8 23.5-32.5 0-14.1-8.8-26.9-22-31.9l-44.5 39z" fill="#F04E98"/></svg>Elastic nightshift</div>
+  <h1 class="in2" data-d="2">Wake up<br>to <span class="b">this.</span></h1>
+  <p class="story in3" data-d="3">You are not buying observability.<br><strong>You are buying the <span class="hl"><span>end of on-call.</span></span></strong></p>
+  <div class="zero in5" data-d="3"><b>Zero pages. Zero 3am calls.</b><small>one full explanation: ready when you are</small></div>
+  <div class="dx pink" data-d="4"><span class="dxk">What happened overnight</span><p>At 3:43 AM, memory exhaustion in payment-service cascaded to three dependent services. Root cause: Redis connection pool exhaustion. Fixed and verified healthy by 3:47.</p></div>
+  <div class="dx pink" data-d="5"><span class="dxk">Not a page, a resolution</span><p>What happened, why, and what was changed, with the full trail attached. Zero pages overnight: one full explanation, ready when you are.</p></div>
+  <a data-d="2" class="btn in6 demo" href="https://symmetrical-adventure-2y9no3w.pages.github.io/elasticondemo/" target="_blank" rel="noopener">Open the live demo&nbsp;&nbsp;↗</a>
+</div>
+
+<div class="win in2">
+  <div class="bar"><i></i><i></i><i></i><span class="ch"># incidents-prod</span><span class="st">☆</span>
+    <span class="mem"><span style="background:#0B64DD"></span><span style="background:#F04E98"></span><span style="background:#48EFCF"></span>47</span></div>
+  <div class="th">
+    <div class="day">Today</div>
+    <div class="msg">
+      <div class="av"><svg viewBox="30 215 220 220"><path d="m101.9 306.9 45.2 20.6 45.6-40c.7-3.3 1-6.5 1-10 0-28.1-22.9-51-51-51-16.8 0-32.5 8.3-42 22.2l-7.6 39.3z" fill="#F04E98"/><path d="m55.1 354.7c-.7 3.3-1 6.7-1 10.2 0 28.2 23 51.1 51.1 51.1 16.9 0 32.7-8.4 42.2-22.3l7.5-39.2-10-19.2-45.4-20.7z" fill="#F04E98"/><path d="m54.9 276.5 31 7.3 6.8-35.2c-4.2-3.2-9.4-5-14.8-5-13.4 0-24.4 10.9-24.4 24.4-.1 3 .4 5.9 1.4 8.5" fill="#F04E98"/><path d="m52.2 283.9c-13.8 4.5-23.5 17.8-23.5 32.4 0 14.2 8.8 26.9 22 31.9l43.4-39.2-7.9-17z" fill="#F04E98"/><path d="m155.4 393.6c4.3 3.2 9.4 5.1 14.7 5.1 13.4 0 24.4-10.9 24.4-24.4 0-3-.5-5.8-1.5-8.5l-30.9-7.2z" fill="#F04E98"/><path d="m161.7 350.4 34 7.9c13.9-4.5 23.5-17.8 23.5-32.5 0-14.1-8.8-26.9-22-31.9l-44.5 39z" fill="#F04E98"/></svg></div>
+      <div>
+        <div class="mh"><b>Elastic nightshift</b><span class="app">APP</span><span class="tm">3:51 AM</span></div>
+        <div class="typing"><i></i><i></i><i></i></div>
+        <div class="mt">Good morning. One incident overnight, <b>resolved</b>. Full trail attached.</div>
+        <div class="att">
+          <span class="row r1"><b>What happened:</b> memory exhaustion in <span class="mono">payment-service</span>, 3 downstream services affected</span>
+          <span class="row r2"><b>Root cause:</b> Redis pool exhausted on <span class="mono">node-03</span> under checkout load</span>
+          <span class="row r3"><b>Fix applied:</b> pool limit raised to 250, pushed to all affected nodes</span>
+        </div>
+        <div class="stats">
+          <div><div class="n" id="dur">4m 23s</div><div class="l">Duration</div></div>
+          <div><div class="n" id="act">2</div><div class="l">Actions</div></div>
+          <div><div class="n" style="color:var(--pink)">0</div><div class="l">Pages</div></div>
+          <div><div class="n ok">✓</div><div class="l">Healthy</div></div>
+        </div>
+        <div class="reacts"><span>☕ 4</span><span>🙌 2</span><span>😴 1</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 560, y: 40, w: 720, h: 640, seed: 17, blobs: 7, thr: .5, hi: [240, 78, 152]});
+  // duration ticks up to its final value as the stats land
+  const d = document.getElementById('dur'), t0 = performance.now();
+  (function f(now){ const k = EW.ease(((now - t0) / 1000 - 1.35) / .45), s = Math.round(263 * k);
+    d.textContent = Math.floor(s / 60) + 'm ' + String(s % 60).padStart(2, '0') + 's'; if (k < 1) requestAnimationFrame(f); })(t0);
+})();
+</script>
+</body>
+</html>

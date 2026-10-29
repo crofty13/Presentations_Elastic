@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Elastic nightshift: Autonomous AI SRE</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .eyebrow{text-transform:none;letter-spacing:.02em}
+  .eyebrow::before{background:var(--pink)}
+  h1{font-size:64px;letter-spacing:-2.4px}
+  h1 .p{color:var(--pink)}
+  .sub{font-size:19px;margin-top:10px}
+  .sub b{color:var(--ink);font-weight:600}
+  .steps{position:absolute;left:72px;right:72px;top:236px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;z-index:2}
+  .step{position:relative}
+  .step svg{position:relative;display:block;width:100%;height:170px;overflow:visible}
+  .step .tag{display:block;margin-top:6px;color:var(--grey)}
+  .step svg text{font-family:var(--mono)}
+  .step h3{font:600 24px var(--sans);letter-spacing:-.6px;margin:4px 0 6px}
+  .step p{font-size:14.5px;line-height:1.45;color:var(--char);max-width:250px}
+  .step .arr{position:absolute;right:-22px;top:128px;width:20px;height:1px;background:var(--ink)}
+  .step .arr::after{content:'';position:absolute;right:-1px;top:-3px;border-left:6px solid var(--ink);border-top:3.5px solid transparent;border-bottom:3.5px solid transparent}
+  .auto{position:absolute;left:72px;right:72px;top:560px;height:78px;border:1px solid var(--ink);background:#fff;display:grid;grid-template-columns:1fr 470px;align-items:center;padding:0 26px;z-index:2}
+  .auto p{font-size:16px;color:var(--char)}
+  .auto p b{color:var(--ink)}
+  .track{position:relative;height:40px}
+  .track .ln{position:absolute;left:40px;right:40px;top:12px;height:1px;background:var(--line)}
+  .track .fill{position:absolute;left:40px;top:11px;height:3px;background:var(--pink);width:0}
+  .track .puck{position:absolute;top:5px;left:40px;width:16px;height:16px;margin-left:-8px;background:var(--pink);border:1px solid var(--ink)}
+  .track .st{position:absolute;top:0;width:80px;margin-left:-40px;text-align:center}
+  .track .st i{display:block;width:9px;height:9px;margin:8px auto 7px;background:#fff;border:1px solid var(--ink)}
+  .track .st span{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey)}
+  .track .st.on span{color:var(--ink)}
+  .ew-foot > span:last-child{text-transform:none;letter-spacing:.02em}
+  /* density */
+  .steps{transition:transform .7s cubic-bezier(.2,.7,.2,1),top .6s cubic-bezier(.2,.7,.2,1)}
+  .step .more{display:block;font-size:12.5px;line-height:1.45;color:var(--grey);margin-top:5px;max-width:250px}
+  .track .st small{display:block;font:500 9.5px var(--mono);letter-spacing:.02em;color:var(--grey);margin-top:3px;white-space:nowrap}
+  .nstat{position:absolute;z-index:3;right:72px;top:70px;width:360px}
+  .nstat .row{display:flex;gap:18px;margin-top:2px}
+  .nstat .row div{font:600 11px/1.4 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--char)}
+  .nstat .row b{display:block;font:500 30px/1 var(--sans);letter-spacing:-1px;color:var(--pink);text-transform:none;margin-bottom:4px}
+  html[data-density="1"] .steps{top:250px;transform:scale(1.06)}
+  html[data-density="2"] .steps{top:280px;transform:scale(1.05)}
+  html[data-density="4"] .steps{top:216px}
+  html[data-density="5"] .steps{top:206px}
+  html[data-density="5"] .auto{top:548px;height:96px}
+  html[data-density="5"] .track{height:56px}
+</style>
+</head>
+<body data-foot="03 · Pillar · Elastic nightshift">
+<div class="z">
+  <div class="eyebrow in1" data-d="3">03 · Pillar · Elastic nightshift</div>
+  <h1 class="in2" data-d="2">Elastic <span class="p">nightshift</span></h1>
+  <p class="sub in3" data-d="3">The autonomous AI SRE. <b>On shift around the clock, so your engineers aren't.</b></p>
+</div>
+<div class="steps">
+  <div class="step in3"><svg viewBox="0 0 266 170" data-h="46" data-c="slate"></svg><span class="tag" data-d="3">01</span><h3>Detect</h3><p data-d="3">Spots and ranks incidents before anyone is paged.</p><span class="more" data-d="4">ML anomaly detection, alert correlation and dedup, blast radius scoring.</span><i class="arr"></i></div>
+  <div class="step in3" style="animation-delay:.38s"><svg viewBox="0 0 266 170" data-h="72" data-c="blue"></svg><span class="tag" data-d="3">02</span><h3>Investigate</h3><p data-d="3">Runs parallel hypotheses across every signal.</p><span class="more" data-d="4">Pulls context from logs, metrics and traces, and ranks findings by evidence strength.</span><i class="arr"></i></div>
+  <div class="step in3" style="animation-delay:.46s"><svg viewBox="0 0 266 170" data-h="98" data-c="pink"></svg><span class="tag" data-d="3">03</span><h3>Remediate</h3><p data-d="3">Fixes issues at the trust level you set.</p><span class="more" data-d="4">Proposes and executes fixes, with rollback safety.</span><i class="arr"></i></div>
+  <div class="step in3" style="animation-delay:.54s"><svg viewBox="0 0 266 170" data-h="124" data-c="ink"></svg><span class="tag" data-d="3">04</span><h3>Audit</h3><p data-d="3">Every step cited, logged, and reversible.</p><span class="more" data-d="4">A full, explainable trail from trigger to resolution.</span></div>
+</div>
+<div class="auto in5" data-d="3">
+  <p><b>You set the autonomy.</b> Every action is audited and reversible.</p>
+  <div class="track" id="trk"><i class="ln"></i><i class="fill"></i>
+    <div class="st on" style="left:40px"><i></i><span>Suggest</span><small data-d="5">read-only</small></div>
+    <div class="st" style="left:50%"><i></i><span>Confirm</span><small data-d="5">human in the loop</small></div>
+    <div class="st" style="left:calc(100% - 40px)"><i></i><span>Auto</span><small data-d="5">fully autonomous</small></div>
+    <i class="puck"></i>
+  </div>
+</div>
+<div class="nstat" data-d="5"><div class="row"><div><b>24/7</b>coverage</div><div><b>0</b>on-call pages</div><div><b>∞</b>parallel hypotheses</div></div></div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 700, y: 0, w: 580, h: 250, seed: 6, blobs: 4, thr: .52});
+  document.querySelectorAll('.step svg').forEach((svg, i) => {
+    const h = +svg.dataset.h, sc = EW.iso(svg, {ox: 100, oy: 100, s: .8});
+    sc.rect({x: -14, y: -14, w: 98, d: 98, z: 0, delay: .2 + i * .15});
+    sc.box({x: 0, y: 0, w: 70, d: 70, h, c: svg.dataset.c, stroke: svg.dataset.c === 'slate' ? false : '#1D1E24', delay: .3 + i * .18, drop: 90, float: i === 2 ? 4 : 0});
+    sc.run();
+  });
+  const trk = document.getElementById('trk'), fill = trk.querySelector('.fill'), puck = trk.querySelector('.puck'), sts = trk.querySelectorAll('.st');
+  EW.loop(t => {
+    const W = trk.clientWidth - 80, cyc = 7, lt = t < 1.8 ? t : 1.8 + ((t - 1.8) % cyc);
+    let k = t < 1.8 ? EW.ease((t - .6) / 1.1) * .5 : (lt - 1.8 < 3 ? .5 : lt - 1.8 < 4.2 ? .5 + .5 * EW.ease((lt - 4.8) / 1) : 1);
+    if (t >= 1.8){ const p = (t - 1.8) % cyc; k = p < 2.5 ? .5 : p < 3.5 ? .5 + .5 * EW.ease(p - 2.5) : p < 5.5 ? 1 : 1 - .5 * EW.ease((p - 5.5) / 1.2); }
+    fill.style.width = (W * k) + 'px'; puck.style.left = (40 + W * k) + 'px';
+    sts.forEach((s, i) => s.classList.toggle('on', k >= i * .5 - .02));
+  });
+})();
+</script>
+</body>
+</html>

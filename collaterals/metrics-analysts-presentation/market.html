@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elastic Metrics — Market Landscape</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 1280px; height: 720px; overflow: hidden;
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #22242C;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Dot grid ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Left accent bar ── */
+    .accent-bar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: #00BFB3;
+      z-index: 20;
+    }
+
+    /* ── Animations ── */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up-1 { opacity: 0; animation: fade-up 0.55s ease forwards 0.1s; }
+    .fade-up-2 { opacity: 0; animation: fade-up 0.55s ease forwards 0.3s; }
+    .fade-up-3 { opacity: 0; animation: fade-up 0.55s ease forwards 0.5s; }
+    .fade-up-4 { opacity: 0; animation: fade-up 0.55s ease forwards 0.7s; }
+    .fade-up-5 { opacity: 0; animation: fade-up 0.55s ease forwards 0.9s; }
+    .fade-up-6 { opacity: 0; animation: fade-up 0.55s ease forwards 1.1s; }
+    .fade-up-7 { opacity: 0; animation: fade-up 0.55s ease forwards 1.3s; }
+    .fade-up-8 { opacity: 0; animation: fade-up 0.55s ease forwards 1.5s; }
+    .fade-up-9 { opacity: 0; animation: fade-up 0.55s ease forwards 1.7s; }
+
+    /* ── Main wrapper ── */
+    .slide {
+      position: relative; z-index: 10;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 0 52px;
+    }
+
+    /* ── Header ── */
+    .header {
+      padding-top: 36px;
+      padding-bottom: 20px;
+    }
+
+    .eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #00BFB3;
+      margin-bottom: 10px;
+    }
+
+    .headline {
+      font-size: clamp(1.8rem, 2.8vw, 3.8rem);
+      font-weight: 300;
+      letter-spacing: -0.025em;
+      line-height: 1.12;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .headline strong {
+      font-weight: 700;
+      color: #00BFB3;
+    }
+
+    .sub {
+      font-size: 0.88rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.52);
+      line-height: 1.5;
+    }
+
+    /* ── Divider ── */
+    .header-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      margin-bottom: 22px;
+    }
+
+    /* ── Two columns ── */
+    .columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Column shared ── */
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding-top: 14px;
+      border-top: 2px solid;
+    }
+
+    .col-left  { border-color: rgba(0,191,179,0.5); }
+    .col-right { border-color: rgba(245,158,11,0.5); }
+
+    .col-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .col-left  .col-title { color: #00BFB3; }
+    .col-right .col-title { color: #F59E0B; }
+
+    /* ── Stat blocks ── */
+    .stat-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .stat-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #00BFB3;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.3;
+    }
+
+    .stat-desc {
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.38);
+      line-height: 1.4;
+    }
+
+    /* ── Pain point cards ── */
+    .pain-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .pain-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(255,255,255,0.028);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+
+    .pain-dot {
+      flex-shrink: 0;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #F59E0B;
+      margin-top: 5px;
+    }
+
+    .pain-text {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.5;
+    }
+
+    .pain-text strong {
+      font-weight: 600;
+      color: rgba(255,255,255,0.92);
+    }
+
+    /* ── Bottom strip ── */
+    .bottom-strip {
+      position: relative; z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: rgba(255,255,255,0.034);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 13px 52px;
+      margin-top: auto;
+    }
+
+    .strip-label {
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .strip-div {
+      width: 1px;
+      height: 20px;
+      background: rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    .strip-text {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.45;
+      flex: 1;
+    }
+
+    .strip-pill {
+      flex-shrink: 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #00BFB3;
+      border: 1px solid rgba(0,191,179,0.45);
+      border-radius: 100px;
+      padding: 0.38em 1.1em;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Left accent bar -->
+  <div class="accent-bar"></div>
+
+  <!-- Slide content -->
+  <div class="slide">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="eyebrow fade-up-1">Market Landscape</div>
+      <h1 class="headline fade-up-2">The <strong>most contested</strong> segment in observability.</h1>
+      <p class="sub fade-up-3">Metrics is where the market is growing fastest — and where the current stack is most broken.</p>
+    </div>
+
+    <div class="header-divider fade-up-3"></div>
+
+    <!-- Two columns -->
+    <div class="columns">
+
+      <!-- Left: The Opportunity -->
+      <div class="col col-left fade-up-4">
+        <div class="col-title">The Opportunity</div>
+        <div class="stat-list">
+
+          <div class="stat-block fade-up-4">
+            <div class="stat-number">$5B+</div>
+            <div class="stat-label">Addressable metrics market inside Elastic's existing customer base</div>
+            <div class="stat-desc">Cross-sell and expansion across current Elastic accounts alone</div>
+          </div>
+
+          <div class="stat-block fade-up-5">
+            <div class="stat-number">60%+</div>
+            <div class="stat-label">Share of observability spend attributed to metrics workloads</div>
+            <div class="stat-desc">The dominant cost center in every modern SRE budget</div>
+          </div>
+
+          <div class="stat-block fade-up-6">
+            <div class="stat-number">20M+</div>
+            <div class="stat-label">Active Prometheus deployments worldwide</div>
+            <div class="stat-desc">Every one is a migration candidate waiting for a better answer</div>
+          </div>
+
+          <div class="stat-block fade-up-7">
+            <div class="stat-number">#1</div>
+            <div class="stat-label">PromQL: the lingua franca of modern metrics</div>
+            <div class="stat-desc">Elastic speaks it natively — no retraining, no migration tax</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right: Why the current stack fails -->
+      <div class="col col-right fade-up-4">
+        <div class="col-title">Why the current stack fails</div>
+        <div class="pain-list">
+
+          <div class="pain-card fade-up-5">
+            <div class="pain-dot"></div>
+            <div class="pain-text"><strong>Prometheus at scale</strong> — Single-node architecture wasn't designed for 10M+ active series. Ops burden grows faster than the team.</div>
+          </div>
+
+          <div class="pain-card fade-up-6">
+            <div class="pain-dot"></div>
+            <div class="pain-text"><strong>Datadog's cost</strong> — 4× price premium. No PromQL. Every new service means a bigger bill.</div>
+          </div>
+
+          <div class="pain-card fade-up-7">
+            <div class="pain-dot"></div>
+            <div class="pain-text"><strong>Grafana Cloud</strong> — Metrics and logs live in separate systems. No unified query. No AI layer.</div>
+          </div>
+
+          <div class="pain-card fade-up-8">
+            <div class="pain-dot"></div>
+            <div class="pain-text"><strong>Fragmentation</strong> — Average team runs 3+ metrics tools. Dashboards don't travel. Context is always missing.</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Bottom strip -->
+  <div class="bottom-strip fade-up-9">
+    <div class="strip-label">The moment</div>
+    <div class="strip-div"></div>
+    <div class="strip-text">AI agents are generating 100× more telemetry. The metrics market is not growing — it's exploding.</div>
+    <div class="strip-pill">The time to enter is now</div>
+  </div>
+
+  <script src="/js/fuckslides.js"></script>
+</body>
+</html>

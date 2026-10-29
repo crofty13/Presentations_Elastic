@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>The Document Store</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:46px}
+  .sub{font-size:16px;max-width:900px;margin-top:10px}
+  .logs{position:absolute;left:72px;top:214px;width:330px;height:330px;z-index:2;background:#fff;border:1px solid var(--line);overflow:hidden}
+  .logs .tag{position:relative;z-index:2;background:#fff;padding:10px 14px;border-bottom:1px solid var(--line);display:block;font-size:9.5px;white-space:nowrap}
+  .win{position:absolute;left:0;right:0;top:36px;bottom:0;overflow:hidden}
+  .scroll{padding:6px 14px;animation:up 14s linear infinite}
+  @keyframes up{to{transform:translateY(-50%)}}
+  .ln{font:400 10.5px/1.5 var(--mono);color:var(--grey);padding:5px 0;border-bottom:1px dashed var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ln .e{color:#fff;background:var(--pink);padding:0 3px}
+  .ln .s{color:var(--blue);font-weight:600}
+  .ln .t{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-color:var(--orange);text-underline-offset:2px}
+  #scene{left:410px;top:200px;width:420px;height:280px}
+  .idx{position:absolute;left:440px;top:452px;width:360px;z-index:2}
+  .fields{display:flex;gap:6px;margin-bottom:8px}
+  .post{display:grid;grid-template-columns:110px 18px 1fr;font:500 11px/1.9 var(--mono);color:var(--char);border-top:1px solid var(--line)}
+  .post b{color:var(--ink)}
+  .post i{font-style:normal;color:var(--grey-l)}
+  .ask{position:absolute;left:850px;right:72px;top:214px;z-index:2}
+  .q{border:1.5px solid var(--ink);background:#fff;padding:12px 14px;display:flex;gap:10px;align-items:center;font:500 13px var(--mono)}
+  .q .tag{background:var(--ink);color:#fff;padding:3px 7px;font-size:10px}
+  .caret{display:inline-block;width:7px;height:14px;background:var(--blue);vertical-align:-2px;animation:bl 1s steps(1) infinite}
+  @keyframes bl{50%{opacity:0}}
+  .res{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .rw{display:grid;grid-template-columns:54px 1fr;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);padding:10px 12px;opacity:0;animation:ew-in .5s cubic-bezier(.2,.7,.2,1) both}
+  .rw b{font:500 22px var(--sans);letter-spacing:-.6px;color:var(--grey)}
+  .rw strong{display:block;font:600 13px var(--sans)}
+  .rw small{display:block;font:400 10.5px var(--mono);color:var(--grey);margin-top:3px}
+  .rw .sc{height:3px;background:var(--slate-l);margin-top:7px;position:relative}
+  .rw .sc i{position:absolute;inset:0 auto 0 0;background:var(--grey-l)}
+  .rw.top{border:1.5px solid var(--blue);box-shadow:6px 6px 0 var(--blue-l)}
+  .rw.top b{color:var(--blue)}.rw.top .sc i{background:var(--blue)}
+  .ask .note{margin-top:12px;font:500 11px/1.5 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--ink)}
+  .pts{position:absolute;left:72px;right:72px;top:572px;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--ink);z-index:2}
+  .pts div{padding:12px 20px 0 0;font-size:14px;line-height:1.4;color:var(--grey)}
+  .pts b{color:var(--ink);font-weight:600;display:block;font-size:16px;margin-bottom:2px}
+  #flow{position:absolute;inset:0;width:1280px;height:720px;z-index:1;pointer-events:none}
+  .logs,#scene,.idx,.ask,#flow,.ew-dots{transition:transform .7s cubic-bezier(.2,.7,.2,1),height .6s cubic-bezier(.2,.7,.2,1),top .7s cubic-bezier(.2,.7,.2,1)}
+  .dxa{margin-top:14px}
+  .dxl{position:absolute;left:72px;top:474px;width:330px;z-index:2;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+  /* density 1-2: the flow alone takes the stage */
+  html[data-density="1"] #scene,html[data-density="1"] .ask,html[data-density="1"] #flow,html[data-density="1"] .ew-dots{transform:translateY(-40px)}
+  html[data-density="2"] #scene,html[data-density="2"] .ask,html[data-density="2"] #flow,html[data-density="2"] .ew-dots{transform:translateY(30px)}
+  /* density 5: shorter feed, room for how it works */
+  html[data-density="5"] .logs{height:246px}
+  h1,.sub,.pts{transition:font-size .6s,top .6s cubic-bezier(.2,.7,.2,1)}
+  html[data-density="4"] h1,html[data-density="5"] h1{font-size:40px}
+  html[data-density="4"] .sub,html[data-density="5"] .sub{font-size:14px;max-width:none;margin-top:6px}
+  html[data-density="4"] #scene,html[data-density="4"] .ask,html[data-density="4"] #flow,html[data-density="4"] .ew-dots,
+  html[data-density="5"] #scene,html[data-density="5"] .ask,html[data-density="5"] #flow,html[data-density="5"] .ew-dots{transform:translateY(-26px)}
+  html[data-density="1"] .logs{top:174px}
+  html[data-density="2"] .logs{top:244px}
+  html[data-density="4"] .logs,html[data-density="5"] .logs{top:188px}
+  html[data-density="4"] .idx,html[data-density="5"] .idx{top:426px}
+  html[data-density="4"] .pts,html[data-density="5"] .pts{top:596px}
+  html[data-density="4"] .pts div,html[data-density="5"] .pts div{font-size:12.5px}
+  html[data-density="4"] .pts b,html[data-density="5"] .pts b{font-size:14px}
+  html[data-density="5"] .dxl{transform:translateY(-26px)}
+</style>
+</head>
+<body data-foot="The document store architecture">
+<svg id="flow" viewBox="0 0 1280 720"></svg>
+<div class="z">
+  <div class="eyebrow in1" data-d="3">The document store <b>architecture</b></div>
+  <h1 class="in2" data-d="2">Millions of messy logs in. <span class="b">The right answer out.</span></h1>
+  <p class="sub in3" data-d="3">Elasticsearch ingests any log, structured or not, indexes every term, and ranks results by relevance. This is why logs run on Elastic.</p>
+</div>
+<div class="logs in3"><span class="tag">Every service. Every format. No schema required.</span><div class="win"><div class="scroll" id="scroll"></div></div></div>
+<svg id="scene" class="iso" viewBox="0 0 420 280"></svg>
+<div class="idx in5" data-d="3">
+  <div class="fields"><span class="chip">level</span><span class="chip">service</span><span class="chip">host</span><span class="chip">duration</span></div>
+  <div class="post"><b>"ERROR"</b><i>→</i><span>doc0, doc3, doc7...</span></div>
+  <div class="post"><b>"timeout"</b><i>→</i><span>doc0, doc4...</span></div>
+  <div class="post"><b>"payment-svc"</b><i>→</i><span>doc0, doc1, doc5...</span></div>
+</div>
+<div class="ask">
+  <div class="q in4"><span class="tag">Ask</span>what timed out in payments?<span class="caret"></span></div>
+  <div class="res">
+    <div class="rw top" style="animation-delay:1.1s"><b>0.97</b><div><strong>payment-svc · request timeout</strong><small>4.2s · us-east-1 · trace=abc123 · 03:14:02</small><div class="sc"><i style="width:97%"></i></div></div></div>
+    <div class="rw" style="animation-delay:1.25s"><b>0.91</b><div><strong>payment-svc · timeout · 3.1s · us-east-1</strong><div class="sc"><i style="width:91%"></i></div></div></div>
+    <div class="rw" style="animation-delay:1.4s"><b>0.84</b><div><strong>checkout-svc · upstream 504 · us-east-1</strong><div class="sc"><i style="width:84%"></i></div></div></div>
+  </div>
+  <div class="note in6" data-d="2">Match and score. The most relevant line comes back first.</div>
+  <div class="dx dxa" data-d="4"><span class="dxk">Match and score</span><p>Elastic doesn't just match terms, it scores them. On messy, ever-changing application logs, <b>the most relevant line comes back first</b>.</p></div>
+</div>
+<div class="dx dxl" data-d="5"><span class="dxk">How it works</span><p>Any line comes in: JSON, syslog, raw app output. Fields are extracted automatically and every term lands in an inverted index. <b>New fields are indexed on arrival</b>: no schema migration, no DDL.</p></div>
+<div class="pts" data-d="3">
+  <div class="in5"><b>Any schema.</b>Logs change shape all the time. Nothing to configure.</div>
+  <div class="in5" style="animation-delay:.8s"><b>Every word searchable.</b>Instant lookup, even at petabyte scale.</div>
+  <div class="in5" style="animation-delay:.9s"><b>Relevance ranking.</b>Not just matches, the best match first.</div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const L = [
+    '10.2.1.4 - - [15/Jan:03:12:01] "GET /api/v2/orders HTTP/1.1" 200 4321',
+    '{"level":"<span class="e">ERROR</span>","service":"<span class="s">payment-svc</span>","msg":"request <span class="t">timeout</span>","duration":4200}',
+    'Jan 15 03:12:44 server01 sshd[821]: Accepted publickey for deploy',
+    'WARN [checkout-svc] retrying connection to redis-cache attempt=3',
+    'Jan 15 03:13:02 server01 kernel: <span class="t">Out of memory</span>: Kill process 9178 (java)',
+    'DEBUG trace=9f31c sampling decision=RECORD span=charge.create',
+    '2024-01-15 03:14 <span class="e">ERROR</span> [<span class="s">payment-svc</span>] <span class="t">timeout</span> host=us-east-1 duration=4200ms',
+    'INFO [cart-svc] checkout complete user=8841 total=129.99 currency=USD',
+    '10.2.1.7 - - [15/Jan:03:14:11] "POST /api/v2/charge HTTP/1.1" 504 0',
+    '{"level":"INFO","service":"auth-svc","msg":"token refreshed","user":"a112"}'];
+  document.getElementById('scroll').innerHTML = L.concat(L).map(l => `<div class="ln">${l}</div>`).join('');
+  EW.dots({x: 420, y: 190, w: 420, h: 280, seed: 12, blobs: 4, thr: .5, z: 0});
+  const sc = EW.iso(document.getElementById('scene'), {ox: 180, oy: 118, s: .78});
+  sc.rect({x: -20, y: -20, w: 150, d: 150, delay: .1});
+  sc.box({x: 0, y: 0, w: 110, d: 110, h: 64, c: 'pink', delay: .3, drop: 100});
+  sc.box({x: 8, y: 8, w: 94, d: 94, h: 10, z: 98, c: 'white', delay: .6, drop: 60, float: 3, phase: 0});
+  sc.box({x: 8, y: 8, w: 94, d: 94, h: 10, z: 132, c: 'blue', delay: .75, drop: 60, float: 3, phase: .8});
+  sc.label({at: [110, 8, 138], side: 'r', len: 30, title: '2 · Inverted index', delay: 1.1, size: 11});
+  sc.label({at: [110, 8, 104], side: 'r', len: 30, title: '1 · Fields extracted', delay: 1.0, size: 11});
+  sc.label({at: [110, 0, 32], side: 'r', len: 26, title: 'Document store', delay: 1.2, size: 11});
+  sc.run();
+  const f = document.getElementById('flow'), el = EW.el;
+  const paths = ['M402,380 C430,380 440,330 470,330', 'M790,330 C820,330 820,262 850,262'];
+  const ps = paths.map(d => { el('path', {d, fill: 'none', stroke: '#1D1E24', 'stroke-width': 1, 'stroke-dasharray': '2 4'}, f); const p = el('path', {d, fill: 'none'}, f); return p; });
+  const dots = [0, 1, 2, 3, 4, 5].map(i => ({p: ps[i % 2], o: i / 6, c: el('circle', {r: 3, fill: i % 2 ? '#0B64DD' : '#F04E98'}, f)}));
+  EW.loop(t => dots.forEach(d => { const L = d.p.getTotalLength(), u = (t * .45 + d.o) % 1, q = d.p.getPointAtLength(u * L); d.c.setAttribute('cx', q.x); d.c.setAttribute('cy', q.y); d.c.setAttribute('opacity', Math.sin(u * Math.PI) * Math.min(1, t)); }));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elastic Metrics — Metrics in the AI Era</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { width: 100%; height: 100%; overflow: hidden; background: #22242C; }
+    body {
+      width: 1280px; height: 720px; overflow: hidden;
+      position: absolute;
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #22242C;
+      display: flex; flex-direction: column;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .accent-bar {
+      position: fixed; top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: #00BFB3; z-index: 20;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes domain-on {
+      from { opacity: 0.22; transform: scale(0.94); }
+      to   { opacity: 1;    transform: scale(1); }
+    }
+
+    .f1 { opacity: 0; animation: fade-up 0.5s ease forwards 0.10s; }
+    .f2 { opacity: 0; animation: fade-up 0.5s ease forwards 0.22s; }
+    .f3 { opacity: 0; animation: fade-up 0.5s ease forwards 0.34s; }
+    .f4 { opacity: 0; animation: fade-up 0.5s ease forwards 0.46s; }
+    .f5 { opacity: 0; animation: fade-up 0.5s ease forwards 0.58s; }
+
+    /* ── Slide shell ── */
+    .slide {
+      position: relative; z-index: 10;
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column;
+      padding: 26px 52px 58px;
+    }
+
+    /* ── Header ── */
+    .eyebrow {
+      font-size: 0.66rem; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: #00BFB3; margin-bottom: 6px;
+    }
+    .headline {
+      font-size: 1.9rem; font-weight: 300; letter-spacing: -0.025em;
+      line-height: 1.1; color: #fff; margin-bottom: 4px;
+    }
+    .headline strong { font-weight: 800; color: #00BFB3; }
+    .sub {
+      font-size: 1.02rem; color: rgba(255,255,255,0.90);
+      font-weight: 400; line-height: 1.5;
+      border-left: 3px solid rgba(0,191,179,0.55);
+      padding-left: 14px; margin-top: 8px;
+    }
+    .divider { height: 1px; background: rgba(255,255,255,0.07); margin: 11px 0; }
+
+    /* ── Two-column body ── */
+    .body {
+      flex: 1; min-height: 0;
+      display: flex; gap: 0;
+    }
+
+    /* ── LEFT: metric type cards ── */
+    .left-panel {
+      width: 392px; flex-shrink: 0;
+      display: flex; flex-direction: column; gap: 7px;
+      padding-right: 22px; padding-bottom: 8px;
+    }
+
+    .type-card {
+      flex: 1; min-height: 0;
+      padding: 9px 12px 8px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.018);
+      display: flex; flex-direction: column;
+    }
+
+    .card-head {
+      display: flex; align-items: center; gap: 7px; margin-bottom: 3px;
+    }
+
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.50rem; font-weight: 700; letter-spacing: 0.08em;
+      padding: 2px 5px; border-radius: 3px; border: 1px solid; white-space: nowrap; flex-shrink: 0;
+    }
+    .b-ctr  { color: #00BFB3; border-color: rgba(0,191,179,0.4);  background: rgba(0,191,179,0.06); }
+    .b-gau  { color: #3B82F6; border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.06); }
+    .b-his  { color: #8B5CF6; border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.06); }
+
+    .mname {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.61rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .c-teal   { color: #00BFB3; }
+    .c-blue   { color: #3B82F6; }
+    .c-purple { color: #8B5CF6; }
+
+    .mdesc {
+      font-size: 0.69rem; line-height: 1.5; color: rgba(255,255,255,0.48); margin-bottom: 5px;
+    }
+
+    .spark-wrap {
+      flex: 1; min-height: 26px; position: relative; overflow: hidden; border-radius: 3px;
+    }
+    .spark-wrap canvas { width: 100%; height: 100%; display: block; }
+    .spark-wrap::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 14px; height: 100%;
+      background: linear-gradient(to right, #22242C, transparent);
+      z-index: 2; pointer-events: none;
+    }
+
+    /* ── Separator ── */
+    .panel-sep {
+      width: 1px; background: rgba(255,255,255,0.06);
+      flex-shrink: 0; align-self: stretch; margin-bottom: 8px;
+    }
+
+    /* ── RIGHT: explosion + consequences ── */
+    .right-panel {
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column; gap: 10px;
+      padding-left: 20px; padding-bottom: 8px;
+    }
+
+    .explosion-block {
+      flex: 0 0 auto;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 16px 16px 14px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .compare-cards {
+      display: flex; align-items: stretch; gap: 10px;
+    }
+    .compare-card {
+      flex: 1; display: flex; flex-direction: column; gap: 7px;
+      padding: 10px 12px; border-radius: 6px;
+    }
+    .cc-before {
+      flex: 0.65;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .cc-after {
+      flex: 1;
+      background: rgba(0,191,179,0.04);
+      border: 1px solid rgba(0,191,179,0.18);
+    }
+    .cc-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.60rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .cc-before .cc-label { color: rgba(255,255,255,0.28); }
+    .cc-after  .cc-label { color: rgba(0,191,179,0.9); }
+    .cc-points { display: flex; flex-direction: column; gap: 6px; }
+    .cc-point {
+      font-size: 0.76rem; line-height: 1.45; color: rgba(255,255,255,0.45);
+      padding-left: 12px; position: relative;
+    }
+    .cc-point::before {
+      content: '·'; position: absolute; left: 0;
+      color: rgba(255,255,255,0.22);
+    }
+    .cc-after .cc-point { font-size: 0.82rem; color: rgba(255,255,255,0.82); }
+    .cc-after .cc-point::before { color: rgba(0,191,179,0.65); }
+    .cc-tag-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+    .cc-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.48rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 2px 6px; border-radius: 3px;
+      background: rgba(0,191,179,0.08); border: 1px solid rgba(0,191,179,0.25);
+      color: rgba(0,191,179,0.7);
+    }
+    .cc-result {
+      font-size: 1.05rem; font-weight: 800; color: #00BFB3;
+      margin-top: 8px; letter-spacing: -0.02em; line-height: 1.2;
+    }
+    .compare-arrow {
+      font-size: 1.3rem; color: rgba(0,191,179,0.3);
+      display: flex; align-items: center; flex-shrink: 0;
+    }
+
+    .vsep {
+      flex-shrink: 0; text-align: center;
+      font-size: 0.65rem; color: rgba(255,255,255,0.18); line-height: 1;
+    }
+    .csq-pair {
+      flex: 1; min-height: 0; display: flex; align-items: stretch; gap: 10px;
+    }
+    .csq-connector {
+      flex-shrink: 0; display: flex; align-items: center;
+      font-size: 0.9rem; color: rgba(255,255,255,0.15);
+    }
+    .consequence {
+      flex: 1; border-radius: 8px; border: 1px solid;
+      padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .need-block {
+      flex: 1; border-radius: 8px;
+      border: 1px solid rgba(0,191,179,0.25);
+      background: rgba(0,191,179,0.04);
+      padding: 10px 14px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .need-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.50rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(0,191,179,0.7);
+    }
+    .need-text {
+      font-size: 0.76rem; font-weight: 600; color: rgba(255,255,255,0.75); line-height: 1.4;
+    }
+    .consequence.c-cost {
+      background: rgba(245,158,11,0.04);
+      border-color: rgba(245,158,11,0.2);
+    }
+    .consequence.c-blind {
+      background: rgba(239,68,68,0.04);
+      border-color: rgba(239,68,68,0.2);
+    }
+    .csq-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.50rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .c-cost  .csq-eyebrow { color: rgba(245,158,11,0.7); }
+    .c-blind .csq-eyebrow { color: rgba(239,68,68,0.7); }
+    .csq-head {
+      font-size: 0.88rem; font-weight: 700; color: #fff;
+      letter-spacing: -0.01em; line-height: 1.2;
+    }
+    .csq-body {
+      font-size: 0.70rem; line-height: 1.55;
+      color: rgba(255,255,255,0.50);
+    }
+
+
+  
+    /* ── Standard footer ── */
+    .std-footer { position: fixed; left: 4.5vw; right: 4.5vw; bottom: 0; height: 56px; display: flex; align-items: center; gap: 1.1rem; border-top: 1px solid rgba(255,255,255,0.06); z-index: 30; }
+    .elastic-logo-svg { height: 26px; width: auto; display: block; }
+    .std-footer-div { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .std-footer-tag { font-size: 0.7rem; color: rgba(255,255,255,0.28); letter-spacing: 0.02em; font-family: 'Inter', -apple-system, sans-serif; }
+  </style>
+</head>
+<body>
+
+  <div class="accent-bar"></div>
+
+  <div class="slide">
+    <div>
+      <div class="eyebrow f1">Metrics × AI</div>
+      <h1 class="headline f2">AI is causing an <strong>explosion in metrics.</strong></h1>
+      <p class="sub f3">Every AI session fans out across LLM calls, GPU cycles, RAG queries, and tool invocations, each generating its own stream of metric series.</p>
+    </div>
+    <div class="divider f3"></div>
+
+    <div class="body f4">
+
+      <!-- LEFT: primitives -->
+      <div class="left-panel">
+
+        <div class="type-card">
+          <div class="card-head">
+            <span class="badge b-ctr">COUNTER</span>
+            <span class="mname c-teal">agent_tool_calls_total</span>
+          </div>
+          <p class="mdesc">Grows with every tool call. Total is unpredictable until the session ends.</p>
+          <div class="spark-wrap"><canvas id="cvC"></canvas></div>
+        </div>
+
+        <div class="type-card">
+          <div class="card-head">
+            <span class="badge b-gau">GAUGE</span>
+            <span class="mname c-blue">active_agent_loops</span>
+          </div>
+          <p class="mdesc">Live loop depth. Agents recurse, retry, and branch unpredictably.</p>
+          <div class="spark-wrap"><canvas id="cvG"></canvas></div>
+        </div>
+
+        <div class="type-card">
+          <div class="card-head">
+            <span class="badge b-his">HISTOGRAM</span>
+            <span class="mname c-purple">tool_response_duration_seconds</span>
+          </div>
+          <p class="mdesc">One distribution per tool type. Series count multiplies.</p>
+          <div class="spark-wrap"><canvas id="cvH"></canvas></div>
+        </div>
+
+      </div>
+
+      <div class="panel-sep"></div>
+
+      <!-- RIGHT: explosion + consequences -->
+      <div class="right-panel">
+
+        <div class="explosion-block">
+          <div class="compare-cards">
+            <div class="compare-card cc-before">
+              <div class="cc-label">Traditional service</div>
+              <div class="cc-points">
+                <div class="cc-point">Predefined transaction path</div>
+                <div class="cc-point">Known metric series per endpoint</div>
+                <div class="cc-point">Bounded, predictable volume</div>
+              </div>
+            </div>
+            <div class="compare-arrow">→</div>
+            <div class="compare-card cc-after">
+              <div class="cc-label">AI agent session</div>
+              <div class="cc-points">
+                <div class="cc-point">Unknown turns, loops, and retries</div>
+                <div class="cc-point">Unpredictable tool invocations</div>
+                <div class="cc-point">Entirely new things to observe</div>
+              </div>
+              <div class="cc-result">AI metrics volume is non-deterministic by design.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vsep">↓</div>
+
+        <div class="csq-pair">
+          <div class="consequence c-cost">
+            <div class="csq-eyebrow">If you store it all</div>
+            <div class="csq-head">Costs spiral.</div>
+            <div class="csq-body">Cardinality compounds. Storing it all at standard rates breaks your observability budget.</div>
+          </div>
+          <div class="csq-connector">→</div>
+          <div class="need-block">
+            <div class="need-eyebrow">What's needed</div>
+            <div class="need-text">A storage engine purpose-built for high-cardinality metrics, at a cost that scales with the business, not against it.</div>
+          </div>
+        </div>
+
+        <div class="csq-pair">
+          <div class="consequence c-blind">
+            <div class="csq-eyebrow">If you drop data</div>
+            <div class="csq-head">You go blind.</div>
+            <div class="csq-body">Drop a series and you break the investigation thread. Missing data makes RCA impossible.</div>
+          </div>
+          <div class="csq-connector">→</div>
+          <div class="need-block">
+            <div class="need-eyebrow">What's needed</div>
+            <div class="need-text">Full-fidelity retention across every agent session, so investigation context is always there when an incident hits.</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <script>
+  (function scaleToFit() {
+    if (window !== window.top) return;
+    const W = 1280, H = 720;
+    function fit() {
+      const s = Math.min(window.innerWidth / W, window.innerHeight / H);
+      document.body.style.transform = 'scale(' + s + ')';
+      document.body.style.transformOrigin = '0 0';
+      document.body.style.left = Math.round((window.innerWidth  - W * s) / 2) + 'px';
+      document.body.style.top  = Math.round((window.innerHeight - H * s) / 2) + 'px';
+    }
+    fit(); window.addEventListener('resize', fit);
+  })();
+  </script>
+  <script src="/js/fuckslides.js"></script>
+
+  <script>
+  (function () {
+    var TEAL   = '#00BFB3', TEALR = [0,191,179];
+    var BLUE   = '#3B82F6', BLUER = [59,130,246];
+    var PURPLE = '#8B5CF6', PURPR = [139,92,246];
+    var AMBER  = '#F59E0B', AMBR  = [245,158,11];
+    var RED    = '#EF4444', REDR  = [239,68,68];
+    var WHITE  = '#E2E8F0', WHITR = [226,232,240];
+    var GRID   = 'rgba(255,255,255,0.04)';
+    var dpr    = Math.min(window.devicePixelRatio || 1, 2);
+
+    function rgba(rgb, a) { return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a + ')'; }
+
+    function mkCanvas(id) {
+      var el = document.getElementById(id);
+      var r  = el.parentElement.getBoundingClientRect();
+      var w  = Math.round(r.width)  || 340;
+      var h  = Math.round(r.height) || 44;
+      el.width  = w * dpr; el.height = h * dpr;
+      var ctx = el.getContext('2d'); ctx.scale(dpr, dpr);
+      return { ctx: ctx, w: w, h: h };
+    }
+
+    /* ── COUNTER sparkline (llm_tokens_total) ── */
+    (function () {
+      var cv = mkCanvas('cvC');
+      var ctx = cv.ctx, w = cv.w, h = cv.h;
+      var steps = [0,.06,.06,.12,.19,.19,.28,.28,.38,.49,.49,.60,.71,.71,.84,1.0];
+      var n = steps.length, pad = {l:4,r:4,t:4,b:4};
+      var iw = w-pad.l-pad.r, ih = h-pad.t-pad.b;
+      var frame = 0, TOTAL = 80;
+
+      function draw() {
+        ctx.clearRect(0,0,w,h);
+        var prog = Math.min(frame/TOTAL, 1);
+        var fi = prog*(n-1), idx = Math.floor(fi), frac = fi-idx;
+
+        var gr = ctx.createLinearGradient(pad.l,0,pad.l+iw,0);
+        gr.addColorStop(0, rgba(TEALR,0.0));
+        gr.addColorStop(0.3, rgba(TEALR,0.08));
+        gr.addColorStop(1, rgba(TEALR,0.18));
+
+        ctx.beginPath();
+        for (var i=0; i<=Math.min(idx+1,n-1); i++) {
+          var x0 = pad.l+(i/(n-1))*iw;
+          var x1 = pad.l+(Math.min(i+1,n-1)/(n-1))*iw;
+          var v  = i<idx ? steps[i] : steps[idx]+frac*(steps[Math.min(idx+1,n-1)]-steps[idx]);
+          var y  = pad.t+ih-v*ih;
+          if (i===0) ctx.moveTo(x0,y); else ctx.lineTo(x0,y);
+          if (i<=idx) ctx.lineTo(x1,y);
+        }
+        var ex = pad.l+(Math.min(idx+1,n-1)/(n-1))*iw;
+        ctx.lineTo(ex,pad.t+ih); ctx.lineTo(pad.l,pad.t+ih); ctx.closePath();
+        ctx.fillStyle = gr; ctx.fill();
+
+        ctx.beginPath(); ctx.strokeStyle = TEAL; ctx.lineWidth = 1.5;
+        ctx.shadowColor = TEAL; ctx.shadowBlur = 7;
+        for (var i2=0; i2<=Math.min(idx+1,n-1); i2++) {
+          var x02 = pad.l+(i2/(n-1))*iw;
+          var x12 = pad.l+(Math.min(i2+1,n-1)/(n-1))*iw;
+          var v2  = i2<idx ? steps[i2] : steps[idx]+frac*(steps[Math.min(idx+1,n-1)]-steps[idx]);
+          var y2  = pad.t+ih-v2*ih;
+          if (i2===0) ctx.moveTo(x02,y2); else ctx.lineTo(x02,y2);
+          if (i2<=idx) ctx.lineTo(x12,y2);
+        }
+        ctx.stroke(); ctx.shadowBlur = 0;
+
+        if (prog > 0.5) {
+          ctx.globalAlpha = Math.min((prog-0.5)/0.3, 1);
+          ctx.font = '600 9px Inter, sans-serif';
+          ctx.fillStyle = rgba(TEALR, 0.75);
+          ctx.fillText('↑ only increases', pad.l+6, pad.t+12);
+          ctx.globalAlpha = 1;
+        }
+
+        if (frame < TOTAL+20) { frame++; requestAnimationFrame(draw); }
+      }
+      draw();
+    })();
+
+    /* ── GAUGE sparkline (gpu_vram_used_bytes) — static ── */
+    (function () {
+      var cv = mkCanvas('cvG');
+      var ctx = cv.ctx, w = cv.w, h = cv.h;
+      var pad = {l:4,r:60,t:4,b:4};
+      var iw = w-pad.l-pad.r, ih = h-pad.t-pad.b;
+      var pts = 80, THRESH = 0.82, t = 4.5;
+
+      var ys = [];
+      for (var i=0; i<pts; i++) {
+        var a = (i/pts)*Math.PI*2.8+t;
+        ys.push(0.5 + 0.33*Math.sin(a) + 0.09*Math.sin(a*2.1+0.8));
+      }
+      var curV = ys[pts-1], firing = curV >= THRESH;
+
+      var gr = ctx.createLinearGradient(0,pad.t,0,pad.t+ih);
+      if (firing) { gr.addColorStop(0,rgba(REDR,0.18)); gr.addColorStop(1,rgba(REDR,0.0)); }
+      else        { gr.addColorStop(0,rgba(BLUER,0.14)); gr.addColorStop(1,rgba(BLUER,0.0)); }
+
+      ctx.beginPath();
+      ys.forEach(function(v,i) {
+        var px = pad.l+(i/(pts-1))*iw, py = pad.t+ih-v*ih;
+        i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+      });
+      ctx.lineTo(pad.l+iw,pad.t+ih); ctx.lineTo(pad.l,pad.t+ih); ctx.closePath();
+      ctx.fillStyle = gr; ctx.fill();
+
+      var ty = pad.t+ih-THRESH*ih;
+      ctx.beginPath(); ctx.strokeStyle = rgba(REDR,0.5); ctx.lineWidth = 0.8;
+      ctx.setLineDash([3,3]); ctx.moveTo(pad.l,ty); ctx.lineTo(pad.l+iw,ty); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = '700 8px JetBrains Mono, monospace';
+      ctx.fillStyle = rgba(REDR,0.65);
+      ctx.fillText('ALERT', pad.l+iw+4, ty+3);
+
+      var lc = firing ? RED : BLUE;
+      ctx.beginPath(); ctx.strokeStyle = lc; ctx.lineWidth = 1.5;
+      ctx.shadowColor = lc; ctx.shadowBlur = firing?9:5;
+      ys.forEach(function(v,i) {
+        var px = pad.l+(i/(pts-1))*iw, py = pad.t+ih-v*ih;
+        i===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+      });
+      ctx.stroke(); ctx.shadowBlur = 0;
+
+      var cx = pad.l+iw, cy = pad.t+ih-curV*ih;
+      ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2);
+      ctx.fillStyle = lc; ctx.shadowColor = lc; ctx.shadowBlur = 9; ctx.fill(); ctx.shadowBlur = 0;
+      ctx.font = 'bold 9px JetBrains Mono, monospace'; ctx.fillStyle = lc;
+      ctx.fillText(Math.round(curV*100)+'%', cx+5, cy+3);
+    })();
+
+    /* ── HISTOGRAM sparkline (llm_request_duration_seconds) ── */
+    (function () {
+      var cv = mkCanvas('cvH');
+      var ctx = cv.ctx, w = cv.w, h = cv.h;
+      var pad = {l:4,r:4,t:4,b:13};
+      var iw = w-pad.l-pad.r, ih = h-pad.t-pad.b;
+      var buckets = [
+        {label:'100ms',v:0.04},{label:'250ms',v:0.12},{label:'500ms',v:0.38},
+        {label:'1s',v:0.78},{label:'2s',v:0.60},{label:'4s',v:0.26},
+        {label:'8s',v:0.09},{label:'+Inf',v:0.02}
+      ];
+      var P50=3, P95=5, P99=6;
+      var frame=0, TOTAL=50;
+
+      function draw() {
+        ctx.clearRect(0,0,w,h);
+        var prog = Math.min(frame/TOTAL, 1);
+        var bw = iw/buckets.length, gap = 2;
+
+        buckets.forEach(function(b,i) {
+          var x  = pad.l+i*bw+gap/2, bh = b.v*ih*prog, y = pad.t+ih-bh;
+          var hi = i===P50||i===P95||i===P99;
+          ctx.fillStyle = hi ? PURPLE : rgba(PURPR,0.28);
+          ctx.shadowColor = PURPLE; ctx.shadowBlur = hi?9:0;
+          ctx.fillRect(x,y,bw-gap,bh); ctx.shadowBlur = 0;
+          ctx.font='8px JetBrains Mono, monospace'; ctx.fillStyle=rgba(WHITR,0.25); ctx.textAlign='center';
+          ctx.fillText(b.label, x+(bw-gap)/2, pad.t+ih+10);
+        });
+
+        if (prog > 0.8) {
+          var a = Math.min((prog-0.8)/0.2, 1);
+          ctx.globalAlpha = a;
+          [[P50,'p50'],[P95,'p95'],[P99,'p99']].forEach(function(pair) {
+            var bi=pair[0], lbl=pair[1];
+            var x = pad.l+bi*bw+bw/2, y = pad.t+ih-buckets[bi].v*ih-5;
+            ctx.font='bold 8px JetBrains Mono, monospace'; ctx.fillStyle=PURPLE; ctx.textAlign='center';
+            ctx.fillText(lbl,x,y);
+          });
+          ctx.globalAlpha = 1;
+        }
+        ctx.textAlign = 'left';
+
+        if (frame < TOTAL+10) { frame++; requestAnimationFrame(draw); }
+      }
+      draw();
+    })();
+
+  })();
+  </script>
+
+
+  <div class="std-footer">
+    <svg class="elastic-logo-svg" viewBox="0 0 687.5 235.6" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M236.6 123.5a46.54 46.54 0 0 0-30.8-43.9A67 67 0 0 0 140.2 0 66.72 66.72 0 0 0 86 27.7a35.5 35.5 0 0 0-57.2 28.1A36.77 36.77 0 0 0 31 68.2a46.75 46.75 0 0 0-.1 88 66.66 66.66 0 0 0 119.6 51.6 35 35 0 0 0 21.7 7.6 35.51 35.51 0 0 0 35.5-35.5 36.77 36.77 0 0 0-2.2-12.4 47.08 47.08 0 0 0 31.1-44" fill="#fff"/><path d="M93 101.5l51.8 23.6L197 79.3a54.71 54.71 0 0 0 1.1-11.5 58.35 58.35 0 0 0-106.5-33l-8.7 45.1L93 101.5z" fill="#fed10a"/><path d="M39.4 156.3a56.62 56.62 0 0 0-1.1 11.7 58.58 58.58 0 0 0 107 32.9l8.6-44.9-11.5-22-52-23.7z" fill="#24bbb1"/><path d="M39.1 66.7l35.5 8.4 7.8-40.3a28 28 0 0 0-43.3 31.9" fill="#ef5098"/><path d="M36 75.2a39.1 39.1 0 0 0-1.7 73.7l49.8-45L75 84.4z" fill="#17a8e0"/><path d="M154.3 200.9a28 28 0 0 0 43.2-31.9l-35.4-8.3z" fill="#93c83e"/><path d="M161.5 151.4l39 9.1a39.1 39.1 0 0 0 1.7-73.7l-51 44.7z" fill="#0779a1"/><path fill="#ffffff" d="M330.8 165.5l4.7-.5.3 9.6a240.62 240.62 0 0 1-31.8 2.6q-17.55 0-24.9-10.2c-4.9-6.8-7.3-17.4-7.3-31.7q0-42.9 34.1-42.9c11 0 19.2 3.1 24.6 9.2s8.1 15.8 8.1 28.9l-.7 9.3h-53.8c0 9 1.6 15.7 4.9 20s8.9 6.5 17 6.5a230 230 0 0 0 24.8-.8zm-4.4-35.3c0-10-1.6-17.1-4.8-21.2s-8.4-6.2-15.6-6.2-12.7 2.2-16.3 6.5-5.5 11.3-5.6 20.9h42.3zm29.2 45.5v-117h12.2v117h-12.2zm89.3-56.9v40.1c0 4.1 10.1 4.9 10.1 4.9l-.6 10.8c-8.6 0-15.7.7-20-3.4a71.68 71.68 0 0 1-29.3 6.1c-7.5 0-13.2-2.1-17.1-6.4s-5.9-10.3-5.9-18.3 2-13.8 6-17.5 10.3-6.1 18.9-6.9l25.6-2.4v-7c0-5.5-1.2-9.5-3.6-11.9s-5.7-3.6-9.8-3.6h-32.1V92.5h31.3c9.2 0 15.9 2.1 20.1 6.4s6.4 10.9 6.4 19.9zM394.7 152c0 10 4.1 15 12.4 15a65.27 65.27 0 0 0 21.8-3.7l3.7-1.3v-26.9l-24.1 2.3c-4.9.4-8.4 1.8-10.6 4.2s-3.2 5.9-3.2 10.4zm97.9-48.6c-11.8 0-17.8 4.1-17.8 12.4 0 3.8 1.4 6.5 4.1 8.1s8.9 3.2 18.6 4.9 16.5 4 20.5 7.1 6 8.7 6 17.1-2.7 14.5-8.1 18.4-13.2 5.9-23.6 5.9c-6.7 0-29.2-2.5-29.2-2.5l.7-10.6c12.9 1.2 22.3 2.2 28.6 2.2s11.1-1 14.4-3 5-5.4 5-10.1-1.4-7.9-4.2-9.6-9-3.3-18.6-4.8-16.4-3.7-20.4-6.7-6-8.4-6-16.3 2.8-13.8 8.4-17.6 12.6-5.7 20.9-5.7c6.6 0 29.6 1.7 29.6 1.7V105c-12.1-.7-22-1.6-28.9-1.6zm90.4 1.4h-25.9v39c0 9.3.7 15.5 2 18.4s4.6 4.4 9.7 4.4l14.5-1 .8 10.1a111.1 111.1 0 0 1-16.6 1.8c-8.5 0-14.3-2.1-17.6-6.2s-4.9-12-4.9-23.6v-42.9h-11.6V94.2H545v-25h12.1v24.9H583v10.7zm17-29.1V61.6h12.2v14.2zm0 100V94.2h12.2v81.5H600zm65.2-83.2c3.6 0 9.7.7 18.3 2l3.9.5-.5 9.9a187.31 187.31 0 0 0-19.2-1.5c-9.2 0-15.5 2.2-18.8 6.6s-5 12.6-5 24.5 1.5 20.2 4.6 24.9 9.5 7 19.3 7l19.2-1.5.5 10.1c-10.1 1.5-17.7 2.3-22.7 2.3-12.7 0-21.5-3.3-26.3-9.8s-7.3-17.5-7.3-33 2.6-26.4 7.8-32.6 14-9.4 26.2-9.4z"/></svg>
+    <div class="std-footer-div"></div>
+    <div class="std-footer-tag">The Search AI Company</div>
+  </div>
+</body>
+</html>

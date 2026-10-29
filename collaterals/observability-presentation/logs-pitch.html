@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Best in Class Efficiency for Logs</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  .head{display:flex;justify-content:space-between;align-items:flex-end}
+  h1{font-size:48px}
+  .bets{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--ink);padding:7px 12px;background:#fff;margin-bottom:6px}
+  .cols{position:absolute;left:72px;right:72px;top:176px;bottom:62px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;z-index:2}
+  .col{background:#fff;border:1px solid var(--line);display:flex;flex-direction:column}
+  .col .top{padding:14px 18px 0;display:flex;justify-content:space-between;align-items:center}
+  .col .top .chip.ga{border-color:var(--teal-d);color:#017d79}
+  .col .top .chip.dev{border-color:var(--orange);color:#c24d33}
+  .col h3{font:600 19px var(--sans);letter-spacing:-.4px;padding:10px 18px 0;line-height:1.2}
+  .viz{height:104px;position:relative;margin:8px 18px 0;border-bottom:1px solid var(--ink)}
+  .viz svg,.viz canvas{position:absolute;inset:0}
+  .col p{font-size:12px;line-height:1.45;color:var(--grey);padding:10px 18px 0}
+  code{font:500 11px var(--mono);color:var(--blue);background:var(--blue-l);padding:1px 4px}
+  .rows{margin-top:auto;padding:0 18px 12px}
+  .r{display:grid;grid-template-columns:86px 1fr;gap:10px;align-items:baseline;border-top:1px solid var(--line);padding:7px 0}
+  .r b{font:500 26px/1 var(--sans);letter-spacing:-1px;color:var(--blue)}
+  .r span{font-size:11.5px;line-height:1.35;color:var(--char)}
+  .foot2{border-top:1px solid var(--ink);padding:9px 18px;font:600 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink);display:flex;justify-content:space-between}
+  .foot2 i{font-style:normal;color:var(--blue)}
+  .bar{display:grid;grid-template-columns:1fr 46px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+  .bar span{font:500 10.5px var(--mono);color:var(--char);display:block;margin-bottom:4px}
+  .bar .t{height:6px;background:var(--slate-l);position:relative}
+  .bar .t i{position:absolute;left:0;top:0;bottom:0;background:var(--blue);transform-origin:left;animation:grow 1s cubic-bezier(.2,.7,.2,1) both}
+  .bar b{font:500 18px var(--sans);color:var(--blue);text-align:right;letter-spacing:-.5px}
+  .big{padding:14px 18px 0;display:flex;align-items:flex-end;gap:14px}
+  .big b{font:500 76px/1 var(--sans);letter-spacing:-3px;color:var(--blue)}
+  .big span{font:500 10.5px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--char);padding-bottom:8px}
+  @keyframes grow{from{transform:scaleX(0)}}
+  .cols,.viz,.head{transition:top .6s cubic-bezier(.2,.7,.2,1),bottom .6s cubic-bezier(.2,.7,.2,1),height .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
+  .dq1{position:absolute;left:72px;right:72px;top:250px;z-index:2}
+  .dq1 .dquote{font-size:52px;letter-spacing:-1.6px;line-height:1.1}
+  .dq1 .st{display:flex;gap:56px;margin-top:40px}
+  .dq1 .st div{border-top:1px solid var(--ink);padding-top:10px;min-width:200px}
+  .dq1 .st b{display:block;font:500 64px/1 var(--sans);letter-spacing:-2.4px;color:var(--blue)}
+  .dq1 .st span{display:block;margin-top:8px;font:500 11px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--char)}
+  .dxrow{position:absolute;left:72px;right:72px;top:594px;display:grid;grid-template-columns:1fr 1fr;gap:24px;z-index:2}
+  /* density 2: headline, the three bets, one number each */
+  html[data-density="2"] .cols{top:200px;bottom:90px}
+  html[data-density="2"] .viz{height:150px}
+  html[data-density="2"] .col h3{font-size:23px}
+  /* density 4-5: compress the columns to make room for context */
+  html[data-density="4"] .cols,html[data-density="5"] .cols{top:150px;bottom:128px}
+  html[data-density="4"] .head,html[data-density="5"] .head{transform:translateY(-10px)}
+  html[data-density="4"] .viz,html[data-density="5"] .viz{height:78px}
+  .viz svg{transform-origin:0 0;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  html[data-density="4"] .viz svg,html[data-density="5"] .viz svg{transform:scale(.75)}
+  html[data-density="2"] #v1{transform:scale(1.18)}
+  html[data-density="4"] .col p,html[data-density="5"] .col p{font-size:11.5px;line-height:1.4;padding-top:8px}
+  html[data-density="4"] .r,html[data-density="5"] .r{padding:5px 0}
+  html[data-density="4"] .bar,html[data-density="5"] .bar{padding:4px 0}
+</style>
+</head>
+<body data-foot="Elastic Observability · Logs" class="soft">
+<div class="z head" data-d="2">
+  <div><div class="eyebrow in1" data-d="3">Elastic Observability · <b>Logs</b></div>
+  <h1 class="in2">Best in class efficiency <span class="b">for Logs.</span></h1></div>
+  <div class="bets in3" data-d="3">Three compounding engineering bets</div>
+</div>
+<div class="cols" data-d="2">
+  <div class="col in3">
+    <div class="top"><span class="tag">Bet 01</span><span class="chip ga">GA · 8.17+</span></div>
+    <h3>LogsDB Index Mode</h3>
+    <div class="viz"><svg id="v1" class="iso" viewBox="0 0 330 104" width="330" height="104"></svg></div>
+    <p data-d="3">A purpose-built index mode for log data. Smart sorting by <code>host.name</code> and <code>@timestamp</code> places similar records adjacent, dramatically improving compression. Synthetic <code>_source</code> reconstructs fields on demand: no redundant storage.</p>
+    <div class="rows">
+      <div class="r"><b>65%</b><span>storage reduction vs standard Elasticsearch</span></div>
+      <div class="r" data-d="3"><b>50%</b><span>TCO reduction for long-term log retention</span></div>
+      <div class="r" data-d="3"><b>30%</b><span>additional savings from smart index sorting alone</span></div>
+    </div>
+    <div class="foot2" data-d="3"><span>Read the deep dive</span><i>→</i></div>
+  </div>
+  <div class="col in4">
+    <div class="top"><span class="tag">Bet 02</span><span class="chip dev">In Development</span></div>
+    <h3>Columnar datastore mode</h3>
+    <div class="viz"><svg id="v2" viewBox="0 0 330 104" width="330" height="104"></svg></div>
+    <p data-d="3">By skipping inverted indexes and BKD trees entirely and using compressed binary doc-values, Elasticsearch achieves near-columnar storage density: optimized for high-volume analytics workloads where every byte counts.</p>
+    <div class="rows">
+      <div class="r" data-d="3"><b>168 B</b><span>per record in doc-values mode</span></div>
+      <div class="r"><b>~5×</b><span>improvement vs standard Elasticsearch (805 B/record)</span></div>
+      <div class="r" data-d="3"><b style="font-size:19px">Near parity</b><span>with best-in-class columnar stores: before full columnar mode</span></div>
+    </div>
+    <div class="foot2" data-d="3"><span>Full columnar logs will close the gap entirely</span></div>
+  </div>
+  <div class="col in5">
+    <div class="top"><span class="tag">Bet 03</span><span class="chip on">ES 9.4</span></div>
+    <h3>Query Latency: ~40% faster since Jan 2026</h3>
+    <p style="padding-top:8px" data-d="3">Three focused engineering investments have compounded across 9.x to dramatically cut average query execution time: and each improvement stacks on the last.</p>
+    <div class="big"><b id="n40">~40%</b><span>faster average query time<br>since Jan 2026</span></div>
+    <div class="rows" style="padding-top:8px" data-d="3">
+      <div class="bar"><div><span>LuceneSource DOC Partitioning</span><div class="t"><i style="width:27%;animation-delay:.9s"></i></div></div><b>3×</b></div>
+      <div class="bar"><div><span>Skipper competitive iterator</span><div class="t"><i style="width:100%;animation-delay:1s"></i></div></div><b>11×</b></div>
+      <div class="bar"><div><span>Swiss hashtables</span><div class="t"><i style="width:13%;animation-delay:1.1s"></i></div></div><b>1.4×</b></div>
+      <div class="bar"><div><span>Wildcard query rewrite</span><div class="t"><i style="width:30%;animation-delay:1.2s"></i></div></div><b>3.3×</b></div>
+    </div>
+    <div class="foot2" data-d="3" style="background:var(--blue);color:#fff;border-color:var(--blue)"><span>Compounding across 9.x</span></div>
+  </div>
+</div>
+<div class="dq1" data-dmax="1">
+  <div class="dquote">Best in class efficiency <span class="b">for logs</span>, and it keeps compounding.</div>
+  <div class="st"><div><b>65%</b><span>less log storage<br>with LogsDB</span></div><div><b>~5×</b><span>denser records in<br>doc-values mode</span></div><div><b>~40%</b><span>faster average queries<br>since Jan 2026</span></div></div>
+</div>
+<div class="dxrow">
+  <div class="dx" data-d="4"><span class="dxk">Why it costs less</span><p>LogsDB sorts similar records next to each other so they compress better, and synthetic <code>_source</code> stops storing every field twice. Net: <b>65% less storage, 50% lower TCO</b>.</p></div>
+  <div class="dx" data-d="5"><span class="dxk">Strongest, and still re-engineered</span><p>Logs is already where Elastic is strongest. The three bets stack: denser storage, a columnar mode on the way, faster queries every release.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  EW.dots({x: 760, y: 0, w: 520, h: 170, seed: 5, blobs: 4, thr: .45});
+  const a = EW.iso(document.getElementById('v1'), {ox: 50, oy: 62, s: .55});
+  a.box({x: 0, y: 0, w: 50, d: 50, h: 90, c: 'slate', stroke: false, delay: .5, drop: 60});
+  a.box({x: 150, y: -150, w: 50, d: 50, h: 30, c: 'blue', delay: .9, drop: 80});
+  a.label({at: [50, 10, 50], side: 'r', len: 14, title: 'Standard', sub: 'index', size: 10, delay: 1.1});
+  a.label({at: [200, -140, 15], side: 'r', len: 16, title: 'LogsDB', sub: '−65%', size: 10, delay: 1.3});
+  a.run();
+  const s = document.getElementById('v2'), el = EW.el;
+  const rows = [['Standard ES', 805, '#B5BFCE'], ['Doc-values mode', 168, '#0B64DD']];
+  const bars = rows.map(([n, v, c], i) => {
+    const y = 20 + i * 42;
+    const t = el('text', {x: 0, y: y - 5, 'font-family': 'IBM Plex Mono', 'font-size': 10, 'font-weight': 600, fill: '#1D1E24', 'letter-spacing': '.05em'}, s); t.textContent = n.toUpperCase();
+    const r = el('rect', {x: 0, y, width: 0, height: 16, fill: c}, s);
+    const lb = el('text', {x: 0, y: y + 12, 'font-family': 'IBM Plex Mono', 'font-size': 11, 'font-weight': 600, fill: '#1D1E24'}, s); lb.textContent = v + ' B';
+    return {r, lb, w: v / 805 * 250, d: .6 + i * .35};
+  });
+  EW.loop(t => bars.forEach(b => { const k = EW.ease((t - b.d) / .8), w = b.w * k; b.r.setAttribute('width', w); b.lb.setAttribute('x', w + 8); }));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-density="3">
+<head>
+<meta charset="UTF-8">
+<title>Data Sovereignty</title>
+<link rel="stylesheet" href="css/eweb.css">
+<style>
+  h1{font-size:38px;letter-spacing:-1.3px;max-width:1140px;white-space:nowrap}
+  .sub{font-size:16px;max-width:820px;margin-top:10px}
+  #sc{position:absolute;left:0;top:0;width:1280px;height:720px;z-index:1;overflow:visible}
+  #sc text{font-family:var(--mono)}
+  .win{position:absolute;z-index:3;left:930px;top:180px;width:278px;border:1px solid var(--ink);background:#fff;box-shadow:8px 8px 0 var(--pink);opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s}
+  .win.on{opacity:1;transform:none}
+  .win .bar{height:26px;border-bottom:1px solid var(--ink);display:flex;align-items:center;gap:5px;padding:0 10px;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--char)}
+  .win .bar i{width:8px;height:8px;border:1px solid var(--ink);border-radius:50%}
+  .win .bar span{margin-left:8px}
+  .win .bar em{margin-left:auto;font-style:normal;color:var(--pink)}
+  .win canvas{display:block;width:276px;height:158px}
+  .cross{position:absolute;z-index:3;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;color:var(--orange);background:#fff;border:1px solid var(--orange);padding:3px 7px;opacity:0;transition:opacity .4s}
+  .cross.on{opacity:1}
+  .ths{position:absolute;z-index:3;left:648px;right:72px;top:500px;display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .th{border-top:1px solid var(--ink);padding-top:10px;opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+  .th.on{opacity:1;transform:none}
+  .th .k{display:flex;align-items:center;gap:7px;font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#E0352B;margin-bottom:5px}
+  .th .k::before{content:'';width:7px;height:7px;background:#E0352B}
+  .th b{display:block;font:600 15px var(--sans);letter-spacing:-.3px;color:var(--ink)}
+  .th p{font-size:12.5px;line-height:1.45;color:var(--char);margin-top:3px}
+  .punch{position:absolute;z-index:3;left:72px;right:72px;top:626px;border-top:1px solid var(--ink);padding-top:12px;font-size:19px;color:var(--char);opacity:0;transition:opacity .6s}
+  .punch b{color:var(--ink);font-weight:600}
+  .dxs{position:absolute;z-index:3;left:72px;top:520px;width:540px;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+</style>
+</head>
+<body data-foot="none">
+<div class="z" data-d="2">
+  <div class="eyebrow in1" data-d="3">Observability · Data sovereignty</div>
+  <h1 class="in2">Service sovereignty is more important than ever <span class="b">in the age of AI.</span></h1>
+  <p class="sub in3" data-d="3">Logs, metrics and traces hold customer details, credentials and a map of your systems.</p>
+</div>
+<svg id="sc" viewBox="0 0 1280 720"></svg>
+<div class="cross" id="cross">Leaves your environment</div>
+<div class="win" id="win"><div class="bar"><i></i><i></i><i></i><span>Third-party AI</span><em>&#9679; Reading</em></div><canvas id="feed"></canvas></div>
+<div class="ths">
+  <div class="th" id="h0"><span class="k">Hacked</span><b>A bigger target</b><p data-d="3">Attackers go after the provider holding everyone's data, not just yours.</p></div>
+  <div class="th" id="h1"><span class="k">Mishandled</span><b>Human error</b><p data-d="3">Leaked logs, misconfigured storage, too many people with access.</p></div>
+  <div class="th" id="h2"><span class="k">Handed over</span><b>The 2018 CLOUD Act</b><p data-d="3">US authorities can compel US providers to hand over data, even when it is stored abroad.</p></div>
+</div>
+<div class="punch" data-d="2" id="punch">Once data leaves, you no longer decide who reads it. <b>Bring AI to your data, not your data to AI.</b></div>
+<div class="dxs">
+  <div class="dx" data-d="4"><span class="dxk">What's in the data</span><p>Error logs capture names, emails, IP addresses, session tokens and internal hostnames. Together they are a <b>blueprint of your business</b>.</p></div>
+  <div class="dx" data-d="5"><span class="dxk">Sovereignty, not just residency</span><p>Residency is where data is stored. Sovereignty is <b>whose laws apply</b> and who can read it. A US provider answers to US law, wherever its servers sit.</p></div>
+</div>
+<script src="js/eweb.js"></script>
+<script src="js/fuckslides.js"></script>
+<script>
+(function(){
+  const svg = document.getElementById('sc'), $ = id => document.getElementById(id);
+  const sc = EW.iso(svg, {ox: 360, oy: 196, s: .92}), P = sc.P;
+
+  // Your environment: on-prem racks and a cloud account feeding your observability.
+  sc.rect({x: 0, y: 0, w: 320, d: 300, delay: .2});
+  [0, 1, 2].forEach(j => sc.box({x: 40, y: 160, w: 70, d: 70, h: 20, z: j * 26, c: 'slate', delay: .35 + j * .1, drop: 80, order: j * 2}));
+  sc.box({x: 150, y: 200, w: 80, d: 80, h: 18, c: 'blue', delay: .5, drop: 80});
+  sc.box({x: 162, y: 212, w: 24, d: 24, h: 24, z: 18, c: 'white', delay: .7, drop: 60, order: 3});
+  sc.box({x: 196, y: 238, w: 24, d: 24, h: 32, z: 18, c: 'white', delay: .78, drop: 60, order: 3});
+  sc.box({x: 210, y: 60, w: 76, d: 76, h: 48, c: 'blue', delay: 1.0, drop: 90});
+  sc.label({at: [40, 230, 40], side: 'l', len: 26, title: 'On-premises', sub: 'Data center', size: 11, delay: .9});
+  sc.label({at: [150, 280, 9], side: 'l', len: 40, title: 'Your cloud', sub: 'Any provider', size: 11, delay: 1.0});
+  sc.label({at: [210, 60, 48], side: 'r', len: 30, title: 'Your observability', sub: 'Logs · metrics · traces', size: 11, delay: 1.3});
+  sc.label({at: [320, 300, 0], side: 'r', len: 30, title: 'Your environment', sub: 'You hold the keys', size: 11, delay: 1.2});
+
+  // Third party: outside the boundary.
+  const zone = sc.rect({x: 370, y: -150, w: 140, d: 140, delay: 2.6, dash: '5 5', sw: 1.4});
+  sc.rect({x: 414, y: -106, w: 60, d: 60, delay: 2.8, fill: 'rgba(40,55,90,.12)', stroke: 'none', dash: 'none'});
+  sc.box({x: 408, y: -112, w: 64, d: 64, h: 64, z: 34, c: 'pink', delay: 2.8, drop: 110, order: 5, shadow: false});
+  sc.order();
+
+  const fx = EW.el('g', {}, svg);
+  const zt = EW.el('text', {x: P(510, -10, 0)[0], y: P(510, -10, 0)[1] + 22, 'text-anchor': 'middle', 'font-size': 10.5, 'font-weight': 600, fill: '#1D1E24', 'letter-spacing': '.08em', stroke: '#fff', 'stroke-width': 5, 'paint-order': 'stroke', opacity: 0}, fx);
+  zt.textContent = 'THIRD PARTY · OUTSIDE YOUR CONTROL';
+
+  // The cable that attaches the third-party AI, and the leader to its reading window.
+  const bez = (a, c, b, u) => [0, 1].map(k => (1 - u) * (1 - u) * a[k] + 2 * (1 - u) * u * c[k] + u * u * b[k]);
+  const mid = (a, b, lift) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - lift];
+  const cA = P(286, 98, 24), cB = P(440, -48, 66), cC = mid(cA, cB, -26);
+  const cable = EW.el('path', {d: `M${cA}Q${cC} ${cB}`, fill: 'none', stroke: '#1D1E24', 'stroke-width': 1.5}, fx);
+  const cL = cable.getTotalLength(); cable.setAttribute('stroke-dasharray', cL); cable.setAttribute('stroke-dashoffset', cL);
+  const lA = P(472, -80, 66), lead = EW.el('line', {x1: lA[0], y1: lA[1], x2: 930, y2: lA[1], stroke: '#1D1E24', 'stroke-width': 1}, fx);
+  const lL = 930 - lA[0]; lead.setAttribute('stroke-dasharray', lL); lead.setAttribute('stroke-dashoffset', lL);
+
+  // Tiny cubes are data: raw is multi-color, processed is blue, lost is red.
+  const RED = {top: '#FFFFFF', left: '#E0352B', right: '#343741'};
+  const cube = (c, q) => {
+    const F = typeof c === 'string' ? EW.FACES[c] : c, g = EW.el('g', {opacity: 0}, fx), a = .866 * q, h = .5 * q;
+    const st = {stroke: '#1D1E24', 'stroke-width': .6, 'stroke-linejoin': 'round'};
+    EW.el('polygon', Object.assign({points: `${-a},${-h} 0,0 0,${q} ${-a},${h}`, fill: F.left}, st), g);
+    EW.el('polygon', Object.assign({points: `0,0 ${a},${-h} ${a},${h} 0,${q}`, fill: F.right}, st), g);
+    EW.el('polygon', Object.assign({points: `0,${-q} ${a},${-h} 0,0 ${-a},${-h}`, fill: F.top}, st), g);
+    return g;
+  };
+  const RAW = ['teal', 'yellow', 'orange', 'blue', 'teal', 'yellow'];
+  const obsTop = P(248, 98, 56), aiOut = P(472, -48, 34);
+  const flow = (a, b, lift, start, T, N, cols, fade) => ({a, b, c: mid(a, b, lift), start, T, N, fade, items: Array.from({length: N}, (_, i) => cube(cols[i % cols.length], 5))});
+  const FL = [
+    flow(P(75, 195, 82), obsTop, 50, 1.5, 1.7, 6, RAW),
+    flow(P(190, 240, 44), obsTop, 40, 1.7, 1.5, 6, RAW.slice().reverse()),
+    flow(cA, cB, -26, 4.0, 1.1, 6, ['blue']),
+    flow(aiOut, [734, 494], 10, 5.2, 1.9, 3, [RED], true),
+    flow(aiOut, [928, 494], 34, 5.9, 1.9, 3, [RED], true),
+    flow(aiOut, [1122, 494], 44, 6.6, 1.9, 3, [RED], true)
+  ];
+  FL[2].a = cA; FL[2].c = cC;
+
+  // Never-ending feed the AI reads: rows of abstract blocks, sensitive ones in orange.
+  const fc = $('feed'), FW = 276, FH = 158, fctx = fc.getContext('2d');
+  fc.width = FW * 2; fc.height = FH * 2; fctx.scale(2, 2);
+  const ROW = 13, BAND = FH * .56;
+  const rowSegs = r => {
+    const R = EW.rand(r * 97 + 31); R(); R();
+    const segs = [], ind = R() < .3 ? 22 : 10, len = 110 + R() * 140, hot = R() < .16;
+    let x = ind;
+    while (x < ind + len && x < FW - 18){ const w = 8 + R() * 40; segs.push([x, Math.min(w, FW - 12 - x), hot && R() < .35 ? 'o' : R() < .25 ? 'b' : 'g']); x += w + 6; }
+    return segs;
+  };
+  const drawFeed = s => {
+    fctx.clearRect(0, 0, FW, FH);
+    fctx.fillStyle = 'rgba(240,78,152,.07)'; fctx.fillRect(0, BAND - 11, FW, 22);
+    const r0 = Math.floor(s / ROW);
+    for (let r = r0; r < r0 + FH / ROW + 2; r++){
+      const y = r * ROW - s + 6, inBand = Math.abs(y + 2 - BAND) < 10;
+      for (const [x, w, k] of rowSegs(r)){
+        fctx.fillStyle = k === 'o' ? '#FF7E62' : inBand ? '#F04E98' : k === 'b' ? '#BFD5F5' : '#D3DAE6';
+        fctx.fillRect(x, y, w, 5);
+      }
+    }
+    fctx.fillStyle = '#F04E98'; fctx.fillRect(0, BAND, FW, 1);
+    const fade = (y0, y1) => { const g = fctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,255,255,0)'); fctx.fillStyle = g; fctx.fillRect(0, Math.min(y0, y1), FW, Math.abs(y1 - y0)); };
+    fade(0, 22); fade(FH, FH - 22);
+  };
+
+  const cr = $('cross'); cr.style.left = '530px'; cr.style.top = '300px';
+  const ease = EW.ease, skip = navigator.webdriver ? 30 : 0;
+  EW.loop(t0 => {
+    const t = t0 + skip;
+    sc.frame(t);
+    zt.setAttribute('opacity', ease((t - 2.7) / .5));
+    cable.setAttribute('stroke-dashoffset', -cL * (1 - ease((t - 3.3) / .6)));
+    cr.classList.toggle('on', t > 3.8);
+    lead.setAttribute('stroke-dashoffset', lL * (1 - ease((t - 4.1) / .4)));
+    $('win').classList.toggle('on', t > 4.3);
+    drawFeed(Math.max(0, t - 4.3) * 34);
+    FL.forEach(f => f.items.forEach((g, i) => {
+      const ph = (t - f.start) / f.T - i / f.N;
+      if (ph < 0){ g.setAttribute('opacity', 0); return; }
+      const u = ph % 1, [x, y] = bez(f.a, f.c, f.b, u);
+      const o = Math.max(0, Math.min(1, u / .1, (1 - u) / (f.fade ? .45 : .12)));
+      g.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`); g.setAttribute('opacity', o.toFixed(2));
+    }));
+    zone.g.firstChild.setAttribute('stroke', t > 5.2 ? '#E0352B' : '#1D1E24');
+    ['h0', 'h1', 'h2'].forEach((id, i) => $(id).classList.toggle('on', t > 5.6 + i * .7));
+    $('punch').style.opacity = t > 7.6 ? 1 : 0;
+  });
+})();
+</script>
+</body>
+</html>
