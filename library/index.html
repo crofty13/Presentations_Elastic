@@ -9,31 +9,34 @@
 <style>
   :root {
     --bg: #ffffff; --panel: #f5f7fa; --ink: #101c3f; --char: #48546f; --muted: #7a8499;
-    --line: #dfe3ea; --blue: #0b64dd; --blue-soft: #e8f0fc; --danger: #c61e25;
+    --line: #dfe3ea; --blue: #0b64dd; --blue-soft: #e8f0fc; --danger: #c61e25; --pink: #f04e98;
     --sans: 'Inter', -apple-system, system-ui, sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
     --card: 296px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--sans); -webkit-font-smoothing: antialiased; }
   button { font: inherit; cursor: pointer; }
+  a { color: inherit; }
   .mono { font-family: var(--mono); }
 
   header {
     position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.94); backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--line); padding: 16px 32px;
+    border-bottom: 1px solid var(--line); padding: 14px 32px;
     display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;
   }
   header h1 { font-size: 20px; font-weight: 600; letter-spacing: -.4px; }
+  header h1 a { text-decoration: none; }
   header h1 span { color: var(--blue); }
+  nav { display: flex; gap: 4px; }
+  nav a { text-decoration: none; font-size: 14px; font-weight: 500; color: var(--char); padding: 7px 12px; border-radius: 6px; }
+  nav a:hover { background: var(--panel); }
+  nav a[aria-current="page"] { background: var(--ink); color: #fff; }
   .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-left: auto; }
   .search {
     width: 240px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; font: inherit; color: var(--ink);
   }
-  .search:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color: transparent; }
-  .chip {
-    border: 1px solid var(--line); background: #fff; color: var(--char); padding: 6px 12px; border-radius: 999px; font-size: 13px;
-  }
-  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .search:focus, select:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color: transparent; }
+  select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font: inherit; color: var(--ink); background: #fff; }
   label.toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--char); cursor: pointer; }
 
   main { padding: 24px 32px 160px; }
@@ -51,7 +54,8 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, var(--card)); gap: 20px; }
   .card {
     position: relative; width: var(--card); border: 1px solid var(--line); border-radius: 8px; background: #fff;
-    overflow: hidden; text-align: left; padding: 0; color: inherit; transition: border-color .15s, box-shadow .15s;
+    overflow: hidden; text-align: left; padding: 0; color: inherit; transition: border-color .15s, box-shadow .15s, opacity .15s;
+    cursor: pointer;
   }
   .card:hover { border-color: #b7c0cf; box-shadow: 0 4px 14px rgba(16,28,63,.08); }
   .card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -70,18 +74,67 @@
     font: 500 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em;
     padding: 3px 6px; border-radius: 3px; background: var(--panel); color: var(--muted); margin-left: 6px; vertical-align: 1px;
   }
+  .tag.new { background: #fdeaf3; color: var(--pink); }
   .badge {
     position: absolute; top: 8px; left: 8px; z-index: 2; min-width: 26px; height: 26px; padding: 0 7px; border-radius: 13px;
     background: var(--blue); color: #fff; font: 600 13px/26px var(--sans); text-align: center; display: none;
   }
-  .card.selected .badge { display: block; }
-  .zoom {
-    position: absolute; top: 8px; right: 8px; z-index: 2; width: 30px; height: 30px; border-radius: 6px;
-    border: 1px solid var(--line); background: rgba(255,255,255,.92); color: var(--ink); display: grid; place-items: center;
+  .card.selected .badge, .card.numbered .badge { display: block; }
+  .card.numbered .badge { background: rgba(16,28,63,.82); }
+  .tool {
+    position: absolute; top: 8px; z-index: 2; width: 30px; height: 30px; border-radius: 6px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.94); color: var(--ink); display: grid; place-items: center;
     opacity: 0; transition: opacity .15s;
   }
-  .card:hover .zoom, .zoom:focus-visible { opacity: 1; }
+  .zoom { right: 8px; }
+  .remove { right: 44px; color: var(--danger); font-size: 18px; line-height: 1; opacity: 1; }
+  .remove:hover { background: #fdecec; border-color: #f4b4b4; }
+  .card:hover .zoom, .tool:focus-visible { opacity: 1; }
   .empty { color: var(--muted); padding: 60px 0; text-align: center; }
+
+  /* Presentations list */
+  .page-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 20px; }
+  .page-head h2 { font-size: 26px; font-weight: 600; letter-spacing: -.6px; }
+  .page-head .mono { color: var(--muted); font-size: 12px; }
+  .page-head .back { text-decoration: none; color: var(--blue); font-size: 13px; font-weight: 500; flex-basis: 100%; }
+  .page-head .actions { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+  .decks { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+  .dk { position: relative; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; transition: border-color .15s, box-shadow .15s; }
+  .dk > a { display: block; text-decoration: none; }
+  .dk-del {
+    position: absolute; top: 10px; right: 10px; z-index: 2; width: 34px; height: 34px; border-radius: 8px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.95); color: var(--danger); display: grid; place-items: center;
+    opacity: 0; transition: opacity .15s, background .15s;
+  }
+  .dk:hover .dk-del, .dk-del:focus-visible { opacity: 1; }
+  .dk-del:hover { background: #fdecec; border-color: #f4b4b4; }
+  @media (hover: none) { .dk-del { opacity: 1; } }
+  .btn.danger { background: var(--danger); color: #fff; }
+  .btn.danger:hover { background: #a8181f; }
+  .btn.danger:disabled { opacity: .5; cursor: default; }
+  .dk:hover { border-color: #b7c0cf; box-shadow: 0 6px 18px rgba(16,28,63,.1); }
+  .dk .thumb { width: 100%; height: auto; aspect-ratio: 16 / 9; }
+  .dk .info { padding: 14px 16px 16px; border-top: 1px solid var(--line); }
+  .dk h3 { font-size: 17px; font-weight: 600; letter-spacing: -.3px; }
+  .dk .sub { font: 12px var(--mono); color: var(--muted); margin-top: 3px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* Edit mode */
+  .editbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 12px 16px; margin-bottom: 18px;
+    background: var(--blue-soft); border: 1px solid #c6d9f6; border-radius: 8px; color: var(--ink); font-size: 13.5px;
+  }
+  .editbar b { font-weight: 600; }
+  .editbar .dirty { color: var(--pink); font-weight: 600; }
+  .editing .card { cursor: grab; }
+  .editing .card.dragging { opacity: .35; }
+  .editing .card.drop-before { box-shadow: -6px 0 0 -2px var(--blue); }
+  .editing .card.drop-after { box-shadow: 6px 0 0 -2px var(--blue); }
+  .add {
+    width: var(--card); min-height: calc(var(--card) * 9 / 16 + 62px); border: 2px dashed #b7c0cf; border-radius: 8px; background: var(--panel);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--char); font-weight: 600;
+  }
+  .add .plus { font-size: 40px; line-height: 1; color: var(--blue); font-weight: 400; }
+  .add:hover { border-color: var(--blue); background: var(--blue-soft); }
 
   /* Selection tray */
   .tray {
@@ -102,13 +155,14 @@
   .pill span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pill button { background: none; border: none; color: #aeb7c9; width: 20px; height: 20px; border-radius: 4px; line-height: 1; }
   .pill button:hover { background: #34437a; color: #fff; }
-  .btn { border: 1px solid transparent; border-radius: 6px; padding: 9px 16px; font-weight: 600; white-space: nowrap; }
+  .btn { border: 1px solid transparent; border-radius: 6px; padding: 9px 16px; font-weight: 600; white-space: nowrap; text-decoration: none; display: inline-block; }
   .btn.primary { background: var(--blue); color: #fff; }
   .btn.primary:hover { background: #0954be; }
-  .btn.primary:disabled { opacity: .5; cursor: default; }
+  .btn.primary:disabled { opacity: .45; cursor: default; }
   .btn.ghost { background: none; color: #cfd6e4; border-color: #3a4775; }
   .btn.ghost:hover { color: #fff; border-color: #6c7aa8; }
   .btn.plain { background: #fff; border-color: var(--line); color: var(--ink); }
+  .btn.plain:hover { border-color: #b7c0cf; }
 
   /* Dialogs */
   dialog { margin: auto; max-width: calc(100vw - 32px); border: none; border-radius: 10px; padding: 0; color: var(--ink); box-shadow: 0 20px 60px rgba(16,28,63,.3); }
@@ -128,6 +182,7 @@
   .result .path { font: 13px var(--mono); background: var(--panel); padding: 8px 10px; border-radius: 6px; margin: 12px 0; }
   .result .warn { background: #fff6e5; border: 1px solid #f3d9a4; border-radius: 6px; padding: 10px 12px; margin-top: 12px; font-size: 13px; }
   .result .warn ul { color: #6b4d12; }
+  .result .note { font-size: 13px; color: var(--char); margin-top: 10px; }
 
   .preview { width: min(1280px, calc(100vw - 64px)); background: #fff; }
   .preview .frame { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--panel); }
@@ -137,20 +192,33 @@
   .preview .bar .mono { color: var(--muted); font-size: 12px; }
   .preview .bar .spacer { flex: 1; }
 
+  /* Picker (add slides to a deck) */
+  .picker { width: min(1360px, calc(100vw - 48px)); height: min(860px, calc(100vh - 48px)); display: flex; flex-direction: column; }
+  .picker .ph { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  .picker .ph h3 { font-size: 18px; letter-spacing: -.3px; margin-right: auto; }
+  .picker .pb { flex: 1; overflow: auto; padding: 18px 20px 24px; }
+  .picker .pf { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-top: 1px solid var(--line); background: var(--panel); }
+  .picker .pf .n { margin-right: auto; color: var(--char); }
+  .picker .card.in { opacity: .4; cursor: default; }
+
   @media (max-width: 700px) {
     header, main, .tray { padding-left: 16px; padding-right: 16px; }
     :root { --card: calc(100vw - 32px); }
     .search { width: 100%; }
     .tray { flex-wrap: wrap; }
+    .decks { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>Slide <span>Library</span></h1>
-  <div class="controls">
+  <h1><a href="#/">Slide <span>Library</span></a></h1>
+  <nav>
+    <a href="#/" id="nav-all">All slides</a>
+    <a href="#/presentations" id="nav-decks">Presentations</a>
+  </nav>
+  <div class="controls" id="lib-controls">
     <input class="search" id="search" type="search" placeholder="Search slides" aria-label="Search slides">
-    <div id="deck-filter" style="display:flex;gap:6px;flex-wrap:wrap"></div>
     <label class="toggle"><input type="checkbox" id="show-unused" checked> Show slides not in a deck</label>
   </div>
 </header>
@@ -197,41 +265,92 @@
   </div>
 </dialog>
 
+<dialog id="delete-dialog">
+  <div class="form result">
+    <h3 id="del-title">Delete presentation?</h3>
+    <p class="lead" id="del-lead"></p>
+    <div class="path" id="del-path"></div>
+    <p class="note">Nothing is erased: the folder goes to your Trash, where you can put it back.</p>
+    <div class="error" id="del-error"></div>
+    <div class="actions">
+      <button class="btn plain" id="del-cancel">Cancel</button>
+      <button class="btn danger" id="del-confirm">Move to Trash</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="picker-dialog">
+  <div class="picker">
+    <div class="ph">
+      <h3 id="picker-title">Add slides</h3>
+      <input class="search" id="picker-search" type="search" placeholder="Search slides" aria-label="Search slides to add">
+      <select id="picker-deck" aria-label="Filter by deck"></select>
+      <label class="toggle"><input type="checkbox" id="picker-unused" checked> Include slides not in a deck</label>
+    </div>
+    <div class="pb" id="picker-body"></div>
+    <div class="pf">
+      <span class="n" id="picker-n">Click slides to pick them.</span>
+      <button class="btn plain" id="picker-cancel">Cancel</button>
+      <button class="btn primary" id="picker-add" disabled>Add slides</button>
+    </div>
+  </div>
+</dialog>
+
 <script>
 const $ = s => document.querySelector(s);
 let decks = [];
-let selected = [];            // [{ deck, file, label }] in presentation order
-let deckFilter = 'all';
+let selected = [];            // library: [{ deck, file, label }] in presentation order
 let visible = [];             // cards currently shown, for preview navigation
 let previewIndex = -1;
+let previewMode = 'library';  // 'library' toggles selection; 'deck' just views
+// deck editing
+let edit = null;              // { id, items: [{deck, file, label}], original: string }
+let picked = [];              // picker selection
 
 const key = (deck, file) => deck + '/' + file;
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const slugify = s => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+const deckById = id => decks.find(d => d.id === id);
 const slideUrl = (deck, file) => `/decks/${encodeURIComponent(deck.id)}/${deck.slidesPath === '.' ? '' : deck.slidesPath + '/'}${encodeURIComponent(file)}`;
+const thumb = (deck, file, label) => `<div class="thumb"><iframe loading="lazy" tabindex="-1" src="${slideUrl(deck, file)}" title="${esc(label)}"></iframe><div class="shield"></div></div>`;
+const zoomBtn = label => `<button class="tool zoom" title="Preview" aria-label="Preview ${esc(label)}">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg></button>`;
 
 async function load() {
   decks = await (await fetch('/api/decks')).json();
   const ids = new Set(decks.map(d => d.id));
   selected = selected.filter(s => ids.has(s.deck));
-  if (deckFilter !== 'all' && !ids.has(deckFilter)) deckFilter = 'all';
-  renderFilter();
-  render();
-  renderTray();
+  route();
 }
 
-function renderFilter() {
-  const opts = [{ id: 'all', title: 'All decks' }, ...decks];
-  $('#deck-filter').innerHTML = opts.map(d =>
-    `<button class="chip" data-id="${esc(d.id)}" aria-pressed="${d.id === deckFilter}">${esc(d.title)}</button>`).join('');
+// ── Routing ─────────────────────────────────────────────────────────────────
+function route() {
+  const h = location.hash.replace(/^#/, '') || '/';
+  const m = h.match(/^\/deck\/(.+)$/);
+  const view = m ? 'deck' : h === '/presentations' ? 'decks' : 'library';
+  $('#nav-all').toggleAttribute('aria-current', view === 'library'); if (view === 'library') $('#nav-all').setAttribute('aria-current', 'page');
+  $('#nav-decks').toggleAttribute('aria-current', view !== 'library'); if (view !== 'library') $('#nav-decks').setAttribute('aria-current', 'page');
+  $('#lib-controls').style.display = view === 'library' ? '' : 'none';
+  if (view !== 'deck') edit = null;
+  if (view === 'library') { renderLibrary(); renderTray(); }
+  else { $('#tray').classList.remove('open'); view === 'decks' ? renderDecks() : renderDeck(decodeURIComponent(m[1])); }
+  fitThumbs();
 }
+window.addEventListener('hashchange', e => {
+  if (edit && dirty() && !confirm('You have unsaved changes to this presentation. Leave without saving?')) {
+    const i = e.oldURL.indexOf('#'); history.replaceState(null, '', i < 0 ? '#/' : e.oldURL.slice(i)); return;
+  }
+  edit = null; route(); scrollTo(0, 0);
+});
+window.addEventListener('beforeunload', e => { if (edit && dirty()) { e.preventDefault(); e.returnValue = ''; } });
 
-function render() {
+// ── All slides (library) ────────────────────────────────────────────────────
+function renderLibrary() {
   const q = $('#search').value.trim().toLowerCase();
   const showUnused = $('#show-unused').checked;
-  visible = [];
-  const html = decks.filter(d => deckFilter === 'all' || d.id === deckFilter).map(deck => {
+  visible = []; previewMode = 'library';
+  const html = decks.map(deck => {
     const match = s => !q || (s.label + ' ' + s.file).toLowerCase().includes(q);
     const groups = [
       ['In the deck', deck.slides.filter(s => s.status === 'active' && match(s))],
@@ -239,33 +358,29 @@ function render() {
     ].filter(([, list]) => list.length);
     if (!groups.length) return '';
     return `<section class="deck">
-      <div class="deck-head"><h2>${esc(deck.title)}</h2><span class="mono">collaterals/${esc(deck.id)}</span>
+      <div class="deck-head"><h2><a href="#/deck/${encodeURIComponent(deck.id)}" style="text-decoration:none">${esc(deck.title)}</a></h2><span class="mono">collaterals/${esc(deck.id)}</span>
         <button class="all" data-deck="${esc(deck.id)}">Select all in deck</button></div>
       ${groups.map(([title, list]) => `<div class="group-label">${title} · ${list.length}</div>
-        <div class="grid">${list.map(s => card(deck, s)).join('')}</div>`).join('')}
+        <div class="grid">${list.map(s => libCard(deck, s)).join('')}</div>`).join('')}
     </section>`;
   }).join('');
   $('#main').innerHTML = html || '<p class="empty">No slides match.</p>';
   syncSelection();
 }
 
-function card(deck, s) {
+function libCard(deck, s) {
   visible.push({ deck, slide: s });
   const tag = s.status === 'active' ? '' : `<span class="tag">${s.status}</span>`;
   return `<div class="card${s.status === 'active' ? '' : ' dim'}" role="button" tabindex="0" aria-pressed="false"
       data-deck="${esc(deck.id)}" data-file="${esc(s.file)}" data-i="${visible.length - 1}">
-    <span class="badge"></span>
-    <button class="zoom" title="Preview" aria-label="Preview ${esc(s.label)}">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>
-    </button>
-    <div class="thumb"><iframe loading="lazy" tabindex="-1" src="${slideUrl(deck, s.file)}" title="${esc(s.label)}"></iframe><div class="shield"></div></div>
+    <span class="badge"></span>${zoomBtn(s.label)}${thumb(deck, s.file, s.label)}
     <div class="meta"><div class="label">${esc(s.label)}${tag}</div><div class="file">${esc(s.file)}</div></div>
   </div>`;
 }
 
 function syncSelection() {
   const order = new Map(selected.map((s, i) => [key(s.deck, s.file), i + 1]));
-  document.querySelectorAll('.card').forEach(el => {
+  document.querySelectorAll('#main .card').forEach(el => {
     const n = order.get(key(el.dataset.deck, el.dataset.file));
     el.classList.toggle('selected', !!n);
     el.setAttribute('aria-pressed', !!n);
@@ -277,10 +392,7 @@ function toggle(deckId, file) {
   const k = key(deckId, file);
   const i = selected.findIndex(s => key(s.deck, s.file) === k);
   if (i >= 0) selected.splice(i, 1);
-  else {
-    const slide = decks.find(d => d.id === deckId).slides.find(s => s.file === file);
-    selected.push({ deck: deckId, file, label: slide.label });
-  }
+  else selected.push({ deck: deckId, file, label: deckById(deckId).slides.find(s => s.file === file).label });
   syncSelection();
   renderTray();
 }
@@ -294,29 +406,181 @@ function renderTray() {
       <b>${i + 1}</b><span>${esc(s.label)}</span><button data-remove="${i}" aria-label="Remove ${esc(s.label)}">×</button></div>`).join('');
 }
 
-// ── Events ──────────────────────────────────────────────────────────────────
-$('#search').addEventListener('input', render);
-$('#show-unused').addEventListener('change', render);
-$('#deck-filter').addEventListener('click', e => {
-  const b = e.target.closest('.chip'); if (!b) return;
-  deckFilter = b.dataset.id; renderFilter(); render();
+// ── Presentations ───────────────────────────────────────────────────────────
+function renderDecks() {
+  visible = [];
+  $('#main').innerHTML = `<div class="page-head"><h2>Presentations</h2><span class="mono">${decks.length} decks in collaterals/</span></div>
+    <div class="decks">${decks.map(d => {
+      const act = d.slides.filter(s => s.status === 'active');
+      const first = act[0] || d.slides[0];
+      return `<div class="dk"><a href="#/deck/${encodeURIComponent(d.id)}">
+        ${first ? thumb(d, first.file, first.label) : '<div class="thumb"></div>'}
+        <div class="info"><h3>${esc(d.title)}</h3><div class="sub"><span>${act.length} slides</span><span>collaterals/${esc(d.id)}</span>${d.port ? `<span>:${d.port}</span>` : ''}</div></div>
+      </a><button class="dk-del" data-deck="${esc(d.id)}" title="Delete presentation" aria-label="Delete ${esc(d.title)}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.6 6.5v4.5M9.4 6.5v4.5"/></svg></button></div>`;
+    }).join('')}</div>`;
+}
+
+// ── One presentation, view and edit ─────────────────────────────────────────
+function startEdit(id) {
+  const d = deckById(id);
+  const items = d.slides.filter(s => s.status === 'active').map(s => ({ deck: id, file: s.file, label: s.label }));
+  edit = { id, items, original: JSON.stringify(items.map(i => key(i.deck, i.file))) };
+}
+const dirty = () => edit && JSON.stringify(edit.items.map(i => key(i.deck, i.file))) !== edit.original;
+
+function renderDeck(id) {
+  const d = deckById(id);
+  if (!d) { $('#main').innerHTML = `<p class="empty">No presentation called ${esc(id)}. <a href="#/presentations">See all presentations</a></p>`; return; }
+  visible = []; previewMode = 'deck';
+  const editing = edit && edit.id === id;
+  const items = editing ? edit.items : d.slides.filter(s => s.status === 'active').map(s => ({ deck: id, file: s.file, label: s.label }));
+  const rest = d.slides.filter(s => s.status !== 'active');
+  const n = items.length;
+  const head = `<div class="page-head">
+      <a class="back" href="#/presentations">← Presentations</a>
+      <h2>${esc(d.title)}</h2><span class="mono">collaterals/${esc(d.id)}${d.port ? ' · :' + d.port : ''}</span>
+      <div class="actions">${editing
+        ? `<button class="btn plain" id="edit-cancel">Cancel</button><button class="btn primary" id="edit-save" ${dirty() ? '' : 'disabled'}>Save</button>`
+        : `<button class="btn plain" id="open-deck" data-deck="${esc(d.id)}">Open presentation</button><button class="btn primary" id="edit-start">Edit slides</button>`}</div>
+    </div>`;
+  const bar = editing ? `<div class="editbar"><b>Editing</b><span>Drag slides to reorder, × to remove, + to add slides from the library.</span>
+      <span class="dirty">${dirty() ? 'Unsaved changes' : ''}</span></div>` : '';
+  const cards = items.map((it, i) => deckCard(it, i, editing)).join('');
+  const add = editing ? `<button class="add" id="add-slides"><span class="plus">+</span>Add slides</button>` : '';
+  const restHtml = !editing && rest.length ? `<div class="group-label" style="margin-top:36px">Not in the deck · ${rest.length}</div>
+      <div class="grid">${rest.map(s => deckCard({ deck: id, file: s.file, label: s.label, status: s.status }, -1, false)).join('')}</div>` : '';
+  $('#main').innerHTML = `${head}${bar}<div class="group-label">${editing ? 'Running order' : 'In the deck'} · ${n}</div>
+    <div class="grid${editing ? ' editing' : ''}" id="deck-grid">${cards}${add}</div>${restHtml}`;
+  if (editing) wireDrag();
+}
+
+function deckCard(it, i, editing) {
+  const src = deckById(it.deck);
+  const slide = { file: it.file, label: it.label };
+  visible.push({ deck: src, slide });
+  const foreign = edit && it.deck !== edit.id;
+  const tag = it.status ? `<span class="tag">${it.status}</span>` : foreign ? `<span class="tag new">new · ${esc(src.title)}</span>` : '';
+  return `<div class="card${i >= 0 ? ' numbered' : ' dim'}" tabindex="0" ${editing ? 'draggable="true"' : ''} data-idx="${i}" data-i="${visible.length - 1}">
+    ${i >= 0 ? `<span class="badge">${i + 1}</span>` : ''}${editing ? `<button class="tool remove" title="Remove from this presentation" aria-label="Remove ${esc(it.label)}">×</button>` : ''}${zoomBtn(it.label)}
+    ${thumb(src, it.file, it.label)}
+    <div class="meta"><div class="label" title="${esc(it.label)}">${esc(it.label)}${tag}</div><div class="file">${esc(it.file)}</div></div>
+  </div>`;
+}
+
+// Drag to reorder the running order. Cards move in the DOM directly; the order is
+// read back from the DOM on drop.
+function wireDrag() {
+  const grid = $('#deck-grid');
+  let from = null;
+  const clear = () => grid.querySelectorAll('.drop-before,.drop-after').forEach(c => c.classList.remove('drop-before', 'drop-after'));
+  grid.addEventListener('dragstart', e => {
+    const c = e.target.closest('.card'); if (!c) return;
+    from = +c.dataset.idx; c.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', from);
+  });
+  grid.addEventListener('dragover', e => {
+    const c = e.target.closest('.card'); if (from === null || !c) return;
+    e.preventDefault(); clear();
+    const r = c.getBoundingClientRect(), after = e.clientX > r.left + r.width / 2;
+    c.classList.add(after ? 'drop-after' : 'drop-before');
+  });
+  grid.addEventListener('drop', e => {
+    const c = e.target.closest('.card'); if (from === null || !c) return;
+    e.preventDefault();
+    const r = c.getBoundingClientRect(), after = e.clientX > r.left + r.width / 2;
+    let to = +c.dataset.idx + (after ? 1 : 0);
+    const [moved] = edit.items.splice(from, 1);
+    if (to > from) to--;
+    edit.items.splice(to, 0, moved);
+    from = null; renderDeck(edit.id); fitThumbs();
+  });
+  grid.addEventListener('dragend', () => { from = null; clear(); grid.querySelectorAll('.dragging').forEach(c => c.classList.remove('dragging')); });
+}
+
+// ── Picker: add slides from the library to the deck being edited ────────────
+function openPicker() {
+  picked = [];
+  $('#picker-title').textContent = `Add slides to ${deckById(edit.id).title}`;
+  $('#picker-search').value = '';
+  $('#picker-deck').innerHTML = `<option value="">All decks</option>` + decks.map(d => `<option value="${esc(d.id)}">${esc(d.title)}</option>`).join('');
+  renderPicker();
+  $('#picker-dialog').showModal();
+  $('#picker-search').focus();
+  fitThumbs();
+}
+function renderPicker() {
+  const q = $('#picker-search').value.trim().toLowerCase(), only = $('#picker-deck').value, unused = $('#picker-unused').checked;
+  const inDeck = new Set(edit.items.map(i => key(i.deck, i.file)));
+  const html = decks.filter(d => !only || d.id === only).map(d => {
+    const list = d.slides.filter(s => (unused || s.status === 'active') && (!q || (s.label + ' ' + s.file).toLowerCase().includes(q)));
+    if (!list.length) return '';
+    return `<section class="deck"><div class="deck-head"><h2>${esc(d.title)}</h2><span class="mono">collaterals/${esc(d.id)}</span></div>
+      <div class="grid">${list.map(s => {
+        const k = key(d.id, s.file), already = inDeck.has(k), n = picked.findIndex(p => key(p.deck, p.file) === k) + 1;
+        const tag = already ? '<span class="tag">in this deck</span>' : s.status === 'active' ? '' : `<span class="tag">${s.status}</span>`;
+        return `<div class="card${already ? ' in' : ''}${n ? ' selected' : ''}${s.status === 'active' ? '' : ' dim'}" data-deck="${esc(d.id)}" data-file="${esc(s.file)}" ${already ? 'aria-disabled="true"' : 'tabindex="0" role="button"'}>
+          <span class="badge">${n || ''}</span>${thumb(d, s.file, s.label)}
+          <div class="meta"><div class="label">${esc(s.label)}${tag}</div><div class="file">${esc(s.file)}</div></div></div>`;
+      }).join('')}</div></section>`;
+  }).join('');
+  $('#picker-body').innerHTML = html || '<p class="empty">No slides match.</p>';
+  $('#picker-n').textContent = picked.length ? `${picked.length} slide${picked.length === 1 ? '' : 's'} picked. They go at the end; drag them into place after.` : 'Click slides to pick them.';
+  $('#picker-add').disabled = !picked.length;
+  $('#picker-add').textContent = picked.length ? `Add ${picked.length} slide${picked.length === 1 ? '' : 's'}` : 'Add slides';
+}
+$('#picker-body').addEventListener('click', e => {
+  const c = e.target.closest('.card'); if (!c || c.classList.contains('in')) return;
+  const k = key(c.dataset.deck, c.dataset.file), i = picked.findIndex(p => key(p.deck, p.file) === k);
+  if (i >= 0) picked.splice(i, 1);
+  else picked.push({ deck: c.dataset.deck, file: c.dataset.file, label: deckById(c.dataset.deck).slides.find(s => s.file === c.dataset.file).label });
+  const st = $('#picker-body').scrollTop; renderPicker(); $('#picker-body').scrollTop = st; fitThumbs();
+});
+$('#picker-search').addEventListener('input', () => { renderPicker(); fitThumbs(); });
+$('#picker-deck').addEventListener('change', () => { renderPicker(); fitThumbs(); });
+$('#picker-unused').addEventListener('change', () => { renderPicker(); fitThumbs(); });
+$('#picker-cancel').addEventListener('click', () => $('#picker-dialog').close());
+$('#picker-add').addEventListener('click', () => {
+  edit.items.push(...picked);
+  $('#picker-dialog').close();
+  renderDeck(edit.id); fitThumbs();
+  const g = $('#deck-grid'); g && g.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
 
-$('#main').addEventListener('click', e => {
+// ── Events: library ─────────────────────────────────────────────────────────
+$('#search').addEventListener('input', () => { renderLibrary(); fitThumbs(); });
+$('#show-unused').addEventListener('change', () => { renderLibrary(); fitThumbs(); });
+
+$('#main').addEventListener('click', async e => {
+  // presentation page
+  if (e.target.closest('#edit-start')) { startEdit(location.hash.split('/deck/')[1] && decodeURIComponent(location.hash.split('/deck/')[1])); renderDeck(edit.id); fitThumbs(); return; }
+  if (e.target.closest('#edit-cancel')) {
+    if (dirty() && !confirm('Discard your changes to this presentation?')) return;
+    const id = edit.id; edit = null; renderDeck(id); fitThumbs(); return;
+  }
+  if (e.target.closest('#edit-save')) return save();
+  if (e.target.closest('#add-slides')) return openPicker();
+  if (e.target.closest('#open-deck')) return openDeck(e.target.closest('#open-deck'));
+  const del = e.target.closest('.dk-del');
+  if (del) { e.preventDefault(); return askDelete(del.dataset.deck); }
+  const rm = e.target.closest('.remove');
+  if (rm) { edit.items.splice(+rm.closest('.card').dataset.idx, 1); renderDeck(edit.id); fitThumbs(); return; }
+
   const all = e.target.closest('.all');
   if (all) {
-    const deck = decks.find(d => d.id === all.dataset.deck);
+    const deck = deckById(all.dataset.deck);
     for (const s of deck.slides.filter(s => s.status === 'active'))
       if (!selected.some(x => x.deck === deck.id && x.file === s.file)) selected.push({ deck: deck.id, file: s.file, label: s.label });
     syncSelection(); renderTray(); return;
   }
   const el = e.target.closest('.card'); if (!el) return;
-  if (e.target.closest('.zoom')) return openPreview(+el.dataset.i);
+  if (e.target.closest('.zoom') || previewMode === 'deck') { if (!(edit && !e.target.closest('.zoom'))) openPreview(+el.dataset.i); return; }
   toggle(el.dataset.deck, el.dataset.file);
 });
 $('#main').addEventListener('keydown', e => {
   const el = e.target.closest('.card');
-  if (el && e.target === el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(el.dataset.deck, el.dataset.file); }
+  if (!el || e.target !== el || (e.key !== 'Enter' && e.key !== ' ')) return;
+  e.preventDefault();
+  if (previewMode === 'deck') openPreview(+el.dataset.i); else toggle(el.dataset.deck, el.dataset.file);
 });
 
 $('#clear').addEventListener('click', () => { selected = []; syncSelection(); renderTray(); });
@@ -346,7 +610,74 @@ $('#strip').addEventListener('drop', e => {
 });
 $('#strip').addEventListener('dragend', () => { dragFrom = null; renderTray(); });
 
-// ── Create ──────────────────────────────────────────────────────────────────
+// ── Save an edited presentation ─────────────────────────────────────────────
+async function save() {
+  const b = $('#edit-save'); b.disabled = true; b.textContent = 'Saving…';
+  try {
+    const res = await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deck: edit.id, slides: edit.items.map(({ deck, file }) => ({ deck, file })) }) });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error || 'Something went wrong.');
+    const id = edit.id; edit = null;
+    await load();
+    location.hash = '#/deck/' + encodeURIComponent(id);
+    renderDeck(id); fitThumbs();
+    showSaved(out);
+  } catch (err) {
+    alert(`Couldn't save: ${err.message}`);
+    b.disabled = false; b.textContent = 'Save';
+  }
+}
+function showSaved(r) {
+  const parts = [`${r.slides} slide${r.slides === 1 ? '' : 's'} in the running order`];
+  if (r.added.length) parts.push(`${r.added.length} copied in`);
+  if (r.removed.length) parts.push(`${r.removed.length} moved to “not in the deck”`);
+  $('#result').innerHTML = `<h3>Presentation saved</h3>
+    <p class="lead">${parts.join(', ')}.</p>
+    <div class="path">collaterals/${esc(r.id)}/fuckslides.config.js</div>
+    ${r.added.length ? `<p class="note">Copied into the folder: ${r.added.map(esc).join(', ')}${r.assets.length ? `, plus ${r.assets.map(esc).join(', ')}` : ''}.</p>` : ''}
+    ${r.removed.length ? `<p class="note">Removed slides keep their files, so you can add them back with +.</p>` : ''}
+    <p class="note">${r.restarted ? 'The player this library started has restarted with the new order.' : 'If <span class="mono">fslides serve</span> is already running for this deck, restart it to see the new order.'}</p>
+    ${r.warnings.length ? `<div class="warn"><b>Check these</b><ul>${r.warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>` : ''}
+    <div class="actions"><button class="btn primary" id="result-close">Done</button></div>`;
+  $('#result-dialog').showModal();
+}
+
+// ── Delete a presentation ───────────────────────────────────────────────────
+let deleting = null;
+function askDelete(id) {
+  const d = deckById(id); deleting = id;
+  const n = d.slides.filter(s => s.status === 'active').length;
+  $('#del-title').textContent = `Delete ${d.title}?`;
+  $('#del-lead').textContent = `This removes the presentation (${n} slide${n === 1 ? '' : 's'}) and its folder from the library.`;
+  $('#del-path').textContent = `collaterals/${id}/`;
+  $('#del-error').textContent = '';
+  $('#del-confirm').disabled = false; $('#del-confirm').textContent = 'Move to Trash';
+  $('#delete-dialog').showModal();
+  $('#del-cancel').focus();
+}
+$('#del-cancel').addEventListener('click', () => $('#delete-dialog').close());
+$('#del-confirm').addEventListener('click', async () => {
+  const b = $('#del-confirm'); b.disabled = true; b.textContent = 'Moving…';
+  try {
+    const res = await fetch('/api/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deck: deleting }) });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error || 'Something went wrong.');
+    $('#delete-dialog').close();
+    selected = selected.filter(s => s.deck !== deleting);
+    await load();
+    $('#result').innerHTML = `<h3>Presentation deleted</h3>
+      <p class="lead">${esc(out.title)} was moved to ${esc(out.movedTo)}.</p>
+      <div class="path">${esc(out.path)}</div>
+      <p class="note">To bring it back, move that folder into <span class="mono">collaterals/</span> and rename it <span class="mono">${esc(out.id)}</span>.</p>
+      <div class="actions"><button class="btn primary" id="result-close">Done</button></div>`;
+    $('#result-dialog').showModal();
+  } catch (err) {
+    $('#del-error').textContent = err.message; b.disabled = false; b.textContent = 'Move to Trash';
+  }
+});
+
+// ── Create (library) ────────────────────────────────────────────────────────
 $('#create').addEventListener('click', () => {
   $('#name-lead').textContent = `Copies ${selected.length} slide${selected.length === 1 ? '' : 's'}, in the order shown, plus the styles, scripts, images, notes and recordings they use into a new folder.`;
   $('#name').value = '';
@@ -391,36 +722,39 @@ function showResult(r) {
     ${r.warnings.length ? `<div class="warn"><b>Check these</b><ul>${r.warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>` : ''}
     <div class="error" id="serve-error"></div>
     <div class="actions">
-      <button class="btn plain" id="result-close">Done</button>
+      <a class="btn plain" href="#/deck/${encodeURIComponent(r.id)}" id="result-view">View presentation</a>
       <button class="btn primary" id="result-open" data-deck="${esc(r.id)}">Open presentation</button>
     </div>`;
   $('#result-dialog').showModal();
 }
-$('#result').addEventListener('click', async e => {
-  if (e.target.id === 'result-close') return $('#result-dialog').close();
-  if (e.target.id !== 'result-open') return;
-  const b = e.target; b.disabled = true; b.textContent = 'Starting…';
+async function openDeck(b) {
+  const label = b.textContent; b.disabled = true; b.textContent = 'Starting…';
   try {
     const res = await fetch('/api/serve', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ deck: b.dataset.deck }) });
     const out = await res.json();
     if (!res.ok) throw new Error(out.error);
-    // fslides opens its own browser tab; this one is a fallback once it's listening.
-    setTimeout(() => { b.textContent = 'Open again'; b.disabled = false; b.onclick = () => window.open(out.url, '_blank'); }, 1500);
+    // fslides opens its own browser tab; if it was already running, open it here.
+    if (out.already) window.open(out.url, '_blank');
+    setTimeout(() => { b.disabled = false; b.textContent = label; }, 1500);
   } catch (err) {
-    $('#serve-error').textContent = err.message; b.disabled = false; b.textContent = 'Open presentation';
+    alert(`Couldn't start the presentation: ${err.message}`); b.disabled = false; b.textContent = label;
   }
+}
+$('#result').addEventListener('click', e => {
+  if (e.target.id === 'result-close' || e.target.id === 'result-view') return $('#result-dialog').close();
+  if (e.target.id === 'result-open') openDeck(e.target);
 });
 
 // ── Preview ─────────────────────────────────────────────────────────────────
 function openPreview(i) {
   previewIndex = i;
   const { deck, slide } = visible[i];
-  const frame = $('#preview-frame');
-  frame.innerHTML = `<iframe src="${slideUrl(deck, slide.file)}" title="${esc(slide.label)}"></iframe>`;
+  $('#preview-frame').innerHTML = `<iframe src="${slideUrl(deck, slide.file)}" title="${esc(slide.label)}"></iframe>`;
   $('#preview-title').textContent = slide.label;
   $('#preview-file').textContent = `${deck.id}/${slide.file} · ${i + 1} of ${visible.length}`;
-  updatePreviewButton();
+  $('#preview-select').style.display = previewMode === 'library' ? '' : 'none';
+  if (previewMode === 'library') updatePreviewButton();
   if (!$('#preview-dialog').open) $('#preview-dialog').showModal();
   fitPreview();
 }
@@ -444,13 +778,14 @@ $('#preview-dialog').addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft') $('#prev').click();
   if (e.key === 'ArrowRight') $('#next').click();
 });
+
 // Thumbnails are 1280×720 slides scaled to the card width.
 function fitThumbs() {
-  const t = document.querySelector('.thumb');
-  if (t) document.documentElement.style.setProperty('--scale', t.clientWidth / 1280);
+  requestAnimationFrame(() => document.querySelectorAll('.thumb').forEach(t => {
+    const f = t.querySelector('iframe'); if (f && t.clientWidth) f.style.transform = `scale(${t.clientWidth / 1280})`;
+  }));
 }
 window.addEventListener('resize', () => { fitPreview(); fitThumbs(); });
-new MutationObserver(fitThumbs).observe($('#main'), { childList: true });
 
 load().catch(err => { $('#main').innerHTML = `<p class="empty">Couldn't load slides: ${esc(err.message)}</p>`; });
 </script>

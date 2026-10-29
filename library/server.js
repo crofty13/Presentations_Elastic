@@ -2,13 +2,15 @@
 
 // Slide Library — browse every slide in every deck under collaterals/, pick some,
 // and copy them (plus the CSS, JS, images, notes and recordings they need) into a
-// new deck folder that runs with `fslides serve`.
+// new deck folder that runs with `fslides serve`. Each deck can also be edited:
+// reorder, remove, and add slides from other decks, saved back to its folder.
 //
 //   node library/server.js            → http://localhost:3100
 
 const http = require('http');
 const fs   = require('fs');
 const path = require('path');
+const os   = require('os');
 const { spawn } = require('child_process');
 
 const ROOT        = path.resolve(__dirname, '..');
@@ -119,28 +121,22 @@ function nextPort() {
   return max + 1;
 }
 
-function createDeck({ name, slides }) {
-  name = String(name || '').trim();
-  const id = slugify(name);
-  if (!id) throw new Error('Give the presentation a name with at least one letter or number.');
-  if (!Array.isArray(slides) || !slides.length) throw new Error('Pick at least one slide.');
-  const outDir = path.join(COLLATERALS, id);
-  if (fs.existsSync(outDir)) throw new Error(`collaterals/${id} already exists. Pick another name.`);
-
+// Copy slides from other decks into a deck folder, with every local file they use
+// (CSS, JS, images, anything those stylesheets pull in), their speaker notes and
+// their recordings. `taken` is the set of slide file names already in the target.
+function copySlides(items, deckDir, slidesDir, taken, warnings) {
   const decks = Object.fromEntries(listDecks().map(d => [d.id, d]));
-  const warnings = [];
-  const usedNames = new Set();
-  const copies = new Map();          // dest relative path → absolute source
+  const copies = new Map();          // dest path relative to slidesDir → absolute source
   const plan = [];                   // { deck, file, dest, label }
 
-  for (const { deck: deckId, file } of slides) {
+  for (const { deck: deckId, file } of items) {
     const deck = decks[deckId];
     const slide = deck && deck.slides.find(s => s.file === file);
     if (!slide) throw new Error(`Couldn't find ${deckId}/${file}.`);
     let dest = file;
-    if (usedNames.has(dest)) dest = `${deckId}-${file}`;
-    for (let n = 2; usedNames.has(dest); n++) dest = `${deckId}-${n}-${file}`;
-    usedNames.add(dest);
+    if (taken.has(dest)) dest = `${deckId}-${file}`;
+    for (let n = 2; taken.has(dest); n++) dest = `${deckId}-${n}-${file}`;
+    taken.add(dest);
     plan.push({ deck, file, dest, label: slide.label });
   }
 
@@ -162,6 +158,13 @@ function createDeck({ name, slides }) {
         warnings.push(`Two decks have a different ${relDest}; kept the one from ${path.relative(COLLATERALS, prev).split(path.sep)[0]}.`);
       return;
     }
+    // The target deck already has this file: keep its own copy.
+    const there = path.join(slidesDir, relDest);
+    if (fs.existsSync(there)){
+      if (!fs.readFileSync(there).equals(fs.readFileSync(abs)))
+        warnings.push(`${fromFile} uses ${relDest}, and this deck already has a different one; kept this deck's.`);
+      return;
+    }
     copies.set(relDest, abs);
     if (/\.(css|html?)$/i.test(abs)) {
       const baseDir = path.dirname(abs);
@@ -175,15 +178,14 @@ function createDeck({ name, slides }) {
     for (const ref of localRefs(fs.readFileSync(path.join(srcDir, p.file), 'utf8'))) addAsset(srcDir, ref, p.file);
   }
 
-  // Write the deck.
-  fs.mkdirSync(outDir, { recursive: true });
+  fs.mkdirSync(slidesDir, { recursive: true });
   const notes = {};
   const recordings = [];
   for (const p of plan) {
-    const deckDir = path.join(COLLATERALS, p.deck.id);
-    fs.copyFileSync(path.join(deckDir, p.deck.slidesPath, p.file), path.join(outDir, p.dest));
+    const srcDeck = path.join(COLLATERALS, p.deck.id);
+    fs.copyFileSync(path.join(srcDeck, p.deck.slidesPath, p.file), path.join(slidesDir, p.dest));
 
-    const notesFile = path.join(deckDir, 'notes.json');
+    const notesFile = path.join(srcDeck, 'notes.json');
     if (fs.existsSync(notesFile)) {
       try {
         const n = JSON.parse(fs.readFileSync(notesFile, 'utf8'))[p.file];
@@ -191,30 +193,44 @@ function createDeck({ name, slides }) {
       } catch (_) { warnings.push(`Couldn't read ${p.deck.id}/notes.json.`); }
     }
 
-    const recDir = path.join(deckDir, 'recordings');
+    const recDir = path.join(srcDeck, 'recordings');
     const base = p.file.replace(/\.html$/, '');
     if (fs.existsSync(recDir)) {
       for (const f of fs.readdirSync(recDir)) {
         if (path.basename(f, path.extname(f)) !== base) continue;
-        fs.mkdirSync(path.join(outDir, 'recordings'), { recursive: true });
+        fs.mkdirSync(path.join(deckDir, 'recordings'), { recursive: true });
         const to = p.dest.replace(/\.html$/, '') + path.extname(f);
-        fs.copyFileSync(path.join(recDir, f), path.join(outDir, 'recordings', to));
+        fs.copyFileSync(path.join(recDir, f), path.join(deckDir, 'recordings', to));
         recordings.push(to);
       }
     }
   }
   for (const [rel, abs] of copies) {
-    fs.mkdirSync(path.dirname(path.join(outDir, rel)), { recursive: true });
-    fs.copyFileSync(abs, path.join(outDir, rel));
+    fs.mkdirSync(path.dirname(path.join(slidesDir, rel)), { recursive: true });
+    fs.copyFileSync(abs, path.join(slidesDir, rel));
   }
+  return { plan, assets: [...copies.keys()].sort(), notes, recordings };
+}
+
+const q = s => `'${String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+
+function createDeck({ name, slides }) {
+  name = String(name || '').trim();
+  const id = slugify(name);
+  if (!id) throw new Error('Give the presentation a name with at least one letter or number.');
+  if (!Array.isArray(slides) || !slides.length) throw new Error('Pick at least one slide.');
+  const outDir = path.join(COLLATERALS, id);
+  if (fs.existsSync(outDir)) throw new Error(`collaterals/${id} already exists. Pick another name.`);
+
+  const warnings = [];
+  const port = nextPort();
+  const { plan, assets, notes, recordings } = copySlides(slides, outDir, outDir, new Set(), warnings);
   fs.writeFileSync(path.join(outDir, 'notes.json'), JSON.stringify(notes, null, 2) + '\n');
 
   const sourceIds = [...new Set(plan.map(p => p.deck.id))];
   const sourceCfgs = sourceIds.map(sid => loadConfig(configPath(path.join(COLLATERALS, sid))));
   const density = (sourceCfgs.find(c => c.density) || {}).density;
-  const port = nextPort();
 
-  const q = s => `'${String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
   fs.writeFileSync(path.join(outDir, 'fuckslides.config.js'), `module.exports = {
   name: ${q(id)},
   title: ${q(name)},
@@ -261,8 +277,103 @@ Opens at **http://localhost:${port}**. Export a PDF with \`fslides pdf\`.
 ${plan.map((p, i) => `${i + 1}. ${p.label} (\`${p.dest}\`, from ${p.deck.id})`).join('\n')}
 `);
 
-  return { id, path: `collaterals/${id}`, port, slides: plan.length, assets: [...copies.keys()].sort(),
+  return { id, path: `collaterals/${id}`, port, slides: plan.length, assets,
     recordings, notes: Object.keys(notes).length, warnings };
+}
+
+// ── Editing a deck ───────────────────────────────────────────────────────────
+
+// Save a deck's new running order. `slides` is the full list in order: entries from
+// this deck keep their file; entries from other decks are copied in. Slides that
+// drop out of the order move to `disabled`, so the files stay and can come back.
+function saveDeck({ deck: id, slides }) {
+  const deck = listDecks().find(d => d.id === id);
+  if (!deck) throw new Error(`No deck called ${id}.`);
+  if (!Array.isArray(slides)) throw new Error('Nothing to save.');
+  const deckDir = path.join(COLLATERALS, id), slidesDir = path.join(deckDir, deck.slidesPath);
+  const cfgFile = configPath(deckDir), cfg = loadConfig(cfgFile);
+  const own = new Map(deck.slides.map(s => [s.file, s]));
+  const warnings = [];
+
+  for (const s of slides) if (s.deck === id && !own.has(s.file)) throw new Error(`${s.file} isn't in ${id}.`);
+  const seen = new Set();
+  for (const s of slides) { const k = s.deck + '/' + s.file; if (seen.has(k)) throw new Error(`${k} is in the list twice.`); seen.add(k); }
+
+  const taken = new Set(fs.readdirSync(slidesDir).filter(f => f.endsWith('.html')));
+  const foreign = slides.filter(s => s.deck !== id);
+  const { plan, assets, notes, recordings } = copySlides(foreign, deckDir, slidesDir, taken, warnings);
+
+  const order = [], labels = [];
+  let k = 0;
+  for (const s of slides) {
+    if (s.deck === id){ order.push(s.file); labels.push(own.get(s.file).label); }
+    else { const p = plan[k++]; order.push(p.dest); labels.push(p.label); }
+  }
+  const before = (cfg.slides || []).filter(f => own.has(f));
+  const removed = before.filter(f => !order.includes(f));
+  const disabled = [...new Set([...(cfg.disabled || []), ...removed])].filter(f => !order.includes(f) && fs.existsSync(path.join(slidesDir, f)));
+
+  // Rewrite only the three arrays, the way fslides' own save-order does, so every
+  // other setting in the config stays exactly as it was.
+  let src = fs.readFileSync(cfgFile, 'utf8');
+  const fmt = arr => arr.length ? '[\n' + arr.map(s => `    ${q(s)},`).join('\n') + '\n  ]' : '[]';
+  const put = (key, arr) => {
+    const re = new RegExp(`(^|\\n)(\\s*)${key}\\s*:\\s*\\[[\\s\\S]*?\\n?\\s*\\]`);
+    if (re.test(src)) src = src.replace(re, (m, nl, sp) => `${nl}${sp}${key}: ${fmt(arr)}`);
+    else src = src.replace(/\n};?\s*$/, `\n  ${key}: ${fmt(arr)},\n};\n`);
+  };
+  put('slides', order); put('labels', labels); put('disabled', disabled);
+  fs.writeFileSync(cfgFile, src);
+  const check = loadConfig(cfgFile);
+  if (JSON.stringify(check.slides) !== JSON.stringify(order) || (check.labels || []).length !== order.length)
+    throw new Error(`Saved ${path.relative(ROOT, cfgFile)}, but it didn't read back as expected. Check the file.`);
+
+  if (Object.keys(notes).length){
+    const nf = path.join(deckDir, 'notes.json');
+    let all = {}; try { all = JSON.parse(fs.readFileSync(nf, 'utf8')); } catch (_) {}
+    fs.writeFileSync(nf, JSON.stringify(Object.assign(all, notes), null, 2) + '\n');
+  }
+
+  // A player this library started is restarted so it picks up the new order.
+  const child = running.get(id);
+  let restarted = false;
+  if (child && child.exitCode === null){ child.removeAllListeners('exit'); child.kill(); running.delete(id); serveDeck(id); restarted = true; }
+
+  return { id, slides: order.length, added: plan.map(p => p.dest), removed, assets, recordings,
+    notes: Object.keys(notes).length, restarted, warnings };
+}
+
+// ── Deleting a deck ──────────────────────────────────────────────────────────
+
+// Nothing is erased: the deck folder moves to the macOS Trash, or to .trash/ in the
+// repo when the Trash isn't reachable, so it can always be put back.
+function deleteDeck({ deck: id }) {
+  const deck = listDecks().find(d => d.id === id);
+  if (!deck) throw new Error(`No deck called ${id}.`);
+  const dir = path.join(COLLATERALS, id);
+  if (!isInside(COLLATERALS, dir) || path.dirname(dir) !== COLLATERALS) throw new Error('That folder is not a deck.');
+
+  const child = running.get(id);
+  if (child && child.exitCode === null){ child.removeAllListeners('exit'); child.kill(); running.delete(id); }
+
+  const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
+  const name = `${id} (deleted ${stamp})`;
+  const places = [];
+  if (process.platform === 'darwin') places.push([path.join(os.homedir(), '.Trash'), 'your Trash']);
+  places.push([path.join(ROOT, '.trash'), '.trash/ in the repo']);
+  for (const [base, label] of places){
+    try {
+      if (base.endsWith('.trash')) fs.mkdirSync(base, { recursive: true });
+      if (!fs.existsSync(base)) continue;
+      const to = path.join(base, name);
+      fs.renameSync(dir, to);
+      return { id, title: deck.title, movedTo: label, path: to };
+    } catch (e) {
+      if (e.code === 'EXDEV' || e.code === 'EPERM' || e.code === 'EACCES') continue;
+      throw e;
+    }
+  }
+  throw new Error(`Couldn't move collaterals/${id} anywhere safe, so nothing was deleted.`);
 }
 
 // ── Running a deck ───────────────────────────────────────────────────────────
@@ -316,6 +427,14 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url === '/api/decks') return send(res, 200, listDecks());
     if (req.method === 'POST' && url === '/api/create') {
       try { return send(res, 200, createDeck(await readJson(req))); }
+      catch (e) { return send(res, 400, { error: e.message }); }
+    }
+    if (req.method === 'POST' && url === '/api/save') {
+      try { return send(res, 200, saveDeck(await readJson(req))); }
+      catch (e) { return send(res, 400, { error: e.message }); }
+    }
+    if (req.method === 'POST' && url === '/api/delete') {
+      try { return send(res, 200, deleteDeck(await readJson(req))); }
       catch (e) { return send(res, 400, { error: e.message }); }
     }
     if (req.method === 'POST' && url === '/api/serve') {
