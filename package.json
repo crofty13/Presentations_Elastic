@@ -1,0 +1,10 @@
+{
+  "name": "presentations-elastic",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Elastic presentation decks and the Slide Library for building new ones",
+  "scripts": {
+    "start": "node library/server.js",
+    "library": "node library/server.js"
+  }
+}

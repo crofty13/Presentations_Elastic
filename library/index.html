@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slide Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --panel: #f5f7fa; --ink: #101c3f; --char: #48546f; --muted: #7a8499;
+    --line: #dfe3ea; --blue: #0b64dd; --blue-soft: #e8f0fc; --danger: #c61e25;
+    --sans: 'Inter', -apple-system, system-ui, sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    --card: 296px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--sans); -webkit-font-smoothing: antialiased; }
+  button { font: inherit; cursor: pointer; }
+  .mono { font-family: var(--mono); }
+
+  header {
+    position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,.94); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line); padding: 16px 32px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;
+  }
+  header h1 { font-size: 20px; font-weight: 600; letter-spacing: -.4px; }
+  header h1 span { color: var(--blue); }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-left: auto; }
+  .search {
+    width: 240px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; font: inherit; color: var(--ink);
+  }
+  .search:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color: transparent; }
+  .chip {
+    border: 1px solid var(--line); background: #fff; color: var(--char); padding: 6px 12px; border-radius: 999px; font-size: 13px;
+  }
+  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  label.toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--char); cursor: pointer; }
+
+  main { padding: 24px 32px 160px; }
+  .deck { margin-bottom: 40px; }
+  .deck-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 4px; }
+  .deck-head h2 { font-size: 18px; font-weight: 600; letter-spacing: -.3px; }
+  .deck-head .mono { color: var(--muted); font-size: 12px; }
+  .deck-head .all { margin-left: auto; background: none; border: none; color: var(--blue); font-size: 13px; }
+  .group-label {
+    font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+    margin: 18px 0 10px; display: flex; align-items: center; gap: 10px;
+  }
+  .group-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, var(--card)); gap: 20px; }
+  .card {
+    position: relative; width: var(--card); border: 1px solid var(--line); border-radius: 8px; background: #fff;
+    overflow: hidden; text-align: left; padding: 0; color: inherit; transition: border-color .15s, box-shadow .15s;
+  }
+  .card:hover { border-color: #b7c0cf; box-shadow: 0 4px 14px rgba(16,28,63,.08); }
+  .card:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .card.selected { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue); }
+  .thumb { position: relative; width: var(--card); height: calc(var(--card) * 9 / 16); overflow: hidden; background: var(--panel); }
+  .thumb iframe {
+    position: absolute; top: 0; left: 0; width: 1280px; height: 720px; border: 0;
+    transform: scale(var(--scale, .23125)); transform-origin: 0 0; pointer-events: none; background: #fff;
+  }
+  .thumb .shield { position: absolute; inset: 0; }
+  .card.dim .thumb { opacity: .55; }
+  .meta { padding: 10px 12px 12px; border-top: 1px solid var(--line); }
+  .meta .label { font-weight: 600; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meta .file { font: 11.5px var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tag {
+    font: 500 10px/1 var(--mono); text-transform: uppercase; letter-spacing: .06em;
+    padding: 3px 6px; border-radius: 3px; background: var(--panel); color: var(--muted); margin-left: 6px; vertical-align: 1px;
+  }
+  .badge {
+    position: absolute; top: 8px; left: 8px; z-index: 2; min-width: 26px; height: 26px; padding: 0 7px; border-radius: 13px;
+    background: var(--blue); color: #fff; font: 600 13px/26px var(--sans); text-align: center; display: none;
+  }
+  .card.selected .badge { display: block; }
+  .zoom {
+    position: absolute; top: 8px; right: 8px; z-index: 2; width: 30px; height: 30px; border-radius: 6px;
+    border: 1px solid var(--line); background: rgba(255,255,255,.92); color: var(--ink); display: grid; place-items: center;
+    opacity: 0; transition: opacity .15s;
+  }
+  .card:hover .zoom, .zoom:focus-visible { opacity: 1; }
+  .empty { color: var(--muted); padding: 60px 0; text-align: center; }
+
+  /* Selection tray */
+  .tray {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--ink); color: #fff;
+    padding: 12px 32px; display: flex; align-items: center; gap: 20px; transform: translateY(110%); transition: transform .2s;
+  }
+  .tray.open { transform: none; }
+  .tray .count { font-weight: 600; white-space: nowrap; }
+  .tray .count small { display: block; font-weight: 400; font-size: 12px; color: #aeb7c9; }
+  .strip { flex: 1; display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px; scrollbar-width: thin; }
+  .pill {
+    flex: none; display: flex; align-items: center; gap: 6px; background: #1f2d55; border: 1px solid #34437a; border-radius: 6px;
+    padding: 5px 6px 5px 8px; font-size: 12.5px; cursor: grab; max-width: 220px; user-select: none;
+  }
+  .pill.dragging { opacity: .4; }
+  .pill.over { border-color: #6fa3f5; }
+  .pill b { font: 600 11px var(--mono); color: #8fb6f7; }
+  .pill span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill button { background: none; border: none; color: #aeb7c9; width: 20px; height: 20px; border-radius: 4px; line-height: 1; }
+  .pill button:hover { background: #34437a; color: #fff; }
+  .btn { border: 1px solid transparent; border-radius: 6px; padding: 9px 16px; font-weight: 600; white-space: nowrap; }
+  .btn.primary { background: var(--blue); color: #fff; }
+  .btn.primary:hover { background: #0954be; }
+  .btn.primary:disabled { opacity: .5; cursor: default; }
+  .btn.ghost { background: none; color: #cfd6e4; border-color: #3a4775; }
+  .btn.ghost:hover { color: #fff; border-color: #6c7aa8; }
+  .btn.plain { background: #fff; border-color: var(--line); color: var(--ink); }
+
+  /* Dialogs */
+  dialog { margin: auto; max-width: calc(100vw - 32px); border: none; border-radius: 10px; padding: 0; color: var(--ink); box-shadow: 0 20px 60px rgba(16,28,63,.3); }
+  dialog::backdrop { background: rgba(16,28,63,.55); }
+  .form { width: min(480px, calc(100vw - 32px)); padding: 24px; }
+  .form h3 { font-size: 18px; letter-spacing: -.3px; margin-bottom: 4px; }
+  .form p.lead { color: var(--char); margin-bottom: 18px; }
+  .form label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+  .form input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 15px;
+  }
+  .form input:focus { outline: 2px solid var(--blue); outline-offset: -1px; border-color: transparent; }
+  .form .hint { font: 12px var(--mono); color: var(--muted); margin-top: 6px; min-height: 18px; }
+  .form .error { color: var(--danger); font-size: 13px; margin-top: 10px; min-height: 0; }
+  .form .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+  .result ul { margin: 10px 0 0 18px; color: var(--char); font-size: 13px; }
+  .result .path { font: 13px var(--mono); background: var(--panel); padding: 8px 10px; border-radius: 6px; margin: 12px 0; }
+  .result .warn { background: #fff6e5; border: 1px solid #f3d9a4; border-radius: 6px; padding: 10px 12px; margin-top: 12px; font-size: 13px; }
+  .result .warn ul { color: #6b4d12; }
+
+  .preview { width: min(1280px, calc(100vw - 64px)); background: #fff; }
+  .preview .frame { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--panel); }
+  .preview iframe { position: absolute; top: 0; left: 0; width: 1280px; height: 720px; border: 0; transform-origin: 0 0; }
+  .preview .bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--line); }
+  .preview .bar .title { font-weight: 600; }
+  .preview .bar .mono { color: var(--muted); font-size: 12px; }
+  .preview .bar .spacer { flex: 1; }
+
+  @media (max-width: 700px) {
+    header, main, .tray { padding-left: 16px; padding-right: 16px; }
+    :root { --card: calc(100vw - 32px); }
+    .search { width: 100%; }
+    .tray { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Slide <span>Library</span></h1>
+  <div class="controls">
+    <input class="search" id="search" type="search" placeholder="Search slides" aria-label="Search slides">
+    <div id="deck-filter" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    <label class="toggle"><input type="checkbox" id="show-unused" checked> Show slides not in a deck</label>
+  </div>
+</header>
+
+<main id="main"><p class="empty">Loading slides…</p></main>
+
+<div class="tray" id="tray" aria-live="polite">
+  <div class="count" id="count"></div>
+  <div class="strip" id="strip"></div>
+  <button class="btn ghost" id="clear">Clear</button>
+  <button class="btn primary" id="create">Create new presentation</button>
+</div>
+
+<dialog id="name-dialog">
+  <form class="form" id="name-form" method="dialog">
+    <h3>Create new presentation</h3>
+    <p class="lead" id="name-lead"></p>
+    <label for="name">Presentation name</label>
+    <input id="name" autocomplete="off" placeholder="e.g. Acme Observability Briefing" required>
+    <div class="hint" id="slug-hint"></div>
+    <div class="error" id="name-error"></div>
+    <div class="actions">
+      <button type="button" class="btn plain" id="name-cancel">Cancel</button>
+      <button type="submit" class="btn primary" id="name-submit">Create</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="result-dialog">
+  <div class="form result" id="result"></div>
+</dialog>
+
+<dialog id="preview-dialog">
+  <div class="preview">
+    <div class="frame" id="preview-frame"></div>
+    <div class="bar">
+      <button class="btn plain" id="prev" aria-label="Previous slide">←</button>
+      <button class="btn plain" id="next" aria-label="Next slide">→</button>
+      <div><div class="title" id="preview-title"></div><div class="mono" id="preview-file"></div></div>
+      <div class="spacer"></div>
+      <button class="btn primary" id="preview-select"></button>
+      <button class="btn plain" id="preview-close">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+const $ = s => document.querySelector(s);
+let decks = [];
+let selected = [];            // [{ deck, file, label }] in presentation order
+let deckFilter = 'all';
+let visible = [];             // cards currently shown, for preview navigation
+let previewIndex = -1;
+
+const key = (deck, file) => deck + '/' + file;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const slugify = s => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '')
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+const slideUrl = (deck, file) => `/decks/${encodeURIComponent(deck.id)}/${deck.slidesPath === '.' ? '' : deck.slidesPath + '/'}${encodeURIComponent(file)}`;
+
+async function load() {
+  decks = await (await fetch('/api/decks')).json();
+  const ids = new Set(decks.map(d => d.id));
+  selected = selected.filter(s => ids.has(s.deck));
+  if (deckFilter !== 'all' && !ids.has(deckFilter)) deckFilter = 'all';
+  renderFilter();
+  render();
+  renderTray();
+}
+
+function renderFilter() {
+  const opts = [{ id: 'all', title: 'All decks' }, ...decks];
+  $('#deck-filter').innerHTML = opts.map(d =>
+    `<button class="chip" data-id="${esc(d.id)}" aria-pressed="${d.id === deckFilter}">${esc(d.title)}</button>`).join('');
+}
+
+function render() {
+  const q = $('#search').value.trim().toLowerCase();
+  const showUnused = $('#show-unused').checked;
+  visible = [];
+  const html = decks.filter(d => deckFilter === 'all' || d.id === deckFilter).map(deck => {
+    const match = s => !q || (s.label + ' ' + s.file).toLowerCase().includes(q);
+    const groups = [
+      ['In the deck', deck.slides.filter(s => s.status === 'active' && match(s))],
+      ['Not in the deck', showUnused ? deck.slides.filter(s => s.status !== 'active' && match(s)) : []],
+    ].filter(([, list]) => list.length);
+    if (!groups.length) return '';
+    return `<section class="deck">
+      <div class="deck-head"><h2>${esc(deck.title)}</h2><span class="mono">collaterals/${esc(deck.id)}</span>
+        <button class="all" data-deck="${esc(deck.id)}">Select all in deck</button></div>
+      ${groups.map(([title, list]) => `<div class="group-label">${title} · ${list.length}</div>
+        <div class="grid">${list.map(s => card(deck, s)).join('')}</div>`).join('')}
+    </section>`;
+  }).join('');
+  $('#main').innerHTML = html || '<p class="empty">No slides match.</p>';
+  syncSelection();
+}
+
+function card(deck, s) {
+  visible.push({ deck, slide: s });
+  const tag = s.status === 'active' ? '' : `<span class="tag">${s.status}</span>`;
+  return `<div class="card${s.status === 'active' ? '' : ' dim'}" role="button" tabindex="0" aria-pressed="false"
+      data-deck="${esc(deck.id)}" data-file="${esc(s.file)}" data-i="${visible.length - 1}">
+    <span class="badge"></span>
+    <button class="zoom" title="Preview" aria-label="Preview ${esc(s.label)}">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>
+    </button>
+    <div class="thumb"><iframe loading="lazy" tabindex="-1" src="${slideUrl(deck, s.file)}" title="${esc(s.label)}"></iframe><div class="shield"></div></div>
+    <div class="meta"><div class="label">${esc(s.label)}${tag}</div><div class="file">${esc(s.file)}</div></div>
+  </div>`;
+}
+
+function syncSelection() {
+  const order = new Map(selected.map((s, i) => [key(s.deck, s.file), i + 1]));
+  document.querySelectorAll('.card').forEach(el => {
+    const n = order.get(key(el.dataset.deck, el.dataset.file));
+    el.classList.toggle('selected', !!n);
+    el.setAttribute('aria-pressed', !!n);
+    el.querySelector('.badge').textContent = n || '';
+  });
+}
+
+function toggle(deckId, file) {
+  const k = key(deckId, file);
+  const i = selected.findIndex(s => key(s.deck, s.file) === k);
+  if (i >= 0) selected.splice(i, 1);
+  else {
+    const slide = decks.find(d => d.id === deckId).slides.find(s => s.file === file);
+    selected.push({ deck: deckId, file, label: slide.label });
+  }
+  syncSelection();
+  renderTray();
+}
+
+function renderTray() {
+  const n = selected.length;
+  $('#tray').classList.toggle('open', n > 0);
+  const sources = new Set(selected.map(s => s.deck)).size;
+  $('#count').innerHTML = `${n} slide${n === 1 ? '' : 's'} selected<small>${sources > 1 ? `from ${sources} decks · ` : ''}drag to reorder</small>`;
+  $('#strip').innerHTML = selected.map((s, i) => `<div class="pill" draggable="true" data-i="${i}" title="${esc(s.deck + '/' + s.file)}">
+      <b>${i + 1}</b><span>${esc(s.label)}</span><button data-remove="${i}" aria-label="Remove ${esc(s.label)}">×</button></div>`).join('');
+}
+
+// ── Events ──────────────────────────────────────────────────────────────────
+$('#search').addEventListener('input', render);
+$('#show-unused').addEventListener('change', render);
+$('#deck-filter').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  deckFilter = b.dataset.id; renderFilter(); render();
+});
+
+$('#main').addEventListener('click', e => {
+  const all = e.target.closest('.all');
+  if (all) {
+    const deck = decks.find(d => d.id === all.dataset.deck);
+    for (const s of deck.slides.filter(s => s.status === 'active'))
+      if (!selected.some(x => x.deck === deck.id && x.file === s.file)) selected.push({ deck: deck.id, file: s.file, label: s.label });
+    syncSelection(); renderTray(); return;
+  }
+  const el = e.target.closest('.card'); if (!el) return;
+  if (e.target.closest('.zoom')) return openPreview(+el.dataset.i);
+  toggle(el.dataset.deck, el.dataset.file);
+});
+$('#main').addEventListener('keydown', e => {
+  const el = e.target.closest('.card');
+  if (el && e.target === el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(el.dataset.deck, el.dataset.file); }
+});
+
+$('#clear').addEventListener('click', () => { selected = []; syncSelection(); renderTray(); });
+$('#strip').addEventListener('click', e => {
+  const b = e.target.closest('[data-remove]'); if (!b) return;
+  selected.splice(+b.dataset.remove, 1); syncSelection(); renderTray();
+});
+
+// Drag to reorder in the tray
+let dragFrom = null;
+$('#strip').addEventListener('dragstart', e => {
+  const p = e.target.closest('.pill'); if (!p) return;
+  dragFrom = +p.dataset.i; p.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move';
+});
+$('#strip').addEventListener('dragover', e => {
+  const p = e.target.closest('.pill'); if (!p || dragFrom === null) return;
+  e.preventDefault();
+  document.querySelectorAll('.pill.over').forEach(x => x.classList.remove('over'));
+  p.classList.add('over');
+});
+$('#strip').addEventListener('drop', e => {
+  const p = e.target.closest('.pill'); if (!p || dragFrom === null) return;
+  e.preventDefault();
+  const [moved] = selected.splice(dragFrom, 1);
+  selected.splice(+p.dataset.i, 0, moved);
+  dragFrom = null; syncSelection(); renderTray();
+});
+$('#strip').addEventListener('dragend', () => { dragFrom = null; renderTray(); });
+
+// ── Create ──────────────────────────────────────────────────────────────────
+$('#create').addEventListener('click', () => {
+  $('#name-lead').textContent = `Copies ${selected.length} slide${selected.length === 1 ? '' : 's'}, in the order shown, plus the styles, scripts, images, notes and recordings they use into a new folder.`;
+  $('#name').value = '';
+  $('#name-error').textContent = '';
+  updateSlug();
+  $('#name-dialog').showModal();
+  $('#name').focus();
+});
+function updateSlug() {
+  const slug = slugify($('#name').value);
+  const taken = decks.some(d => d.id === slug);
+  $('#slug-hint').textContent = slug ? `→ collaterals/${slug}/${taken ? '  (already exists)' : ''}` : '';
+  $('#name-submit').disabled = !slug || taken;
+}
+$('#name').addEventListener('input', updateSlug);
+$('#name-cancel').addEventListener('click', () => $('#name-dialog').close());
+$('#name-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('#name-submit');
+  btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    const res = await fetch('/api/create', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: $('#name').value, slides: selected.map(({ deck, file }) => ({ deck, file })) }) });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error || 'Something went wrong.');
+    $('#name-dialog').close();
+    showResult(out);
+    selected = [];
+    await load();
+  } catch (err) {
+    $('#name-error').textContent = err.message;
+  } finally {
+    btn.textContent = 'Create'; updateSlug();
+  }
+});
+
+function showResult(r) {
+  $('#result').innerHTML = `<h3>Presentation created</h3>
+    <p class="lead">${r.slides} slide${r.slides === 1 ? '' : 's'} copied, with ${r.assets.length} supporting file${r.assets.length === 1 ? '' : 's'}, ${r.notes} set${r.notes === 1 ? '' : 's'} of speaker notes and ${r.recordings.length} recording${r.recordings.length === 1 ? '' : 's'}.</p>
+    <div class="path">${esc(r.path)}/</div>
+    <p style="font-size:13px;color:var(--char)">Run it any time with <span class="mono">cd ${esc(r.path)} &amp;&amp; fslides serve</span>, at localhost:${r.port}.</p>
+    ${r.warnings.length ? `<div class="warn"><b>Check these</b><ul>${r.warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>` : ''}
+    <div class="error" id="serve-error"></div>
+    <div class="actions">
+      <button class="btn plain" id="result-close">Done</button>
+      <button class="btn primary" id="result-open" data-deck="${esc(r.id)}">Open presentation</button>
+    </div>`;
+  $('#result-dialog').showModal();
+}
+$('#result').addEventListener('click', async e => {
+  if (e.target.id === 'result-close') return $('#result-dialog').close();
+  if (e.target.id !== 'result-open') return;
+  const b = e.target; b.disabled = true; b.textContent = 'Starting…';
+  try {
+    const res = await fetch('/api/serve', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deck: b.dataset.deck }) });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+    // fslides opens its own browser tab; this one is a fallback once it's listening.
+    setTimeout(() => { b.textContent = 'Open again'; b.disabled = false; b.onclick = () => window.open(out.url, '_blank'); }, 1500);
+  } catch (err) {
+    $('#serve-error').textContent = err.message; b.disabled = false; b.textContent = 'Open presentation';
+  }
+});
+
+// ── Preview ─────────────────────────────────────────────────────────────────
+function openPreview(i) {
+  previewIndex = i;
+  const { deck, slide } = visible[i];
+  const frame = $('#preview-frame');
+  frame.innerHTML = `<iframe src="${slideUrl(deck, slide.file)}" title="${esc(slide.label)}"></iframe>`;
+  $('#preview-title').textContent = slide.label;
+  $('#preview-file').textContent = `${deck.id}/${slide.file} · ${i + 1} of ${visible.length}`;
+  updatePreviewButton();
+  if (!$('#preview-dialog').open) $('#preview-dialog').showModal();
+  fitPreview();
+}
+function fitPreview() {
+  const frame = $('#preview-frame'), f = frame.querySelector('iframe');
+  if (f) f.style.transform = `scale(${frame.clientWidth / 1280})`;
+}
+function updatePreviewButton() {
+  const { deck, slide } = visible[previewIndex];
+  const on = selected.some(s => s.deck === deck.id && s.file === slide.file);
+  $('#preview-select').textContent = on ? 'Remove from selection' : 'Add to selection';
+}
+$('#preview-select').addEventListener('click', () => {
+  const { deck, slide } = visible[previewIndex]; toggle(deck.id, slide.file); updatePreviewButton();
+});
+$('#prev').addEventListener('click', () => openPreview((previewIndex - 1 + visible.length) % visible.length));
+$('#next').addEventListener('click', () => openPreview((previewIndex + 1) % visible.length));
+$('#preview-close').addEventListener('click', () => $('#preview-dialog').close());
+$('#preview-dialog').addEventListener('close', () => { $('#preview-frame').innerHTML = ''; });
+$('#preview-dialog').addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') $('#prev').click();
+  if (e.key === 'ArrowRight') $('#next').click();
+});
+// Thumbnails are 1280×720 slides scaled to the card width.
+function fitThumbs() {
+  const t = document.querySelector('.thumb');
+  if (t) document.documentElement.style.setProperty('--scale', t.clientWidth / 1280);
+}
+window.addEventListener('resize', () => { fitPreview(); fitThumbs(); });
+new MutationObserver(fitThumbs).observe($('#main'), { childList: true });
+
+load().catch(err => { $('#main').innerHTML = `<p class="empty">Couldn't load slides: ${esc(err.message)}</p>`; });
+</script>
+</body>
+</html>
